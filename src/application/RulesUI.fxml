@@ -15,7 +15,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.RulesUIController">
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
@@ -24,40 +23,41 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextField layoutX="27.0" layoutY="73.0" prefHeight="23.0" prefWidth="165.0" promptText="Text" />
-                        <Button layoutX="212.0" layoutY="73.0" mnemonicParsing="false" text="Search" />
-                        <Button layoutX="118.0" layoutY="705.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="58.0" text="Edit" />
-                        <Button layoutX="27.0" layoutY="705.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="58.0" text="Add" />
-                        <Label layoutX="304.0" layoutY="22.0" prefHeight="47.0" prefWidth="345.0" text="Unit Name">
+                        <TextField fx:id="searchbox" layoutX="27.0" layoutY="73.0" prefHeight="23.0" prefWidth="165.0" promptText="Text" />
+                        <Button fx:id="searchButton" layoutX="212.0" layoutY="73.0" mnemonicParsing="false" text="Search" />
+                        <Button fx:id="editButton" layoutX="118.0" layoutY="705.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="58.0" text="Edit" />
+                        <Button fx:id="addButton" layoutX="27.0" layoutY="705.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="58.0" text="Add" />
+                        <Label fx:id="unitNameLabel" layoutX="304.0" layoutY="22.0" prefHeight="47.0" prefWidth="345.0" text="Unit Name">
                            <font>
                               <Font name="System Bold" size="36.0" />
                            </font>
                         </Label>
-                        <TreeTableView layoutX="27.0" layoutY="114.0" prefHeight="579.0" prefWidth="240.0">
+                        <TreeTableView fx:id="dataTreeTable" layoutX="27.0" layoutY="114.0" prefHeight="579.0" prefWidth="240.0">
                            <columns>
-                              <TreeTableColumn editable="false" prefWidth="240.0" text="Data" />
+                              <TreeTableColumn fx:id="dataTreeColumn" editable="false" prefWidth="240.0" text="Data" />
                            </columns>
                         </TreeTableView>
-                        <TableView layoutX="300.0" layoutY="337.0" prefHeight="180.0" prefWidth="620.0">
+                        <TableView fx:id="rangedWeaponTable" layoutX="300.0" layoutY="337.0" prefHeight="180.0" prefWidth="620.0">
                            <columns>
-                              <TableColumn editable="false" prefWidth="168.0" text="Ranged Weapons" />
-                              <TableColumn editable="false" prefWidth="150.0" text="Key Words" />
-                              <TableColumn editable="false" prefWidth="60.0" text="A" />
-                              <TableColumn editable="false" prefWidth="60.0" text="BS" />
-                              <TableColumn editable="false" prefWidth="60.0" text="S" />
-                              <TableColumn editable="false" prefWidth="60.0" text="AP" />
-                              <TableColumn prefWidth="60.0" text="D" />
+                              <TableColumn fx:id="rName" editable="false" prefWidth="160.0" text="Ranged Weapons" />
+                              <TableColumn fx:id="rK" editable="false" prefWidth="100.0" text="Key Words" />
+                              <TableColumn fx:id="rRange" editable="false" prefWidth="60.0" text="Range" />
+                              <TableColumn fx:id="rA" editable="false" prefWidth="60.0" text="A" />
+                              <TableColumn fx:id="rBS" editable="false" prefWidth="60.0" text="BS" />
+                              <TableColumn fx:id="rS" editable="false" prefWidth="60.0" text="S" />
+                              <TableColumn fx:id="rAP" editable="false" prefWidth="60.0" text="AP" />
+                              <TableColumn fx:id="rD" prefWidth="60.0" text="D" />
                            </columns>
                         </TableView>
-                        <TableView layoutX="300.0" layoutY="525.0" prefHeight="180.0" prefWidth="620.0">
+                        <TableView fx:id="meleeWeaponTable" layoutX="300.0" layoutY="525.0" prefHeight="180.0" prefWidth="620.0">
                            <columns>
-                              <TableColumn editable="false" prefWidth="168.0" text="Melee Weapons" />
-                              <TableColumn editable="false" prefWidth="150.0" text="Key Words" />
-                              <TableColumn editable="false" prefWidth="60.0" text="A" />
-                              <TableColumn editable="false" prefWidth="60.0" text="BS" />
-                              <TableColumn editable="false" prefWidth="60.0" text="S" />
-                              <TableColumn editable="false" prefWidth="60.0" text="AP" />
-                              <TableColumn prefWidth="60.0" text="D" />
+                              <TableColumn fx:id="mName" editable="false" prefWidth="168.0" text="Melee Weapons" />
+                              <TableColumn fx:id="mK" editable="false" prefWidth="150.0" text="Key Words" />
+                              <TableColumn fx:id="mA" editable="false" prefWidth="60.0" text="A" />
+                              <TableColumn fx:id="mWS" editable="false" prefWidth="60.0" text="WS" />
+                              <TableColumn fx:id="mS" editable="false" prefWidth="60.0" text="S" />
+                              <TableColumn fx:id="mAP" editable="false" prefWidth="60.0" text="AP" />
+                              <TableColumn fx:id="mD" minWidth="2.0" prefWidth="60.0" text="D" />
                            </columns>
                         </TableView>
                         <Label layoutX="345.0" layoutY="220.0" text="M">
@@ -90,38 +90,38 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="332.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="mLabel" alignment="CENTER" layoutX="332.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="427.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="tLabel" alignment="CENTER" layoutX="427.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="535.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="svLabel" alignment="CENTER" layoutX="535.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="632.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="wLabel" alignment="CENTER" layoutX="632.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="735.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="ldLabel" alignment="CENTER" layoutX="735.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="838.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                        <Label fx:id="ocLabel" alignment="CENTER" layoutX="838.0" layoutY="265.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="149.0" text="&lt;&lt;Back  to Main page" />
-                        <TextArea editable="false" layoutX="413.0" layoutY="92.0" prefHeight="114.0" prefWidth="244.0" text="keywords" wrapText="true" />
+                        <Button fx:id="backButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#backMainpage" prefHeight="32.0" prefWidth="149.0" text="&lt;&lt;Back  to Main page" />
+                        <TextArea fx:id="keyBox" editable="false" layoutX="413.0" layoutY="92.0" prefHeight="114.0" prefWidth="244.0" text="keywords" wrapText="true" />
                         <Label layoutX="313.0" layoutY="125.0" text="Keywords:">
                            <font>
                               <Font name="System Bold" size="18.0" />
@@ -139,7 +139,7 @@
                                     <Font size="24.0" />
                                  </font>
                               </Label>
-                              <TextArea editable="false" prefHeight="59.0" prefWidth="235.0" promptText="faction">
+                              <TextArea fx:id="factionBox" editable="false" prefHeight="59.0" prefWidth="235.0" promptText="faction">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
@@ -149,7 +149,7 @@
                                     <Font size="24.0" />
                                  </font>
                               </Label>
-                              <TextArea editable="false" prefHeight="59.0" prefWidth="235.0" promptText="core">
+                              <TextArea fx:id="coreBox" editable="false" prefHeight="59.0" prefWidth="235.0" promptText="core">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
@@ -159,7 +159,7 @@
                                     <Font size="24.0" />
                                  </font>
                               </Label>
-                              <TextArea editable="false" prefHeight="183.0" prefWidth="235.0" promptText="main">
+                              <TextArea fx:id="mainBox" editable="false" prefHeight="183.0" prefWidth="235.0" promptText="main">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
@@ -168,7 +168,7 @@
                         </VBox>
                         <VBox layoutX="935.0" layoutY="539.0" prefHeight="165.0" prefWidth="237.0" style="-fx-border-color: #000000;">
                            <children>
-                              <TextArea editable="false" prefHeight="163.0" prefWidth="235.0" promptText="composition">
+                              <TextArea fx:id="unitBox" editable="false" prefHeight="163.0" prefWidth="235.0" promptText="composition">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
