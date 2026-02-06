@@ -23,12 +23,13 @@ public class MainUIController {
     @FXML
     private Button exitButton;
 
-    
+    // When click "Game Start" button
     @FXML
     void startBtn(MouseEvent event) {
     	
     }
     
+    // When click "Rules and Datasheets" button
     @FXML
     void ruleBtn(MouseEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(
@@ -45,11 +46,13 @@ public class MainUIController {
         stage.show();
     }
 
+    // When click "Army" button
     @FXML
     void armyBtn(MouseEvent event) {
     	
     }
 
+    // When click "Exit" button
     @FXML
     void exitBtn(MouseEvent event) {
     	

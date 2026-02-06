@@ -15,117 +15,67 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.control.ComboBox;
 import javafx.scene.input.MouseEvent;
 
 public class RulesUIController {
-    @FXML
-    private Button addButton;
+	// ======================= Buttons =======================
+	@FXML private Button addButton;
+	@FXML private Button backButton;
+	@FXML private Button CoreRuleBackButton;
+	@FXML private Button confirmButton;
+	@FXML private Button editButton;
+	@FXML private Button searchButton;
 
-    @FXML
-    private Button backButton;
+	// ======================= Inputs =======================
+	@FXML private TextField searchbox;
+	@FXML private ComboBox<?> factionCBbox;
 
-    @FXML
-    private TextArea coreBox;
+	// ======================= Text Areas =======================
+	@FXML private TextArea coreBox;
+	@FXML private TextArea factionBox;
+	@FXML private TextArea keyBox;
+	@FXML private TextArea mainBox;
+	@FXML private TextArea unitBox;
 
-    @FXML
-    private TreeTableColumn<?, ?> dataTreeColumn;
+	// ======================= Labels =======================
+	@FXML private Label unitNameLabel;
+	@FXML private Label pointLable;
 
-    @FXML
-    private TreeTableView<?> dataTreeTable;
+	@FXML private Label mLabel;
+	@FXML private Label tLabel;
+	@FXML private Label wLabel;
+	@FXML private Label svLabel;
+	@FXML private Label ocLabel;
+	@FXML private Label ldLabel;
 
-    @FXML
-    private Button editButton;
+	// ======================= Tables - Melee Weapon =======================
+	@FXML private TableView<?> meleeWeaponTable;
+	@FXML private TableColumn<?, ?> mName;
+	@FXML private TableColumn<?, ?> mA;
+	@FXML private TableColumn<?, ?> mAP;
+	@FXML private TableColumn<?, ?> mD;
+	@FXML private TableColumn<?, ?> mK;
+	@FXML private TableColumn<?, ?> mS;
+	@FXML private TableColumn<?, ?> mWS;
 
-    @FXML
-    private TextArea factionBox;
+	// ======================= Tables - Ranged Weapon =======================
+	@FXML private TableView<?> rangedWeaponTable;
+	@FXML private TableColumn<?, ?> rName;
+	@FXML private TableColumn<?, ?> rRange;
+	@FXML private TableColumn<?, ?> rA;
+	@FXML private TableColumn<?, ?> rAP;
+	@FXML private TableColumn<?, ?> rBS;
+	@FXML private TableColumn<?, ?> rD;
+	@FXML private TableColumn<?, ?> rK;
+	@FXML private TableColumn<?, ?> rS;
 
-    @FXML
-    private TextArea keyBox;
+	// ======================= TreeTable =======================
+	@FXML private TreeTableView<?> dataTreeTable;
+	@FXML private TreeTableColumn<?, ?> dataTreeColumn;
 
-    @FXML
-    private Label ldLabel;
 
-    @FXML
-    private TableColumn<?, ?> mA;
-
-    @FXML
-    private TableColumn<?, ?> mAP;
-
-    @FXML
-    private TableColumn<?, ?> mD;
-
-    @FXML
-    private TableColumn<?, ?> mK;
-
-    @FXML
-    private Label mLabel;
-
-    @FXML
-    private TableColumn<?, ?> mName;
-
-    @FXML
-    private TableColumn<?, ?> mS;
-
-    @FXML
-    private TableColumn<?, ?> mWS;
-
-    @FXML
-    private TextArea mainBox;
-
-    @FXML
-    private TableView<?> meleeWeaponTable;
-
-    @FXML
-    private Label ocLabel;
-
-    @FXML
-    private TableColumn<?, ?> rA;
-
-    @FXML
-    private TableColumn<?, ?> rAP;
-
-    @FXML
-    private TableColumn<?, ?> rBS;
-
-    @FXML
-    private TableColumn<?, ?> rD;
-
-    @FXML
-    private TableColumn<?, ?> rK;
-
-    @FXML
-    private TableColumn<?, ?> rName;
-
-    @FXML
-    private TableColumn<?, ?> rRange;
-
-    @FXML
-    private TableColumn<?, ?> rS;
-
-    @FXML
-    private TableView<?> rangedWeaponTable;
-
-    @FXML
-    private Button searchButton;
-
-    @FXML
-    private TextField searchbox;
-
-    @FXML
-    private Label svLabel;
-
-    @FXML
-    private Label tLabel;
-
-    @FXML
-    private TextArea unitBox;
-
-    @FXML
-    private Label unitNameLabel;
-
-    @FXML
-    private Label wLabel;
-
+    // When click "Back to Main Page" button
     @FXML
     void backMainpage(MouseEvent event) throws IOException {
         Parent root = FXMLLoader.load(
@@ -139,4 +89,38 @@ public class RulesUIController {
         stage.setScene(new Scene(root));
         stage.show();
     }
+    
+    // When click "Search" button
+    @FXML
+    void search(MouseEvent event) {
+
+    }
+    
+    // When click "ADD" button
+    @FXML
+    void add(MouseEvent event) throws IOException {
+    	Parent root = FXMLLoader.load(
+                getClass().getResource("RuleEditor.fxml")
+        );
+
+        Stage stage = (Stage) ((Node) event.getSource())
+                .getScene()
+                .getWindow();
+
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+    
+    // When click "Edit" button
+    @FXML
+    void edit(MouseEvent event) {
+
+    }
+    
+    // When click "Confirm" button
+    @FXML
+    void confirm(MouseEvent event) {
+
+    }
+
 }
