@@ -53,7 +53,7 @@ public class WeaponEditorController {
 	@FXML private TableColumn<?, ?> words;
 
 	
-	//When click "Back" button, back to RuleEditor page
+	// When click "Back" button, back to RuleEditor page
 	@FXML
     void backToUnitEdtior(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
@@ -69,4 +69,47 @@ public class WeaponEditorController {
         stage.setScene(scene);
         stage.show();
     }
+	
+	// When click "Clear" button, Clear all the text in the text field
+	@FXML
+	void ClearText(MouseEvent event) {
+
+	}
+
+	// When click "ADD" button of add weapon, Add the basic weapon that user selected to unit
+	@FXML
+	void addBasicWeapon(MouseEvent event) {
+
+	}
+
+	// When click "ADD" button of add keyword, Add the keyword to weapon
+	@FXML
+	void addKeyword(MouseEvent event) {
+
+	}
+
+	// When click "Delete" button, delete the keyword from weapon
+	@FXML
+	void deleteKeyword(MouseEvent event) {
+
+	}
+
+	// When click "Delete" button, delete the weapon from unit
+	@FXML
+	void deleteWeapon(MouseEvent event) {
+
+	}
+
+	// When click "Edit" button, will get data from user selected and user can edit it
+	@FXML
+	void editWeapon(MouseEvent event) {
+
+	}
+
+	// When click "Save" button, all data will save to database
+	@FXML
+	void save(MouseEvent event) {
+
+	}
+	
 }

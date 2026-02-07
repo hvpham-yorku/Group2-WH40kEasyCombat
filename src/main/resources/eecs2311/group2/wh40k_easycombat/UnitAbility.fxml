@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.UnitAbilityController">
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
@@ -37,8 +36,8 @@
                 <TableColumn fx:id="core" editable="false" prefWidth="259.0" text="Core Abilities" />
               </columns>
             </TableView>
-            <Button fx:id="deleteButton" layoutX="491.0" layoutY="319.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="70.0" text="Delete" />
-            <Button fx:id="saveButton" layoutX="421.0" layoutY="505.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="100.0" text="Save" />
+            <Button fx:id="deleteButton" layoutX="491.0" layoutY="319.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="35.0" prefWidth="70.0" text="Delete" />
+            <Button fx:id="saveButton" layoutX="421.0" layoutY="505.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="35.0" prefWidth="100.0" text="Save" />
             <Button fx:id="cancelButton" layoutX="193.0" layoutY="505.0" mnemonicParsing="false" onMouseClicked="#cancelChange" prefHeight="35.0" prefWidth="100.0" text="Cancel" />
          </children>
       </AnchorPane>
@@ -57,7 +56,7 @@
               </columns>
             </TableView>
             <Label prefHeight="15.0" prefWidth="395.0" />
-            <Button fx:id="addCoreButton" mnemonicParsing="false" prefHeight="42.0" prefWidth="300.0" text="ADD" />
+            <Button fx:id="addCoreButton" mnemonicParsing="false" onMouseClicked="#addCore" prefHeight="42.0" prefWidth="300.0" text="ADD" />
             <Label prefHeight="29.0" prefWidth="300.0" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="300.0" text="Unit Composition" textAlignment="CENTER">
                <font>
@@ -66,7 +65,7 @@
             </Label>
             <TextField fx:id="compositionTxt" prefHeight="154.0" prefWidth="300.0" />
             <Label prefHeight="15.0" prefWidth="395.0" />
-            <Button fx:id="editCompositionButton" mnemonicParsing="false" prefHeight="42.0" prefWidth="300.0" text="Edit" />
+            <Button fx:id="editCompositionButton" mnemonicParsing="false" onMouseClicked="#editComposition" prefHeight="42.0" prefWidth="300.0" text="Edit" />
          </children>
       </VBox>
    </right>

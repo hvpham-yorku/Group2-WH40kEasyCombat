@@ -46,7 +46,7 @@ public class MainUIController {
         stage.show();
     }
 
-    // When click "Army" button
+    // When click "Army" button, go to army page
     @FXML
     void armyBtn(MouseEvent event) throws IOException {
     	FXMLLoader loader = new FXMLLoader(
