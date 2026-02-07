@@ -41,7 +41,7 @@ public class RulesUIController {
 	// ======================= Labels ===========================
 	@FXML private Label unitNameLabel;
 	@FXML private Label pointLable;
-
+    @FXML private Label isvLabel;
 	@FXML private Label mLabel;
 	@FXML private Label tLabel;
 	@FXML private Label wLabel;

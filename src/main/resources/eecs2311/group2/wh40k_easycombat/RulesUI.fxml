@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.RulesUIController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.RulesUIController">
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -181,12 +181,12 @@
                               <Font name="System Bold Italic" size="24.0" />
                            </font>
                         </Label>
-                        <Label layoutX="682.0" layoutY="92.0" text="Points:">
+                        <Label layoutX="682.0" layoutY="34.0" text="Points:">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
-                        <Label fx:id="pointLable" layoutX="754.0" layoutY="88.0" text="100">
+                        <Label fx:id="pointLable" layoutX="754.0" layoutY="30.0" text="100">
                            <font>
                               <Font size="24.0" />
                            </font>
@@ -198,6 +198,16 @@
                            </font>
                         </Label>
                         <Button fx:id="confirmButton" layoutX="115.0" layoutY="705.0" mnemonicParsing="false" onMouseClicked="#confirm" prefHeight="33.0" prefWidth="63.0" text="Confirm" />
+                        <Label layoutX="709.0" layoutY="101.0" text="Invulnerable Save">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="isvLabel" alignment="CENTER" layoutX="760.0" layoutY="136.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #FFFFFF;" text="10" textAlignment="CENTER">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
                      </children>
                   </AnchorPane>
             </content>
