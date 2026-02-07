@@ -90,7 +90,7 @@ public class RulesUIController {
         stage.show();
     }
     
-    // When click "Search" button
+    // When click "Search" button, search the units
     @FXML
     void search(MouseEvent event) {
 
@@ -111,13 +111,13 @@ public class RulesUIController {
         stage.show();
     }
     
-    // When click "Edit" button
+    // When click "Edit" button, get the data from unit and edit it
     @FXML
     void edit(MouseEvent event) {
 
     }
     
-    // When click "Confirm" button
+    // When click "Confirm" button, change the faction that user selected
     @FXML
     void confirm(MouseEvent event) {
 

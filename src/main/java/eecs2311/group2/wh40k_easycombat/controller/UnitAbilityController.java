@@ -36,21 +36,45 @@ public class UnitAbilityController {
 	@FXML private TableView<?> selectCoreTable;
 	@FXML private TableColumn<?, ?> selectCore;
 	
+	// When click "ADD" button, add the core ability to unit
+	@FXML
+    void addCore(MouseEvent event) {
+
+    }
 	
+	// When click "Delete" button, delete the core ability of unit
+	@FXML
+	void delete(MouseEvent event) {
+
+	}
+
+	// When click "Edit" button, edit and save the composition of unit
+	@FXML
+	void editComposition(MouseEvent event) {
+
+	}
+
+	// When click "Save" button, save all abilities to unit
+	@FXML
+	void save(MouseEvent event) {
+
+	}
+	 
+	// When click "Cancel" button, will back to RuleEditor page
 	@FXML
 	void cancelChange(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
-        );
-        Parent root = loader.load();
+				getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
+			);
+		Parent root = loader.load();
 
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
+		Stage stage = (Stage) ((Node) event.getSource())
+				.getScene()
+				.getWindow();
         
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+		Scene scene = new Scene(root);
+		stage.setScene(scene);
+		stage.show();
 	}
 
 }

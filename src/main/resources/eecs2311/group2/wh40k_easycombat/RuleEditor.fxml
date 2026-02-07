@@ -23,11 +23,11 @@
             </Label>
             <TableView fx:id="unitKeywordTable" prefHeight="160.0" prefWidth="200.0">
               <columns>
-                <TableColumn editable="false" prefWidth="262" text="Key words" />
+                <TableColumn editable="false" prefWidth="262" text="Keywords" />
               </columns>
             </TableView>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Button fx:id="unitKeywordAddButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="264.0" text="ADD" />
+            <Button fx:id="unitKeywordAddButton" mnemonicParsing="false" onMouseClicked="#keywordAdd" prefHeight="40.0" prefWidth="264.0" text="ADD" />
             <Button fx:id="keywordEditButton_Unit" mnemonicParsing="false" prefHeight="40.0" prefWidth="264.0" text="Edit or Add new Keywords" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Add Weapon" textAlignment="CENTER">
@@ -62,7 +62,7 @@
             <TableView fx:id="rangedWeaponTable" layoutX="10.0" layoutY="229.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
                <columns>
                   <TableColumn fx:id="rName" editable="false" prefWidth="160.0" text="Ranged Weapons" />
-                  <TableColumn fx:id="rK" editable="false" prefWidth="100.0" text="Key Words" />
+                  <TableColumn fx:id="rK" editable="false" prefWidth="100.0" text="Keywords" />
                   <TableColumn fx:id="rRange" editable="false" prefWidth="60.0" text="Range" />
                   <TableColumn fx:id="rA" editable="false" prefWidth="60.0" text="A" />
                   <TableColumn fx:id="rBS" editable="false" prefWidth="60.0" text="BS" />
@@ -74,7 +74,7 @@
             <TableView fx:id="meleeWeaponTable" layoutX="10.0" layoutY="379.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
                <columns>
                   <TableColumn fx:id="mName" editable="false" prefWidth="168.0" text="Melee Weapons" />
-                  <TableColumn fx:id="mK" editable="false" prefWidth="150.0" text="Key Words" />
+                  <TableColumn fx:id="mK" editable="false" prefWidth="150.0" text="Keywords" />
                   <TableColumn fx:id="mA" editable="false" prefWidth="60.0" text="A" />
                   <TableColumn fx:id="mWS" editable="false" prefWidth="60.0" text="WS" />
                   <TableColumn fx:id="mS" editable="false" prefWidth="60.0" text="S" />

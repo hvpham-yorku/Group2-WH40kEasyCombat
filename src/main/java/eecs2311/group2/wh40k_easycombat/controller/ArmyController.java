@@ -27,6 +27,7 @@ public class ArmyController {
 	@FXML private Button importButton;
 	@FXML private Button setWarlordButton;
 	@FXML private Button CancelButton;
+    @FXML private Button loadButton;
 
 	// ======================= Text Inputs ===================
 	@FXML private TextField armyNametxt;
@@ -56,8 +57,8 @@ public class ArmyController {
 	@FXML private TreeTableColumn<?, ?> selectPoint;
 
 	
-	@FXML	
-	//When click "Cancel" button, back to main page
+	// When click "Cancel" button, back to main page
+	@FXML
     void cancelTheChange(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
@@ -71,6 +72,54 @@ public class ArmyController {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+    }
+	
+	// When click "ADD" button, add the unit to army
+    @FXML
+    void add(MouseEvent event) {
+
+    }
+
+    // When click "Confirm" button, change the faction to user selected
+    @FXML
+    void confirm(MouseEvent event) {
+
+    }
+    
+    // When click "Load" button, load the army from army list that user selected
+    @FXML
+    void loadArmy(MouseEvent event) {
+
+    }
+
+    // When click "Delete" button, delete the army from army list that user selected
+    @FXML
+    void delete(MouseEvent event) {
+
+    }
+
+    // When click "Import" button, import the army table from user's Clipboard
+    @FXML
+    void importData(MouseEvent event) {
+
+    }
+
+    // When click "Remove" button, remove the unit from army
+    @FXML
+    void removeUnit(MouseEvent event) {
+
+    }
+
+    // When click "Save" button, save the army table to database
+    @FXML
+    void save(MouseEvent event) {
+
+    }
+
+    // When click "Set Warlord" button, set the unit to be warlord
+    @FXML
+    void setWarlord(MouseEvent event) {
+
     }
 
 }

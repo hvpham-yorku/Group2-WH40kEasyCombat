@@ -21,7 +21,7 @@
               </columns>
             </TableView>
             <Label prefHeight="15.0" prefWidth="307.0" />
-            <Button fx:id="keywordAddButton" mnemonicParsing="false" prefHeight="51.0" prefWidth="260.0" text="ADD" />
+            <Button fx:id="keywordAddButton" mnemonicParsing="false" onMouseClicked="#addKeyword" prefHeight="51.0" prefWidth="260.0" text="ADD" />
             <Label layoutX="10.0" layoutY="270.0" prefHeight="40.0" prefWidth="260.0" />
             <TableView prefHeight="280.0" prefWidth="260.0">
               <columns>
@@ -29,7 +29,7 @@
               </columns>
             </TableView>
             <Label layoutX="10.0" layoutY="270.0" prefHeight="15.0" prefWidth="307.0" />
-            <Button fx:id="basicWeaponAddButton" layoutX="10.0" layoutY="285.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="260.0" text="ADD" />
+            <Button fx:id="basicWeaponAddButton" layoutX="10.0" layoutY="285.0" mnemonicParsing="false" onMouseClicked="#addBasicWeapon" prefHeight="51.0" prefWidth="260.0" text="ADD" />
          </children>
       </VBox>
    </right>
@@ -127,12 +127,12 @@
                 <TableColumn fx:id="words" editable="false" prefWidth="198.6666259765625" text="Keywords" />
               </columns>
             </TableView>
-            <Button fx:id="deleteButton" layoutX="778.0" layoutY="292.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Delete" />
-            <Button fx:id="saveButton" layoutX="601.0" layoutY="495.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Save" />
-            <Button fx:id="clearbutton" layoutX="425.0" layoutY="495.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Clear" />
+            <Button fx:id="deleteButton" layoutX="778.0" layoutY="292.0" mnemonicParsing="false" onMouseClicked="#deleteKeyword" prefHeight="35.0" prefWidth="65.0" text="Delete" />
+            <Button fx:id="saveButton" layoutX="601.0" layoutY="495.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="35.0" prefWidth="65.0" text="Save" />
+            <Button fx:id="clearbutton" layoutX="425.0" layoutY="495.0" mnemonicParsing="false" onMouseClicked="#ClearText" prefHeight="35.0" prefWidth="65.0" text="Clear" />
             <Button fx:id="backButton" layoutX="458.0" layoutY="597.0" mnemonicParsing="false" onMouseClicked="#backToUnitEdtior" prefHeight="40.0" prefWidth="177.0" text="Back" />
-            <Button fx:id="editButton" layoutX="229.0" layoutY="377.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Edit" />
-            <Button fx:id="deleteWeaponButton" layoutX="71.0" layoutY="377.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Delete" />
+            <Button fx:id="editButton" layoutX="229.0" layoutY="377.0" mnemonicParsing="false" onMouseClicked="#editWeapon" prefHeight="35.0" prefWidth="65.0" text="Edit" />
+            <Button fx:id="deleteWeaponButton" layoutX="71.0" layoutY="377.0" mnemonicParsing="false" onMouseClicked="#deleteWeapon" prefHeight="35.0" prefWidth="65.0" text="Delete" />
          </children>
       </AnchorPane>
    </center>

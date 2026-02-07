@@ -84,13 +84,19 @@ public class RuleEditorController {
         stage.show();
 	}
 
-	// When click "Save" button
+	// When click "Save" button, save all the data to database and return to RulesUIpage
 	@FXML
 	void save(MouseEvent event) {
 
 	}
 	
-	//When click "ADD" button of add weapon, go to WeaponEditor page
+	// When click "ADD" button of add keywords, add the keyword that select in table to unit
+    @FXML
+    void keywordAdd(MouseEvent event) {
+
+    }
+	
+	// When click "ADD" button of add weapon, go to WeaponEditor page
 	@FXML
     void addWeapon(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
@@ -107,7 +113,7 @@ public class RuleEditorController {
         stage.show();
     }
 	
-	//When click "Ability Setting" button, go to UnitAbility page
+	// When click "Ability Setting" button, go to UnitAbility page
     @FXML
     void abilitySetting(MouseEvent event) throws IOException {
     	FXMLLoader loader = new FXMLLoader(
