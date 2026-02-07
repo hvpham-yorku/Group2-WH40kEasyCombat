@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.RuleEditorController">
+<BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.RuleEditorController">
    <right>
       <VBox prefHeight="600.0" prefWidth="264.0" BorderPane.alignment="CENTER">
          <children>
