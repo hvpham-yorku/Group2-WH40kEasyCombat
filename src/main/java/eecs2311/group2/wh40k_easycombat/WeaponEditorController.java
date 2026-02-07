@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 
 
 public class WeaponEditorController {
-	// ======================= Buttons =======================
+	// ======================= Buttons ===============================
 	@FXML private Button backButton;
 	@FXML private Button saveButton;
 	@FXML private Button clearbutton;
@@ -26,7 +26,7 @@ public class WeaponEditorController {
 	@FXML private Button basicWeaponAddButton;
 	@FXML private Button keywordAddButton;
 
-	// ======================= ComboBox ===================
+	// ======================= ComboBox ==============================
 	@FXML private ComboBox<?> categoryCBbox;
 
 	// ======================= TextFields – Weapon Basic Info ========

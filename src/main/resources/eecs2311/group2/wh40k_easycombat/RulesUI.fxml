@@ -35,7 +35,7 @@
                         </Label>
                         <TreeTableView fx:id="dataTreeTable" layoutX="27.0" layoutY="149.0" prefHeight="511.0" prefWidth="240.0">
                            <columns>
-                              <TreeTableColumn fx:id="dataTreeColumn" editable="false" prefWidth="240.0" text="Data" />
+                              <TreeTableColumn fx:id="dataTreeColumn" editable="false" prefWidth="240.0" text="Unit" />
                            </columns>
                         </TreeTableView>
                         <TableView fx:id="rangedWeaponTable" layoutX="300.0" layoutY="337.0" prefHeight="180.0" prefWidth="620.0">
