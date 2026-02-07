@@ -43,6 +43,7 @@ public class ArmyController {
 	@FXML private TableView<?> armyTable;
 	@FXML private TableColumn<?, ?> unit;
 	@FXML private TableColumn<?, ?> point;
+    @FXML private TableColumn<?, ?> composition;
 
 	// ======================= Tables – Saved Armies =========
 	@FXML private TableView<?> savedArmyTable;
@@ -53,9 +54,9 @@ public class ArmyController {
 	@FXML private TreeTableView<?> unitSectionTreeTable;
 	@FXML private TreeTableColumn<?, ?> selectUnit;
 	@FXML private TreeTableColumn<?, ?> selectPoint;
-	@FXML
+
 	
-	
+	@FXML	
 	//When click "Cancel" button, back to main page
     void cancelTheChange(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
