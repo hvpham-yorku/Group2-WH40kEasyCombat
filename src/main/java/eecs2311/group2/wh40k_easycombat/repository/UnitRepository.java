@@ -13,7 +13,7 @@ public class UnitRepository {
     public static void insertUnit(Unit unit) throws SQLException {
         Dao.update(
             "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             unit.id(),
             unit.factionId(),
             unit.name(),
@@ -26,6 +26,7 @@ public class UnitRepository {
             unit.OC(),
             unit.category(),
             unit.composition(),
+            unit.invulnerableSave(),
             StringListCodec.encode(unit.keywordIdList()),
             StringListCodec.encode(unit.rangedWeaponIdList()),
             StringListCodec.encode(unit.meleeWeaponIdList())
@@ -47,6 +48,7 @@ public class UnitRepository {
                 rs.getInt("LD"),
                 rs.getInt("OC"),
                 rs.getInt("category"),
+                rs.getInt("invulnerableSave"),
                 rs.getString("composition"),
                 StringListCodec.decode(rs.getString("keywordIdList")),
                 StringListCodec.decode(rs.getString("rangedWeaponIdList")),
@@ -71,6 +73,7 @@ public class UnitRepository {
                 rs.getInt("LD"),
                 rs.getInt("OC"),
                 rs.getInt("category"),
+                rs.getInt("invulnerableSave"),
                 rs.getString("composition"),
                 StringListCodec.decode(rs.getString("keywordIdList")),
                 StringListCodec.decode(rs.getString("rangedWeaponIdList")),
@@ -86,7 +89,7 @@ public class UnitRepository {
                 try {
                     Dao.update(conn,
                         "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         unit.id(),
                         unit.factionId(),
                         unit.name(),
@@ -98,6 +101,7 @@ public class UnitRepository {
                         unit.LD(),
                         unit.OC(),
                         unit.category(),
+                        unit.invulnerableSave(),
                         unit.composition(),
                         StringListCodec.encode(unit.keywordIdList()),
                         StringListCodec.encode(unit.rangedWeaponIdList()),
@@ -117,7 +121,7 @@ public class UnitRepository {
                 try {
                     Dao.update(conn,
                         "UPDATE Unit SET factionId = ?, name = ?, points = ?, M = ?, T = ?, SV = ?, W = ?, LD = ?, OC = ?, " +
-                            "category = ?, composition = ?, keywordIdList = ?, rangedWeaponIdList = ?, meleeWeaponIdList = ? " +
+                            "category = ?, composition = ?, keywordIdList = ?, rangedWeaponIdList = ?, meleeWeaponIdList = ?, invulnerableSave = ? " +
                             "WHERE id = ?",
                         unit.factionId(),
                         unit.name(),
@@ -133,6 +137,7 @@ public class UnitRepository {
                         StringListCodec.encode(unit.keywordIdList()),
                         StringListCodec.encode(unit.rangedWeaponIdList()),
                         StringListCodec.encode(unit.meleeWeaponIdList()),
+                        unit.invulnerableSave(),
                         unit.id()
                     );
                 } catch (SQLException e) {

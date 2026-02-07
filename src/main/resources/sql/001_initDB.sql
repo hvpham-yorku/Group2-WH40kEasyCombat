@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS Unit (
     LD INTEGER,
     OC INTEGER,
     category INTEGER,
+    invulnerableSave INTEGER,
     composition TEXT,
     keywordIdList TEXT,
     rangedWeaponIdList TEXT,

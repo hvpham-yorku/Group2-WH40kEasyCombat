@@ -15,6 +15,7 @@ public record Unit(
     int W,
     int LD,
     int OC,
+    int invulnerableSave,
     int category,
     String composition,
     List<Integer> keywordIdList,

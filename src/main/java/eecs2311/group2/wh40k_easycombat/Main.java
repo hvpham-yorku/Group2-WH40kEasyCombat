@@ -28,6 +28,7 @@ public class Main extends Application {
 	
 	public static void main(String[] args) throws SQLException, IOException {
         Database.executeSqlFolder("src/main/resources/sql/");
+        System.out.println("SQL scripts executed!");
         
 		launch(args);
 	}
