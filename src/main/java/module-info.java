@@ -1,4 +1,4 @@
-module wh40k_easycombat {
+module wh40k_easycomba {
     requires javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.graphics;
