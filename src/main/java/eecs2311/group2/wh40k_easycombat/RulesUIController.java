@@ -19,7 +19,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.input.MouseEvent;
 
 public class RulesUIController {
-	// ======================= Buttons =======================
+	// ======================= Buttons ==========================
 	@FXML private Button addButton;
 	@FXML private Button backButton;
 	@FXML private Button CoreRuleBackButton;
@@ -27,7 +27,7 @@ public class RulesUIController {
 	@FXML private Button editButton;
 	@FXML private Button searchButton;
 
-	// ======================= Inputs =======================
+	// ======================= Inputs ===========================
 	@FXML private TextField searchbox;
 	@FXML private ComboBox<?> factionCBbox;
 
@@ -38,7 +38,7 @@ public class RulesUIController {
 	@FXML private TextArea mainBox;
 	@FXML private TextArea unitBox;
 
-	// ======================= Labels =======================
+	// ======================= Labels ===========================
 	@FXML private Label unitNameLabel;
 	@FXML private Label pointLable;
 
@@ -49,7 +49,7 @@ public class RulesUIController {
 	@FXML private Label ocLabel;
 	@FXML private Label ldLabel;
 
-	// ======================= Tables - Melee Weapon =======================
+	// ======================= Tables - Melee Weapon ========================
 	@FXML private TableView<?> meleeWeaponTable;
 	@FXML private TableColumn<?, ?> mName;
 	@FXML private TableColumn<?, ?> mA;
@@ -70,7 +70,7 @@ public class RulesUIController {
 	@FXML private TableColumn<?, ?> rK;
 	@FXML private TableColumn<?, ?> rS;
 
-	// ======================= TreeTable =======================
+	// ======================= TreeTable =====================================
 	@FXML private TreeTableView<?> dataTreeTable;
 	@FXML private TreeTableColumn<?, ?> dataTreeColumn;
 

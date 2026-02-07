@@ -16,7 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class RuleEditorController {
-	// ======================= Buttons =======================
+	// ======================= Buttons ====================================
 	@FXML private Button abilityButton;
 	@FXML private Button cancelButton;
 	@FXML private Button saveButton;
@@ -25,13 +25,13 @@ public class RuleEditorController {
 	@FXML private Button weaponAddButton;
 	@FXML private Button keywordEditButton_Unit;
 
-	// ======================= ComboBox =======================
+	// ======================= ComboBox ===================================
 	@FXML private ComboBox<?> factionCBbox;
 
-	// ======================= Keyword Area =======================
+	// ======================= Keyword Area ===============================
 	@FXML private TextArea keywordTextbox;
 
-	// ======================= Unit Basic Inputs =======================
+	// ======================= Unit Basic Inputs ==========================
 	@FXML private TextField unitNametxtBox;
 	@FXML private TextField pointtxtBox;
 
@@ -90,11 +90,28 @@ public class RuleEditorController {
 
 	}
 	
-	//When click "ADD" button of add weapon
+	//When click "ADD" button of add weapon, go to WeaponEditor page
 	@FXML
     void addWeapon(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("WeaponEditor.fxml")
+        );
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource())
+                .getScene()
+                .getWindow();
+        
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+	
+	//When click "Ability Setting" button, go to UnitAbility page
+    @FXML
+    void abilitySetting(MouseEvent event) throws IOException {
+    	FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("UnitAbility.fxml")
         );
         Parent root = loader.load();
 

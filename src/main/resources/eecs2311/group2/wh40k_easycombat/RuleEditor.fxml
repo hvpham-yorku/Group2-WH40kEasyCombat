@@ -100,7 +100,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="abilityButton" layoutX="13.0" layoutY="533.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="179.0" text="Ability settings" />
+            <Button fx:id="abilityButton" layoutX="13.0" layoutY="533.0" mnemonicParsing="false" onMouseClicked="#abilitySetting" prefHeight="30.0" prefWidth="179.0" text="Ability settings" />
             <Label layoutX="33.0" layoutY="187.0" text="M">
                <font>
                   <Font size="14.0" />
