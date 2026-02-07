@@ -75,7 +75,7 @@ public class RulesUIController {
 	@FXML private TreeTableColumn<?, ?> dataTreeColumn;
 
 
-    // When click "Back to Main Page" button
+    // When click "Back to Main Page" button, back to Main page
     @FXML
     void backMainpage(MouseEvent event) throws IOException {
         Parent root = FXMLLoader.load(
@@ -96,7 +96,7 @@ public class RulesUIController {
 
     }
     
-    // When click "ADD" button
+    // When click "ADD" button, go to RuleEditor page
     @FXML
     void add(MouseEvent event) throws IOException {
     	Parent root = FXMLLoader.load(

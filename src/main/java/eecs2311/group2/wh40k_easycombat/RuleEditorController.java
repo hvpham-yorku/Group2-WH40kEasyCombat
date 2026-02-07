@@ -1,7 +1,6 @@
 package eecs2311.group2.wh40k_easycombat;
 
 import java.io.IOException;
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -23,9 +22,8 @@ public class RuleEditorController {
 	@FXML private Button saveButton;
 
 	@FXML private Button unitKeywordAddButton;
-	@FXML private Button weaponKeywordAddButton;
+	@FXML private Button weaponAddButton;
 	@FXML private Button keywordEditButton_Unit;
-	@FXML private Button keywordEditButton_Weapon;
 
 	// ======================= ComboBox =======================
 	@FXML private ComboBox<?> factionCBbox;
@@ -43,15 +41,6 @@ public class RuleEditorController {
 	@FXML private TextField svBox;
 	@FXML private TextField tBox;
 	@FXML private TextField wBox;
-
-	// ======================= Weapon Inputs =======================
-	@FXML private TextField wName;
-	@FXML private TextField wRange;
-	@FXML private TextField wA;
-	@FXML private TextField wBS;
-	@FXML private TextField wS;
-	@FXML private TextField wAP;
-	@FXML private TextField wD;
 
 	// ======================= Tables - Melee Weapon =======================
 	@FXML private TableView<?> meleeWeaponTable;
@@ -78,7 +67,7 @@ public class RuleEditorController {
 	@FXML private TableView<?> unitKeywordTable;
 
 	
-	// When click "Cancel" button
+	// When click "Cancel" button, back to Rules page
 	@FXML
 	void cancel(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
@@ -100,5 +89,22 @@ public class RuleEditorController {
 	void save(MouseEvent event) {
 
 	}
+	
+	//When click "ADD" button of add weapon
+	@FXML
+    void addWeapon(MouseEvent event) throws IOException {
+		FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("WeaponEditor.fxml")
+        );
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource())
+                .getScene()
+                .getWindow();
+        
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
 
 }

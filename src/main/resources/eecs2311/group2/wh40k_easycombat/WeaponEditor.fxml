@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.WeaponEditorController">
+   <right>
+      <VBox prefHeight="800.0" prefWidth="260.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="selectionKeywordTable" prefHeight="260.0" prefWidth="260.0">
+              <columns>
+                <TableColumn fx:id="selectionKeyword" editable="false" prefWidth="258.0" text="Keywords Selection" />
+              </columns>
+            </TableView>
+            <Label prefHeight="15.0" prefWidth="307.0" />
+            <Button fx:id="keywordAddButton" mnemonicParsing="false" prefHeight="51.0" prefWidth="260.0" text="ADD" />
+            <Label layoutX="10.0" layoutY="270.0" prefHeight="40.0" prefWidth="260.0" />
+            <TableView prefHeight="280.0" prefWidth="260.0">
+              <columns>
+                <TableColumn prefWidth="258.0" text="Select from Basic weapons" />
+              </columns>
+            </TableView>
+            <Label layoutX="10.0" layoutY="270.0" prefHeight="15.0" prefWidth="307.0" />
+            <Button fx:id="basicWeaponAddButton" layoutX="10.0" layoutY="285.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="260.0" text="ADD" />
+         </children>
+      </VBox>
+   </right>
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="rangedWepponTable" layoutX="45.0" layoutY="59.0" prefHeight="307.0" prefWidth="267.0">
+              <columns>
+                <TableColumn fx:id="rangeWeaponName" editable="false" prefWidth="266.0" text="Ranged Weapons" />
+              </columns>
+            </TableView>
+            <TableView fx:id="meleeWeaponTable" layoutX="45.0" layoutY="420.0" prefHeight="307.0" prefWidth="267.0">
+              <columns>
+                <TableColumn fx:id="meleeWeaponName" editable="false" prefWidth="266.0" text="Melee Weapons" />
+              </columns>
+            </TableView>
+            <TextField fx:id="nametxt" layoutX="426.0" layoutY="59.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="351.0" layoutY="65.0" prefHeight="24.0" prefWidth="58.0" text="Name:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="categoryCBbox" layoutX="426.0" layoutY="109.0" prefHeight="32.0" prefWidth="165.0" />
+            <Label layoutX="323.0" layoutY="113.0" prefHeight="24.0" prefWidth="86.0" text="Category:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="rangetxt" layoutX="426.0" layoutY="159.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="347.0" layoutY="165.0" prefHeight="24.0" prefWidth="65.0" text="Range:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="atxt" layoutX="426.0" layoutY="212.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="393.0" layoutY="218.0" prefHeight="24.0" prefWidth="32.0" text="A">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="bstxt" layoutX="426.0" layoutY="266.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="380.0" layoutY="272.0" prefHeight="24.0" prefWidth="32.0" text="BS">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="stxt" layoutX="426.0" layoutY="327.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="393.0" layoutY="333.0" prefHeight="24.0" prefWidth="32.0" text="S">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="aptxt" layoutX="426.0" layoutY="377.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="380.0" layoutY="383.0" prefHeight="24.0" prefWidth="32.0" text="AP">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TextField fx:id="dtxt" layoutX="426.0" layoutY="438.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="393.0" layoutY="444.0" prefHeight="24.0" prefWidth="32.0" text="D">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TableView fx:id="keywordTable" layoutX="711.0" layoutY="77.0" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="words" editable="false" prefWidth="198.6666259765625" text="Keywords" />
+              </columns>
+            </TableView>
+            <Button fx:id="deleteButton" layoutX="778.0" layoutY="292.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Delete" />
+            <Button fx:id="saveButton" layoutX="601.0" layoutY="495.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Save" />
+            <Button fx:id="clearbutton" layoutX="425.0" layoutY="495.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Clear" />
+            <Button fx:id="backButton" layoutX="458.0" layoutY="597.0" mnemonicParsing="false" onMouseClicked="#backToUnitEdtior" prefHeight="40.0" prefWidth="177.0" text="Back" />
+            <Button fx:id="editButton" layoutX="229.0" layoutY="377.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Edit" />
+            <Button fx:id="deleteWeaponButton" layoutX="71.0" layoutY="377.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="65.0" text="Delete" />
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
