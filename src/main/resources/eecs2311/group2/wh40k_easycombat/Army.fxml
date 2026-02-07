@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.ArmyController">
    <left>
       <VBox prefHeight="800.0" prefWidth="350.0" BorderPane.alignment="CENTER">
@@ -49,13 +48,14 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="armyTable" layoutX="137.0" layoutY="79.0" prefHeight="603.0" prefWidth="339.0">
+            <TableView fx:id="armyTable" layoutX="125.0" layoutY="79.0" prefHeight="603.0" prefWidth="419.0">
               <columns>
-                <TableColumn fx:id="unit" editable="false" prefWidth="258.0" text="Unit" />
-                  <TableColumn fx:id="point" editable="false" text="Points" />
+                <TableColumn fx:id="unit" editable="false" prefWidth="224.0" text="Unit" />
+                  <TableColumn fx:id="point" editable="false" prefWidth="94.0" text="Points" />
+                  <TableColumn fx:id="composition" prefWidth="99.0" text="Composition" />
               </columns>
             </TableView>
-            <Button fx:id="addButton" layoutX="14.0" layoutY="289.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="Add">
+            <Button fx:id="addButton" layoutX="14.0" layoutY="291.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="Add">
                <font>
                   <Font size="14.0" />
                </font>
@@ -65,18 +65,18 @@
                   <Font size="14.0" />
                </font>
             </Button>
-            <ComboBox fx:id="datachmentCBbox" layoutX="565.0" layoutY="58.0" prefHeight="36.0" prefWidth="206.0" />
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="557.0" layoutY="27.0" text="Choose Your Detachment">
+            <ComboBox fx:id="datachmentCBbox" layoutX="593.0" layoutY="60.0" prefHeight="36.0" prefWidth="206.0" />
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="585.0" layoutY="29.0" text="Choose Your Detachment">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="582.0" layoutY="116.0" text="Name of your Army">
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="610.0" layoutY="118.0" text="Name of your Army">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="armyNametxt" layoutX="565.0" layoutY="151.0" prefHeight="29.0" prefWidth="206.0">
+            <TextField fx:id="armyNametxt" layoutX="593.0" layoutY="153.0" prefHeight="29.0" prefWidth="206.0">
                <font>
                   <Font size="14.0" />
                </font>
@@ -92,27 +92,27 @@
                   <Font size="14.0" />
                </font>
             </Button>
-            <Label layoutX="638.0" layoutY="189.0" text="Points">
+            <Label layoutX="666.0" layoutY="191.0" text="Points">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-            <Label fx:id="pointNumber" layoutX="638.0" layoutY="219.0" text="2000">
+            <Label fx:id="pointNumber" layoutX="666.0" layoutY="221.0" text="2000">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Button fx:id="saveButton" layoutX="615.0" layoutY="269.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="Save">
+            <Button fx:id="saveButton" layoutX="643.0" layoutY="271.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="Save">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button fx:id="CancelButton" layoutX="615.0" layoutY="329.0" mnemonicParsing="false" onMouseClicked="#cancelTheChange" prefHeight="40.0" prefWidth="105.0" text="Cancel">
+            <Button fx:id="CancelButton" layoutX="643.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#cancelTheChange" prefHeight="40.0" prefWidth="105.0" text="Cancel">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <TableView fx:id="savedArmyTable" layoutX="528.0" layoutY="417.0" prefHeight="312.0" prefWidth="280.0">
+            <TableView fx:id="savedArmyTable" layoutX="556.0" layoutY="419.0" prefHeight="312.0" prefWidth="280.0">
               <columns>
                 <TableColumn fx:id="savedName" prefWidth="192.0" text="Army Name" />
                 <TableColumn fx:id="savedPoint" prefWidth="86.0" text="Points" />
@@ -123,7 +123,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="deleteButton" layoutX="751.0" layoutY="737.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="53.0" text="Delete" />
+            <Button fx:id="deleteButton" layoutX="779.0" layoutY="739.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="53.0" text="Delete" />
             <Button fx:id="importButton" alignment="CENTER" layoutX="15.0" layoutY="390.0" mnemonicParsing="false" prefHeight="89.0" prefWidth="103.0" text="Import From the Clipboard" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font size="14.0" />
