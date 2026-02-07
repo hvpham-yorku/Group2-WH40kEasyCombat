@@ -4,6 +4,6 @@ module wh40k_easycomba {
     requires transitive javafx.graphics;
     requires java.sql;
 
-    opens eecs2311.group2.wh40k_easycombat to javafx.fxml;
+    opens eecs2311.group2.wh40k_easycombat.controller to javafx.fxml;
     exports eecs2311.group2.wh40k_easycombat;
 }

@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.RuleEditorController">
+<BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.RuleEditorController">
    <right>
       <VBox prefHeight="600.0" prefWidth="264.0" BorderPane.alignment="CENTER">
          <children>
@@ -23,7 +23,7 @@
             </Label>
             <TableView fx:id="unitKeywordTable" prefHeight="160.0" prefWidth="200.0">
               <columns>
-                <TableColumn editable="false" prefWidth="262.6666259765625" text="Key words" />
+                <TableColumn editable="false" prefWidth="262" text="Key words" />
               </columns>
             </TableView>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
@@ -59,27 +59,27 @@
                </font>
             </Label>
             <ComboBox fx:id="factionCBbox" layoutX="103.0" layoutY="77.0" prefHeight="23.0" prefWidth="188.0" />
-            <TableView fx:id="rangedWeaponTable" editable="true" layoutX="10.0" layoutY="229.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
+            <TableView fx:id="rangedWeaponTable" layoutX="10.0" layoutY="229.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
                <columns>
-                  <TableColumn fx:id="rName" prefWidth="160.0" text="Ranged Weapons" />
+                  <TableColumn fx:id="rName" editable="false" prefWidth="160.0" text="Ranged Weapons" />
                   <TableColumn fx:id="rK" editable="false" prefWidth="100.0" text="Key Words" />
-                  <TableColumn fx:id="rRange" prefWidth="60.0" text="Range" />
-                  <TableColumn fx:id="rA" prefWidth="60.0" text="A" />
-                  <TableColumn fx:id="rBS" prefWidth="60.0" text="BS" />
-                  <TableColumn fx:id="rS" prefWidth="60.0" text="S" />
-                  <TableColumn fx:id="rAP" prefWidth="60.0" text="AP" />
-                  <TableColumn fx:id="rD" prefWidth="60.0" text="D" />
+                  <TableColumn fx:id="rRange" editable="false" prefWidth="60.0" text="Range" />
+                  <TableColumn fx:id="rA" editable="false" prefWidth="60.0" text="A" />
+                  <TableColumn fx:id="rBS" editable="false" prefWidth="60.0" text="BS" />
+                  <TableColumn fx:id="rS" editable="false" prefWidth="60.0" text="S" />
+                  <TableColumn fx:id="rAP" editable="false" prefWidth="60.0" text="AP" />
+                  <TableColumn fx:id="rD" editable="false" prefWidth="60.0" text="D" />
                </columns>
             </TableView>
-            <TableView fx:id="meleeWeaponTable" editable="true" layoutX="10.0" layoutY="379.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
+            <TableView fx:id="meleeWeaponTable" layoutX="10.0" layoutY="379.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
                <columns>
-                  <TableColumn fx:id="mName" prefWidth="168.0" text="Melee Weapons" />
+                  <TableColumn fx:id="mName" editable="false" prefWidth="168.0" text="Melee Weapons" />
                   <TableColumn fx:id="mK" editable="false" prefWidth="150.0" text="Key Words" />
-                  <TableColumn fx:id="mA" prefWidth="60.0" text="A" />
-                  <TableColumn fx:id="mWS" prefWidth="60.0" text="WS" />
-                  <TableColumn fx:id="mS" prefWidth="60.0" text="S" />
-                  <TableColumn fx:id="mAP" prefWidth="60.0" text="AP" />
-                  <TableColumn fx:id="mD" minWidth="2.0" prefWidth="60.0" text="D" />
+                  <TableColumn fx:id="mA" editable="false" prefWidth="60.0" text="A" />
+                  <TableColumn fx:id="mWS" editable="false" prefWidth="60.0" text="WS" />
+                  <TableColumn fx:id="mS" editable="false" prefWidth="60.0" text="S" />
+                  <TableColumn fx:id="mAP" editable="false" prefWidth="60.0" text="AP" />
+                  <TableColumn fx:id="mD" editable="false" minWidth="2.0" prefWidth="60.0" text="D" />
                </columns>
             </TableView>
             <Button fx:id="saveButton" layoutX="570.0" layoutY="533.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="30.0" prefWidth="60.0" text="Save" />

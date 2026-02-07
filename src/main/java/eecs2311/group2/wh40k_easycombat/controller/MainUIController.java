@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat;
+package eecs2311.group2.wh40k_easycombat.controller;
 
 import javafx.fxml.FXML;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class MainUIController {
     @FXML
     void ruleBtn(MouseEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("RulesUI.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RulesUI.fxml")
         );
         Parent root = loader.load();
 
@@ -50,7 +50,7 @@ public class MainUIController {
     @FXML
     void armyBtn(MouseEvent event) throws IOException {
     	FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("Army.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/Army.fxml")
         );
         Parent root = loader.load();
 

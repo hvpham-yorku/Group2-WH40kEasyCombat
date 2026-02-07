@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat;
+package eecs2311.group2.wh40k_easycombat.controller;
 
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class UnitAbilityController {
 	@FXML
 	void cancelChange(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("RuleEditor.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
         );
         Parent root = loader.load();
 
