@@ -34,7 +34,7 @@ public class RuleEditorController {
 	// ======================= Unit Basic Inputs ==========================
 	@FXML private TextField unitNametxtBox;
 	@FXML private TextField pointtxtBox;
-
+    @FXML private TextField isvBox;
 	@FXML private TextField mBox;
 	@FXML private TextField ocBOX;
 	@FXML private TextField ldBox;

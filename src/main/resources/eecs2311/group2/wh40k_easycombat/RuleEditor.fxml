@@ -94,8 +94,8 @@
                   <Font size="14.0" />
                </font>
             </TextField>
-            <TextArea fx:id="keywordTextbox" editable="false" layoutX="385.0" layoutY="57.0" prefHeight="81.0" prefWidth="280.0" />
-            <Label layoutX="487.0" layoutY="26.0" text="Key Words">
+            <TextArea fx:id="keywordTextbox" editable="false" layoutX="448.0" layoutY="59.0" prefHeight="81.0" prefWidth="280.0" />
+            <Label layoutX="564.0" layoutY="26.0" text="Key Words">
                <font>
                   <Font size="14.0" />
                </font>
@@ -157,6 +157,16 @@
                </font>
             </Label>
             <TextField fx:id="ocBOX" layoutX="582.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </TextField>
+            <Label layoutX="316.0" layoutY="60.0" text="Invulnerable Save" wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="isvBox" layoutX="350.0" layoutY="89.0" prefHeight="40.0" prefWidth="49.0" text="0">
                <font>
                   <Font size="14.0" />
                </font>
