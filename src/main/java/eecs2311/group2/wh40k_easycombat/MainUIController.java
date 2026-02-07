@@ -11,17 +11,13 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 
 public class MainUIController {
-	@FXML
-    private Button startButton;
+	@FXML private Button startButton;
     
-	@FXML
-    private Button ruleButton;
+	@FXML private Button ruleButton;
 	
-	@FXML
-    private Button armyButton;
+	@FXML private Button armyButton;
 
-    @FXML
-    private Button exitButton;
+    @FXML private Button exitButton;
 
     // When click "Game Start" button
     @FXML
