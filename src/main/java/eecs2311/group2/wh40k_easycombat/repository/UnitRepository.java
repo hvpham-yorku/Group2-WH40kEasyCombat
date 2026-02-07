@@ -111,13 +111,28 @@ public class UnitRepository {
         });
     }
 
-    public static void updateUnitPointsTransactional(List<Unit> units, int newPoints) throws SQLException {
+    public static void updateUnitsTransactional(List<Unit> units) throws SQLException {
         Tx.run((Connection conn) -> {
             for (Unit unit : units) {
                 try {
                     Dao.update(conn,
-                        "UPDATE Unit SET points = ? WHERE id = ?",
-                        newPoints,
+                        "UPDATE Unit SET factionId = ?, name = ?, points = ?, M = ?, T = ?, SV = ?, W = ?, LD = ?, OC = ?, " +
+                            "category = ?, composition = ?, keywordIdList = ?, rangedWeaponIdList = ?, meleeWeaponIdList = ? " +
+                            "WHERE id = ?",
+                        unit.factionId(),
+                        unit.name(),
+                        unit.points(),
+                        unit.M(),
+                        unit.T(),
+                        unit.SV(),
+                        unit.W(),
+                        unit.LD(),
+                        unit.OC(),
+                        unit.category(),
+                        unit.composition(),
+                        StringListCodec.encode(unit.keywordIdList()),
+                        StringListCodec.encode(unit.rangedWeaponIdList()),
+                        StringListCodec.encode(unit.meleeWeaponIdList()),
                         unit.id()
                     );
                 } catch (SQLException e) {
