@@ -1,10 +1,14 @@
 package eecs2311.group2.wh40k_easycombat;
 	
+import eecs2311.group2.wh40k_easycombat.db.Database;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.fxml.FXMLLoader;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 
 public class Main extends Application {
@@ -22,7 +26,10 @@ public class Main extends Application {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException, IOException {
+        Database.executeSqlFolder("src/main/resources/sql/");
+        System.out.println("SQL scripts executed!");
+        
 		launch(args);
 	}
 }
