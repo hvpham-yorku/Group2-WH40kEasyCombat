@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat;
+package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
@@ -71,7 +71,7 @@ public class RuleEditorController {
 	@FXML
 	void cancel(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("RulesUI.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RulesUI.fxml")
         );
         Parent root = loader.load();
 
@@ -94,7 +94,7 @@ public class RuleEditorController {
 	@FXML
     void addWeapon(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("WeaponEditor.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/WeaponEditor.fxml")
         );
         Parent root = loader.load();
 
@@ -111,7 +111,7 @@ public class RuleEditorController {
     @FXML
     void abilitySetting(MouseEvent event) throws IOException {
     	FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("UnitAbility.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/UnitAbility.fxml")
         );
         Parent root = loader.load();
 

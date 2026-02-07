@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat;
+package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
@@ -60,7 +60,7 @@ public class ArmyController {
 	//When click "Cancel" button, back to main page
     void cancelTheChange(MouseEvent event) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("MainUI.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
         );
         Parent root = loader.load();
 

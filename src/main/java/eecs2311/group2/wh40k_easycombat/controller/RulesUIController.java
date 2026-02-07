@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat;
+package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
@@ -79,7 +79,7 @@ public class RulesUIController {
     @FXML
     void backMainpage(MouseEvent event) throws IOException {
         Parent root = FXMLLoader.load(
-                getClass().getResource("MainUI.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
         );
 
         Stage stage = (Stage) ((Node) event.getSource())
@@ -100,7 +100,7 @@ public class RulesUIController {
     @FXML
     void add(MouseEvent event) throws IOException {
     	Parent root = FXMLLoader.load(
-                getClass().getResource("RuleEditor.fxml")
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
         );
 
         Stage stage = (Stage) ((Node) event.getSource())
