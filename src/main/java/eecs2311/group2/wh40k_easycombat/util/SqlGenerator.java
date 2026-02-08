@@ -113,7 +113,7 @@ public class SqlGenerator {
         List<Class<?>> tableClasses = getClassesWithTableAnnotation(MODEL_PACKAGE);
 
         StringBuilder fullSql = new StringBuilder();
-        fullSql.append("-- Generated on: ").append(new Date()).append("\n");
+        fullSql.append("-- Auto Generated Script --").append("\n");
         fullSql.append("PRAGMA foreign_keys = ON;\n\n");
         fullSql.append("PRAGMA journal_mode = WAL;\n\n");
         fullSql.append("PRAGMA synchronous = NORMAL;\n\n");

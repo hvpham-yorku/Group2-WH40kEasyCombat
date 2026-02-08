@@ -1,4 +1,4 @@
--- Generated on: Sat Feb 07 19:01:49 EST 2026
+-- Auto Generated Script --
 PRAGMA foreign_keys = ON;
 
 PRAGMA journal_mode = WAL;
