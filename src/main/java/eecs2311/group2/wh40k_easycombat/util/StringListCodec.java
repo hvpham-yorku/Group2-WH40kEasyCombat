@@ -7,24 +7,21 @@ import java.util.List;
 public class StringListCodec {
     private StringListCodec() {}
 
-    /** List<Integer> → "1,2,3" */
-    public static String encode(List<Integer> list) {
+    /** List<String> → "a,b,c" */
+    public static String encode(List<String> list) {
         if (list == null || list.isEmpty()) return "";
-        return String.join(",", list.stream()
-            .map(String::valueOf)
-            .toArray(String[]::new));
+        return String.join(",", list);
     }
 
-    /** "1,2,3" → List<Integer> */
-    public static List<Integer> decode(String s) {
+    /** "a,b,c" → List<String> */
+    public static List<String> decode(String s) {
         if (s == null || s.isBlank()) return Collections.emptyList();
         String[] parts = s.split(",");
-        List<Integer> list = new ArrayList<>(parts.length);
+        List<String> list = new ArrayList<>(parts.length);
         for (String part : parts) {
-            try {
-                list.add(Integer.parseInt(part.trim()));
-            } catch (NumberFormatException e) {
-                //XXX: skip the value if there is issue
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                list.add(trimmed);
             }
         }
         return list;

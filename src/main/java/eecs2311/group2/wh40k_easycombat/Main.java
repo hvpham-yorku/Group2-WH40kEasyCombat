@@ -1,6 +1,8 @@
 package eecs2311.group2.wh40k_easycombat;
 	
 import eecs2311.group2.wh40k_easycombat.db.Database;
+import eecs2311.group2.wh40k_easycombat.model.Units;
+import eecs2311.group2.wh40k_easycombat.util.SqlGenerator;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -26,7 +28,8 @@ public class Main extends Application {
 		}
 	}
 	
-	public static void main(String[] args) throws SQLException, IOException {
+	public static void main(String[] args) throws Exception {
+        Database.generateSchemaFile();
         Database.executeSqlFolder("src/main/resources/sql/");
         System.out.println("SQL scripts executed!");
         
