@@ -13,9 +13,8 @@ import java.util.List;
 public class UnitRepository {
     public static void insertUnit(Units unit) throws SQLException {
         Dao.update(
-            "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            unit.id(),
+            "INSERT INTO Unit (factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             unit.factionId(),
             unit.name(),
             unit.points(),
@@ -89,9 +88,8 @@ public class UnitRepository {
             for (Units unit : units) {
                 try {
                     Dao.update(conn,
-                        "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        unit.id(),
+                        "INSERT INTO Unit (factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         unit.factionId(),
                         unit.name(),
                         unit.points(),
