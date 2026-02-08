@@ -2,7 +2,8 @@ package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.db.Tx;
-import eecs2311.group2.wh40k_easycombat.model.Unit;
+import eecs2311.group2.wh40k_easycombat.model.Units;
+import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 import eecs2311.group2.wh40k_easycombat.util.StringListCodec;
 
 import java.sql.Connection;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UnitRepository {
-    public static void insertUnit(Unit unit) throws SQLException {
+    public static void insertUnit(Units unit) throws SQLException {
         Dao.update(
             "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -28,15 +29,15 @@ public class UnitRepository {
             unit.composition(),
             unit.invulnerableSave(),
             StringListCodec.encode(unit.keywordIdList()),
-            StringListCodec.encode(unit.rangedWeaponIdList()),
-            StringListCodec.encode(unit.meleeWeaponIdList())
+            IntListCodec.encode(unit.rangedWeaponIdList()),
+            IntListCodec.encode(unit.meleeWeaponIdList())
         );
     }
 
-    public static Unit getUnitById(int id) throws SQLException {
+    public static Units getUnitById(int id) throws SQLException {
         return Dao.query(
             "SELECT * FROM Unit WHERE id = ?",
-            rs -> new Unit(
+            rs -> new Units(
                 rs.getInt("id"),
                 rs.getInt("factionId"),
                 rs.getString("name"),
@@ -51,17 +52,17 @@ public class UnitRepository {
                 rs.getInt("invulnerableSave"),
                 rs.getString("composition"),
                 StringListCodec.decode(rs.getString("keywordIdList")),
-                StringListCodec.decode(rs.getString("rangedWeaponIdList")),
-                StringListCodec.decode(rs.getString("meleeWeaponIdList"))
+                IntListCodec.decode(rs.getString("rangedWeaponIdList")),
+                IntListCodec.decode(rs.getString("meleeWeaponIdList"))
             ),
             id
         ).stream().findFirst().orElse(null);
     }
 
-    public static List<Unit> getUnitsByFaction(int factionId) throws SQLException {
+    public static List<Units> getUnitsByFaction(int factionId) throws SQLException {
         return Dao.query(
             "SELECT * FROM Unit WHERE factionId = ?",
-            rs -> new Unit(
+            rs -> new Units(
                 rs.getInt("id"),
                 rs.getInt("factionId"),
                 rs.getString("name"),
@@ -76,16 +77,16 @@ public class UnitRepository {
                 rs.getInt("invulnerableSave"),
                 rs.getString("composition"),
                 StringListCodec.decode(rs.getString("keywordIdList")),
-                StringListCodec.decode(rs.getString("rangedWeaponIdList")),
-                StringListCodec.decode(rs.getString("meleeWeaponIdList"))
+                IntListCodec.decode(rs.getString("rangedWeaponIdList")),
+                IntListCodec.decode(rs.getString("meleeWeaponIdList"))
             ),
             factionId
         );
     }
 
-    public static void insertUnitsTransactional(List<Unit> units) throws SQLException {
+    public static void insertUnitsTransactional(List<Units> units) throws SQLException {
         Tx.run((Connection conn) -> {
-            for (Unit unit : units) {
+            for (Units unit : units) {
                 try {
                     Dao.update(conn,
                         "INSERT INTO Unit (id, factionId, name, points, M, T, SV, W, LD, OC, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) " +
@@ -104,8 +105,8 @@ public class UnitRepository {
                         unit.invulnerableSave(),
                         unit.composition(),
                         StringListCodec.encode(unit.keywordIdList()),
-                        StringListCodec.encode(unit.rangedWeaponIdList()),
-                        StringListCodec.encode(unit.meleeWeaponIdList())
+                        IntListCodec.encode(unit.rangedWeaponIdList()),
+                        IntListCodec.encode(unit.meleeWeaponIdList())
                     );
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
@@ -115,9 +116,9 @@ public class UnitRepository {
         });
     }
 
-    public static void updateUnitsTransactional(List<Unit> units) throws SQLException {
+    public static void updateUnitsTransactional(List<Units> units) throws SQLException {
         Tx.run((Connection conn) -> {
-            for (Unit unit : units) {
+            for (Units unit : units) {
                 try {
                     Dao.update(conn,
                         "UPDATE Unit SET factionId = ?, name = ?, points = ?, M = ?, T = ?, SV = ?, W = ?, LD = ?, OC = ?, " +
@@ -135,8 +136,8 @@ public class UnitRepository {
                         unit.category(),
                         unit.composition(),
                         StringListCodec.encode(unit.keywordIdList()),
-                        StringListCodec.encode(unit.rangedWeaponIdList()),
-                        StringListCodec.encode(unit.meleeWeaponIdList()),
+                        IntListCodec.encode(unit.rangedWeaponIdList()),
+                        IntListCodec.encode(unit.meleeWeaponIdList()),
                         unit.invulnerableSave(),
                         unit.id()
                     );
