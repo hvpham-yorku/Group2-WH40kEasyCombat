@@ -123,13 +123,14 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="deleteButton" layoutX="583.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="31.0" prefWidth="53.0" text="Delete" />
+            <Button fx:id="deleteButton" layoutX="558.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="31.0" prefWidth="70.0" text="Delete" />
             <Button fx:id="importButton" alignment="CENTER" layoutX="15.0" layoutY="390.0" mnemonicParsing="false" onMouseClicked="#importData" prefHeight="89.0" prefWidth="103.0" text="Import From the Clipboard" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button fx:id="loadButton" layoutX="754.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#loadArmy" prefHeight="31.0" prefWidth="53.0" text="Load" />
+            <Button fx:id="loadButton" layoutX="764.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#loadArmy" prefHeight="31.0" prefWidth="69.0" text="Load" />
+            <Button fx:id="favoriteButton" alignment="CENTER" contentDisplay="CENTER" layoutX="661.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#favorite" prefHeight="31.0" prefWidth="70.0" text="Favorite " textAlignment="CENTER" />
          </children>
       </AnchorPane>
    </center>

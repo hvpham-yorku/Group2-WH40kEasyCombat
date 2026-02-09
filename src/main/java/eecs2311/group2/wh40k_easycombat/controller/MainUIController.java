@@ -3,7 +3,6 @@ package eecs2311.group2.wh40k_easycombat.controller;
 import javafx.fxml.FXML;
 import java.io.IOException;
 import java.util.Optional;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;

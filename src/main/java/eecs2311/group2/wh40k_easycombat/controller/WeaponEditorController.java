@@ -14,7 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-
 public class WeaponEditorController {
 	// ======================= Buttons ===============================
 	@FXML private Button backButton;
