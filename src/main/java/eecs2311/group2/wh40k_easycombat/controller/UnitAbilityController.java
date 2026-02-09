@@ -1,6 +1,5 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

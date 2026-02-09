@@ -28,6 +28,7 @@ public class ArmyController {
 	@FXML private Button setWarlordButton;
 	@FXML private Button CancelButton;
     @FXML private Button loadButton;
+    @FXML private Button favoriteButton;
 
 	// ======================= Text Inputs ===================
 	@FXML private TextField armyNametxt;
@@ -91,7 +92,13 @@ public class ArmyController {
     void loadArmy(MouseEvent event) {
 
     }
+    
+    // When click "Favorite" button, mark the army as favorite 
+    @FXML
+    void favorite(MouseEvent event) {
 
+    }
+    
     // When click "Delete" button, delete the army from army list that user selected
     @FXML
     void delete(MouseEvent event) {
