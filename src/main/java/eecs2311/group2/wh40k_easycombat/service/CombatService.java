@@ -10,8 +10,9 @@ import java.util.List;
 public class CombatService {
     private BattleState currentState;
 
-    public CombatService() {
+    public CombatService(String missionName) {
         this.currentState = new BattleState();
+        this.currentState.setMissionName(missionName);
     }
 
     public BattleState getCurrentState() {
@@ -21,5 +22,9 @@ public class CombatService {
     public void createNewBattle(String missionName) {
         this.currentState = new BattleState();
         this.currentState.setMissionName(missionName);
+    }
+
+    public void setCurrentBattle(BattleState battleState){
+        this.currentState = battleState;
     }
 }
