@@ -29,7 +29,7 @@ public class StaticDataService {
     public List<Factions> getAllFactions(){}
     public Factions addNewFaction(Factions newFaction){}
     public boolean updateFaction(int factionId, Factions newFaction){}
-    
+
     public List<Units> getUnitsByFaction(int factionId){}
     public List<Units> getUnitsByKeyword(String keyword){}
     public Optional<Units> getUnitById(int unitId){}
