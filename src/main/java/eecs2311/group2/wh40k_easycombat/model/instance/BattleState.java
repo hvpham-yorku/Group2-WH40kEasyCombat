@@ -8,7 +8,7 @@ public class BattleState {
     private String missionName;
     private int currentRound = 1;
     private Phase currentPhase = Phase.COMMAND;
-    private Player activePlayer = Player.ATTACKER; // Using your new Enum
+    private Player activePlayer = Player.ATTACKER;
 
     private int attackerVP = 0;
     private int defenderVP = 0;
