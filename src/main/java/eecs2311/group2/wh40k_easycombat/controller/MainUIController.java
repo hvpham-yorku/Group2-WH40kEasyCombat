@@ -24,8 +24,20 @@ public class MainUIController {
 
     // When click "Game Start" button
     @FXML
-    void startBtn(MouseEvent event) {
-    	
+    void startBtn(MouseEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/eecs2311/group2/wh40k_easycombat/GameUI.fxml")
+        );
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource())
+                .getScene()
+                .getWindow();
+        
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+
     }
     
     // When click "Rules and Datasheets" button
