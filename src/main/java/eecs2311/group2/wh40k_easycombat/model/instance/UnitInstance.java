@@ -109,4 +109,15 @@ public class UnitInstance {
     public List<String> getKeywords() {
         return template.keywordIdList();
     }
+
+    public UnitInstance copy() {
+        UnitInstance copy = new UnitInstance(this.template);
+        copy.currentWounds = this.currentWounds;
+        copy.currentOC = this.currentOC;
+        copy.isBattleShocked = this.isBattleShocked;
+        copy.meleeWeaponIds = new ArrayList<>(this.meleeWeaponIds);
+        copy.rangedWeaponIds = new ArrayList<>(this.rangedWeaponIds);
+        // Important: Keep the same instanceId so UI knows it's the same unit
+        return copy;
+    }
 }
