@@ -6,11 +6,11 @@ import java.util.List;
 public record MeleeWeapons(
     @PK @AutoIncrement int id,
     @NotNull String name,
-    String A,
-    Integer WS,
-    Integer S,
-    Integer AP,
-    String D,
-    List<Integer> keywordIdList
+    @NotNull String A,
+    @NotNull Integer WS,
+    @NotNull Integer S,
+    @NotNull Integer AP,
+    @NotNull String D,
+    @NotNull List<Integer> keywordIdList
 ) {
 }

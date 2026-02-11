@@ -6,12 +6,12 @@ import java.util.List;
 public record RangeWeapons(
     @PK @AutoIncrement int id,
     @NotNull String name,
-    Integer range,
-    String A,
-    Integer BS,
-    Integer S,
-    Integer AP,
-    String D,
-    List<Integer> keywordIdList
+    @NotNull Integer range,
+    @NotNull String A,
+    @NotNull Integer BS,
+    @NotNull Integer S,
+    @NotNull Integer AP,
+    @NotNull String D,
+    @NotNull List<Integer> keywordIdList
 ) {
 }
