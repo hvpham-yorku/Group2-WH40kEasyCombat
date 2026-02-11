@@ -86,7 +86,76 @@ public class GameUIController {
 	@FXML private Button redPlusButton;
 	@FXML private Button redSubButton;
 
+
+	// ======================= Blue Player ============================
+	// When click "+" button, blue CP + 1
+    @FXML
+    void blueClickPlus(MouseEvent event) {
+
+    }
+
+    // When click "-" button, blue CP - 1
+    @FXML
+    void blueClickSub(MouseEvent event) {
+
+    }
+
+    // When click "Import Army" button, import the Army that selected to blue player
+    @FXML
+    void blueImport(MouseEvent event) {
+
+    }
+
+    // When click "Select" button, blue use the stratagem and subtract the corresponding CP
+    @FXML
+    void blueSelect(MouseEvent event) {
+
+    }
+    
+    // ======================= Red Player ===============================
+    // When click "+" button, red CP + 1
+    @FXML
+    void redClickPlus(MouseEvent event) {
+
+    }
+    
+    // When click "+" button, red CP - 1
+    @FXML
+    void redClickSub(MouseEvent event) {
+
+    }
+
+    // When click "Import Army" button, import the Army that selected to red player
+    @FXML
+    void redImport(MouseEvent event) {
+
+    }
+    
+	// When click "Select" button, red use the stratagem and subtract the corresponding CP
+    @FXML
+    void redSelect(MouseEvent event) {
+
+    }
+    
+    // ======================= Global =====================================
+    // When click "Roll" button, roll the numbers of dice that player set
+    @FXML
+    void rollDice(MouseEvent event) {
+
+    }
 	
+    // When click "Next Round" button, start next round
+    @FXML
+    void nextRound(MouseEvent event) {
+
+    }
+
+    // When click "Battle Log" button, open the battle log widow
+    @FXML
+    void openLog(MouseEvent event) {
+
+    }
+    
 	// When click "Exit Game" button, the alert will show, click ok will exit the game and back to Main page
     @FXML
     void clickExit(MouseEvent event) throws IOException {
@@ -111,5 +180,7 @@ public class GameUIController {
             stage.show();
         }
     }
+    
+    
 
 }

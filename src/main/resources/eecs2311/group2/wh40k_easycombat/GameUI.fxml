@@ -77,7 +77,7 @@
                 <TreeTableColumn fx:id="blueCPcost" prefWidth="68.0" text="CP" />
               </columns>
             </TreeTableView>
-            <Button fx:id="blueSelectButton" layoutX="114.0" layoutY="578.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Button fx:id="blueSelectButton" layoutX="114.0" layoutY="578.0" mnemonicParsing="false" onMouseClicked="#blueSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
             <Label layoutX="61.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
@@ -88,12 +88,12 @@
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="bluePlusButton" layoutX="208.0" layoutY="66.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="bluePlusButton" layoutX="208.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="blueSubButton" layoutX="61.0" layoutY="66.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="blueSubButton" layoutX="61.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
@@ -108,7 +108,7 @@
                 <TableColumn fx:id="blueMission" prefWidth="298.0" text="Missions" />
               </columns>
             </TableView>
-            <Button fx:id="blueImportButton" layoutX="95.0" layoutY="768.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <Button fx:id="blueImportButton" layoutX="95.0" layoutY="768.0" mnemonicParsing="false" onMouseClicked="#blueImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
          </children></Pane>
    </left>
    <right>
@@ -126,7 +126,7 @@
                 <TreeTableColumn fx:id="redCPcost" prefWidth="68.0" text="CP" />
               </columns>
             </TreeTableView>
-            <Button fx:id="redSelectButton" layoutX="456.0" layoutY="578.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Button fx:id="redSelectButton" layoutX="456.0" layoutY="578.0" mnemonicParsing="false" onMouseClicked="#redSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
             <Label layoutX="403.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
@@ -137,12 +137,12 @@
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="redPlusButton" layoutX="550.0" layoutY="66.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="redPlusButton" layoutX="550.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="redSubButton" layoutX="403.0" layoutY="66.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="redSubButton" layoutX="403.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
@@ -157,7 +157,7 @@
                 <TableColumn fx:id="redMission" prefWidth="298.0" text="Missions" />
               </columns>
             </TableView>
-            <Button fx:id="redImportButton" layoutX="443.0" layoutY="768.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <Button fx:id="redImportButton" layoutX="443.0" layoutY="768.0" mnemonicParsing="false" onMouseClicked="#redImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
          </children></Pane>
    </right>
    <center>
@@ -179,7 +179,7 @@
                </font>
             </Label>
             <TextArea fx:id="virtuaDiceBox" layoutX="129.0" layoutY="307.0" prefHeight="283.0" prefWidth="361.0" />
-            <Button fx:id="rollButton" layoutX="270.0" layoutY="603.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="80.0" text="Roll" />
+            <Button fx:id="rollButton" layoutX="270.0" layoutY="603.0" mnemonicParsing="false" onMouseClicked="#rollDice" prefHeight="36.0" prefWidth="80.0" text="Roll" />
             <Label layoutX="245.0" layoutY="207.0" text="Virtual dice">
                <font>
                   <Font size="24.0" />
@@ -190,7 +190,7 @@
                   <Insets />
                </opaqueInsets>
             </Spinner>
-            <Button fx:id="nextRoundButton" alignment="CENTER" layoutX="184.0" layoutY="703.0" mnemonicParsing="false" prefHeight="65.0" prefWidth="251.0" text="Next Round" textAlignment="CENTER">
+            <Button fx:id="nextRoundButton" alignment="CENTER" layoutX="184.0" layoutY="703.0" mnemonicParsing="false" onMouseClicked="#nextRound" prefHeight="65.0" prefWidth="251.0" text="Next Round" textAlignment="CENTER">
                <font>
                   <Font size="24.0" />
                </font>
@@ -200,7 +200,7 @@
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="battleLogButton" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" text="Battle Log">
+            <Button fx:id="battleLogButton" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" onMouseClicked="#openLog" text="Battle Log">
                <font>
                   <Font size="18.0" />
                </font>
