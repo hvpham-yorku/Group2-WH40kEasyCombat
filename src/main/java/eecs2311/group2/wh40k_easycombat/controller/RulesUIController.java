@@ -1,12 +1,9 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -78,16 +75,9 @@ public class RulesUIController {
     // When click "Back to Main Page" button, back to Main page
     @FXML
     void backMainpage(MouseEvent event) throws IOException {
-        Parent root = FXMLLoader.load(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
-        );
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-
-        stage.setScene(new Scene(root));
-        stage.show();
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+                1200.0, 800.0);
     }
     
     // When click "Search" button, search the units
@@ -99,16 +89,9 @@ public class RulesUIController {
     // When click "ADD" button, go to RuleEditor page
     @FXML
     void add(MouseEvent event) throws IOException {
-    	Parent root = FXMLLoader.load(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
-        );
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-
-        stage.setScene(new Scene(root));
-        stage.show();
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                1000.0, 600.0);
     }
     
     // When click "Edit" button, get the data from unit and edit it

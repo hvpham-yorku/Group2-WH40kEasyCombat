@@ -2,12 +2,9 @@ package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
 import java.util.Optional;
-
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -20,7 +17,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 public class GameUIController {
 	// ======================= Global Controls ======================
@@ -159,11 +155,6 @@ public class GameUIController {
 	// When click "Exit Game" button, the alert will show, click ok will exit the game and back to Main page
     @FXML
     void clickExit(MouseEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
-        );
-        Parent root = loader.load();
-
     	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Exit");
         alert.setHeaderText("Are you sure you want to exit the current Game?");
@@ -171,13 +162,9 @@ public class GameUIController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene()
-                    .getWindow();
-            
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
+            FixedAspectView.switchTo((Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+                    1200.0, 800.0);
         }
     }
     
