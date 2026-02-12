@@ -1,6 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.db;
 
 import eecs2311.group2.wh40k_easycombat.util.SqlGenerator;
+import eecs2311.group2.wh40k_easycombat.util.JavaGenerator;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 public final class Database {
     private static final String URL = "jdbc:sqlite:app.db";
@@ -53,6 +55,41 @@ public final class Database {
         }
     }
 
+    public static void generateJavaCrudFile() {
+        final String MODEL_PACKAGE = "eecs2311.group2.wh40k_easycombat.model";
+        List<Class<?>> tableClasses;
+
+        try{
+            tableClasses = JavaGenerator.getClassesWithTableAnnotation(MODEL_PACKAGE);
+        }
+        catch (Exception e) {
+            System.err.println("Error loading classes");
+            e.printStackTrace();
+            throw new RuntimeException("Java CRUD File generation failed", e);
+        }
+        System.out.println("===== Starting Java CRUD File Generation ====");
+        for (Class<?> clazz : tableClasses) {
+            Path schemaPath = Paths.get("src/main/java/eecs2311/group2/wh40k_easycombat/repository/" + JavaGenerator.pluralToSingular(clazz.getSimpleName()) + "Repository.java");
+
+            try {
+                String fullJava = JavaGenerator.generateCrudCode(clazz);
+
+                if (schemaPath.getParent() != null) {
+                    Files.createDirectories(schemaPath.getParent());
+                }
+
+                Files.writeString(schemaPath, fullJava, StandardCharsets.UTF_8);
+
+                System.out.println("New Java CRUD File Generated: " + schemaPath.toAbsolutePath());
+            } catch (Exception e) {
+                System.err.println("Failed to generate java file!");
+                e.printStackTrace();
+                throw new RuntimeException("Java CRUD File generation failed", e);
+            } 
+        }
+        System.out.println("=== File Generation Finished Successfully ===");
+    }
+
     public static void executeSqlFolder(String folderPath) throws IOException, SQLException {
         Path folder = Path.of(folderPath);
         if (!Files.exists(folder) || !Files.isDirectory(folder)) {
@@ -74,6 +111,7 @@ public final class Database {
                     }
                 }
             }
+            stream.close();
         }
     }
 
