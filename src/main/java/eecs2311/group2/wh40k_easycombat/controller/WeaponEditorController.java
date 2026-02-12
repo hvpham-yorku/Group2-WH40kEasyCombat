@@ -1,18 +1,15 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 public class WeaponEditorController {
 	// ======================= Buttons ===============================
@@ -55,18 +52,9 @@ public class WeaponEditorController {
 	// When click "Back" button, back to RuleEditor page
 	@FXML
     void backToUnitEdtior(MouseEvent event) throws IOException {
-		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml")
-        );
-        Parent root = loader.load();
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-        
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+	    FixedAspectView.switchTo((Node) event.getSource(),
+	            "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+	            1000.0, 600.0);
     }
 	
 	// When click "Clear" button, Clear all the text in the text field
