@@ -1,16 +1,11 @@
 package eecs2311.group2.wh40k_easycombat;
 	
 import eecs2311.group2.wh40k_easycombat.db.Database;
-import eecs2311.group2.wh40k_easycombat.model.Units;
-import eecs2311.group2.wh40k_easycombat.util.SqlGenerator;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.fxml.FXMLLoader;
-
-import java.io.IOException;
-import java.sql.SQLException;
 
 
 public class Main extends Application {

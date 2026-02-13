@@ -15,7 +15,7 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="factiontxt" layoutX="78.0" layoutY="60.0">
+            <TextField fx:id="factiontxt" editable="false" layoutX="78.0" layoutY="60.0">
                <font>
                   <Font size="18.0" />
                </font>
