@@ -1,11 +1,9 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -13,7 +11,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 public class RuleEditorController {
 	// ======================= Buttons ====================================
@@ -70,18 +67,9 @@ public class RuleEditorController {
 	// When click "Cancel" button, back to Rules page
 	@FXML
 	void cancel(MouseEvent event) throws IOException {
-		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/RulesUI.fxml")
-        );
-        Parent root = loader.load();
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-        
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+	    FixedAspectView.switchTo((Node) event.getSource(),
+	            "/eecs2311/group2/wh40k_easycombat/RulesUI.fxml",
+	            1200.0, 800.0);
 	}
 
 	// When click "Save" button, save all the data to database and return to RulesUIpage
@@ -99,35 +87,17 @@ public class RuleEditorController {
 	// When click "ADD" button of add weapon, go to WeaponEditor page
 	@FXML
     void addWeapon(MouseEvent event) throws IOException {
-		FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/WeaponEditor.fxml")
-        );
-        Parent root = loader.load();
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-        
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+	    FixedAspectView.switchTo((Node) event.getSource(),
+	            "/eecs2311/group2/wh40k_easycombat/WeaponEditor.fxml",
+	            1200.0, 800.0);
     }
 	
 	// When click "Ability Setting" button, go to UnitAbility page
     @FXML
     void abilitySetting(MouseEvent event) throws IOException {
-    	FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/UnitAbility.fxml")
-        );
-        Parent root = loader.load();
-
-        Stage stage = (Stage) ((Node) event.getSource())
-                .getScene()
-                .getWindow();
-        
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/UnitAbility.fxml",
+                1000.0, 600.0);
     }
 
 }

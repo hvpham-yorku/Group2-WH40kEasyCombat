@@ -5,9 +5,71 @@ PRAGMA journal_mode = WAL;
 
 PRAGMA synchronous = NORMAL;
 
+CREATE TABLE IF NOT EXISTS armies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    isFavorite INTEGER CHECK(isFavorite IN (0,1)),
+    totalPoints INTEGER,
+    warlordId INTEGER,
+    factionId INTEGER NOT NULL,
+    detachmentId INTEGER,
+    unitIdList TEXT,
+    equippedRangedWeaponIdList TEXT,
+    equippedMeleeWeaponIdList TEXT,
+    FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(detachmentId) REFERENCES detachments(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS core_abilities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ability TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS detachments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    factionId INTEGER NOT NULL,
+    strategyId INTEGER,
+    detachmentRule TEXT,
+    FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS factions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS melee_weapons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    A TEXT NOT NULL,
+    WS INTEGER NOT NULL,
+    S INTEGER NOT NULL,
+    AP INTEGER NOT NULL,
+    D TEXT NOT NULL,
+    keywordIdList TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS other_abilities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ability TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ranged_weapons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    range INTEGER NOT NULL,
+    A TEXT NOT NULL,
+    BS INTEGER NOT NULL,
+    S INTEGER NOT NULL,
+    AP INTEGER NOT NULL,
+    D TEXT NOT NULL,
+    keywordIdList TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS unit_keywords (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    keyword TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS units (
@@ -28,5 +90,10 @@ CREATE TABLE IF NOT EXISTS units (
     rangedWeaponIdList TEXT NOT NULL,
     meleeWeaponIdList TEXT NOT NULL,
     FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS weapon_keywords (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    keyword TEXT NOT NULL
 );
 

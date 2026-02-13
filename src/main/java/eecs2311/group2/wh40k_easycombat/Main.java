@@ -33,6 +33,8 @@ public class Main extends Application {
         Database.executeSqlFolder("src/main/resources/sql/");
         System.out.println("SQL scripts executed!");
         
+        Database.generateJavaCrudFile();
+        
 		launch(args);
 	}
 }
