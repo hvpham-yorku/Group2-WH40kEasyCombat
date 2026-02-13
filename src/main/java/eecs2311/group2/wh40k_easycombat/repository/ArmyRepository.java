@@ -11,7 +11,7 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class ArmyRepository {
 		public static int addNewArmy(Armies army) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO armies (name, isFavorite, totalPoints, warlordId, factionId, detachmentId, unitIdList, equippedRangedWeaponIdList, equippedMeleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 						army.name(),
 						army.isFavorite(),
@@ -22,7 +22,7 @@ public class ArmyRepository {
 						IntListCodec.encode(army.unitIdList()),
 						IntListCodec.encode(army.equippedRangedWeaponIdList()),
 						IntListCodec.encode(army.equippedMeleeWeaponIdList())
-				);
+				).get(0);
 		}
 		public static Armies getArmyById(int id) throws SQLException {
 				return Dao.query(

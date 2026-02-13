@@ -17,7 +17,7 @@ public class JavaGenerator {
         String classInstance = classNameSingular.toLowerCase(); //unit
         
         //Function header
-        String javaFunc = "\t\tpublic static int addNew" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n\t\t\t\treturn Dao.update(\n";
+        String javaFunc = "\t\tpublic static int addNew" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n\t\t\t\treturn Dao.insert(\n";
         
         StringBuilder sql = new StringBuilder("\t\t\t\t\t\t\"INSERT INTO " + tableName + " (");
         StringBuilder placeholders = new StringBuilder(" VALUES (");
@@ -46,7 +46,7 @@ public class JavaGenerator {
         //Closes the sql statement
         placeholders.append(")\"");
 
-        String result = javaFunc + sql.toString() + placeholders.toString() + parameters.toString() + "\n\t\t\t\t);\n\t\t}\n";
+        String result = javaFunc + sql.toString() + placeholders.toString() + parameters.toString() + "\n\t\t\t\t).get(0);\n\t\t}\n";
         
         return result;
     }

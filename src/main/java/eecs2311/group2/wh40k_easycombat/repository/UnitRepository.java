@@ -11,7 +11,7 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class UnitRepository {
 		public static int addNewUnit(Units unit) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, composition, coreAbilityIdList, otherAbilityIdList, keywordIdList, rangedWeaponIdList, meleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 						unit.factionId(),
 						unit.name(),
@@ -30,7 +30,7 @@ public class UnitRepository {
 						IntListCodec.encode(unit.keywordIdList()),
 						IntListCodec.encode(unit.rangedWeaponIdList()),
 						IntListCodec.encode(unit.meleeWeaponIdList())
-				);
+				).get(0);
 		}
 		public static Units getUnitById(int id) throws SQLException {
 				return Dao.query(

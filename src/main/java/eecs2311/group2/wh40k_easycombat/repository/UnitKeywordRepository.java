@@ -11,10 +11,10 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class UnitKeywordRepository {
 		public static int addNewUnitKeyword(UnitKeywords unitkeyword) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO unit_keywords (keyword VALUES (?)",
 						unitkeyword.keyword()
-				);
+				).get(0);
 		}
 		public static UnitKeywords getUnitKeywordById(int id) throws SQLException {
 				return Dao.query(

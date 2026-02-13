@@ -11,13 +11,13 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class DetachmentRepository {
 		public static int addNewDetachment(Detachments detachment) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO detachments (name, factionId, strategyId, detachmentRule VALUES (?, ?, ?, ?)",
 						detachment.name(),
 						detachment.factionId(),
 						detachment.strategyId(),
 						detachment.detachmentRule()
-				);
+				).get(0);
 		}
 		public static Detachments getDetachmentById(int id) throws SQLException {
 				return Dao.query(

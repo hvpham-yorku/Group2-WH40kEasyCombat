@@ -11,10 +11,10 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class FactionRepository {
 		public static int addNewFaction(Factions faction) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO factions (name VALUES (?)",
 						faction.name()
-				);
+				).get(0);
 		}
 		public static Factions getFactionById(int id) throws SQLException {
 				return Dao.query(

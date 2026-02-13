@@ -11,7 +11,7 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class MeleeWeaponRepository {
 		public static int addNewMeleeWeapon(MeleeWeapons meleeweapon) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO melee_weapons (name, A, WS, S, AP, D, keywordIdList VALUES (?, ?, ?, ?, ?, ?, ?)",
 						meleeweapon.name(),
 						meleeweapon.A(),
@@ -20,7 +20,7 @@ public class MeleeWeaponRepository {
 						meleeweapon.AP(),
 						meleeweapon.D(),
 						IntListCodec.encode(meleeweapon.keywordIdList())
-				);
+				).get(0);
 		}
 		public static MeleeWeapons getMeleeWeaponById(int id) throws SQLException {
 				return Dao.query(

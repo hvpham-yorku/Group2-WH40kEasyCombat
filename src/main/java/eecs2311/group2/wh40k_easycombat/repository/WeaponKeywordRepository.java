@@ -11,10 +11,10 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class WeaponKeywordRepository {
 		public static int addNewWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO weapon_keywords (keyword VALUES (?)",
 						weaponkeyword.keyword()
-				);
+				).get(0);
 		}
 		public static WeaponKeywords getWeaponKeywordById(int id) throws SQLException {
 				return Dao.query(

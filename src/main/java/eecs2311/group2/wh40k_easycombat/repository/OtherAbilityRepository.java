@@ -11,10 +11,10 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class OtherAbilityRepository {
 		public static int addNewOtherAbility(OtherAbilities otherability) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO other_abilities (ability VALUES (?)",
 						otherability.ability()
-				);
+				).get(0);
 		}
 		public static OtherAbilities getOtherAbilityById(int id) throws SQLException {
 				return Dao.query(

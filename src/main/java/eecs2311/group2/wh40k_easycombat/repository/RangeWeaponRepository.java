@@ -11,7 +11,7 @@ import java.sql.SQLException;
 @SuppressWarnings("unused")
 public class RangeWeaponRepository {
 		public static int addNewRangeWeapon(RangeWeapons rangeweapon) throws SQLException {
-				return Dao.update(
+				return Dao.insert(
 						"INSERT INTO ranged_weapons (name, range, A, BS, S, AP, D, keywordIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 						rangeweapon.name(),
 						rangeweapon.range(),
@@ -21,7 +21,7 @@ public class RangeWeaponRepository {
 						rangeweapon.AP(),
 						rangeweapon.D(),
 						IntListCodec.encode(rangeweapon.keywordIdList())
-				);
+				).get(0);
 		}
 		public static RangeWeapons getRangeWeaponById(int id) throws SQLException {
 				return Dao.query(

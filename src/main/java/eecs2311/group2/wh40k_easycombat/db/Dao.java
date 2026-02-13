@@ -50,13 +50,54 @@ public class Dao {
     }
 
     /**
-     * Dao.update(
+     * Dao.insert(
      *     "INSERT INTO Unit (id, name, points, keywordIdList) VALUES (?, ?, ?, ?)",
      *     unit.id(), unit.name(), unit.points(),
      *     StringListCodec.encode(unit.keywordIdList())
      * );
      *
-     * For INSERT/UPDATE/DELETE
+     * For INSERT
+     * 
+     * @param sql
+     * @param params
+     * @return
+     * @throws SQLException
+     */
+    public static List<Integer> insert(
+        String sql,
+        Object... params
+    ) throws SQLException {
+
+        try (Connection conn = Database.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            bind(ps, params);
+            ps.executeUpdate();
+
+            List<Integer> ids = new ArrayList<>();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt(1));
+                }
+            }
+
+            if (ids.isEmpty()) {
+                throw new SQLException("No ID returned.");
+            }
+
+            return ids;
+        }
+    }
+
+
+    /**
+     * Dao.update(
+     *     "UPDATE Unit SET name = ?, points = ?, keywordIdList = ? WHERE id = ?",
+     *      unit.name(), unit.points(),
+     *      StringListCodec.encode(unit.keywordIdList()), unit.id()
+     *
+     * For UPDATE/DELETE
      * 
      * @param sql
      * @param params
@@ -69,18 +110,12 @@ public class Dao {
     ) throws SQLException {
 
         try (Connection conn = Database.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-            bind(ps, params);
-            ps.executeUpdate();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    throw new SQLException("No ID returned.");
-                }
-            }
+            bind(ps, params);
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected;
         }
     }
 
@@ -105,7 +140,7 @@ public class Dao {
     }
 
     // For Tx
-    public static int update(
+    public static List<Integer> insert(
         Connection conn,
         String sql,
         Object... params
@@ -114,13 +149,35 @@ public class Dao {
         try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             bind(ps, params);
             ps.executeUpdate();
+            
+            List<Integer> ids = new ArrayList<>();
+
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    throw new SQLException("No ID returned.");
+                while (rs.next()) {
+                    ids.add(rs.getInt(1));
                 }
             }
+
+            if (ids.isEmpty()) {
+                throw new SQLException("No ID returned.");
+            }
+
+            return ids;
+        }
+    }
+
+    // For Tx
+    public static int update(
+        Connection conn,
+        String sql,
+        Object... params
+    ) throws SQLException {
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            bind(ps, params);
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected;
         }
     }
 
