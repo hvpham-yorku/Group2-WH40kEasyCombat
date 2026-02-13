@@ -10,7 +10,7 @@ public class DataPopulator {
 
     public static void main(String[] args) {
         CsvRead read = new CsvRead();
-        InputStream csvStream = DataPopulator.class.getResourceAsStream("/units.csv");
+        InputStream csvStream = DataPopulator.class.getResourceAsStream("/sql/units.csv");
 
         if (csvStream == null) {
             System.out.println("units.csv not found in resources!");
