@@ -103,7 +103,29 @@ public class StaticDataService {
 
     public int addUnit(Units u) throws SQLException {
         int id = UnitRepository.addNewUnit(u);
-        units.put(id, u);
+
+        Units fixed = new Units(
+                id,
+                u.factionId(),
+                u.name(),
+                u.points(),
+                u.M(),
+                u.T(),
+                u.SV(),
+                u.W(),
+                u.LD(),
+                u.OC(),
+                u.invulnerableSave(),
+                u.category(),
+                u.composition(),
+                u.coreAbilityIdList(),
+                u.otherAbilityIdList(),
+                u.keywordIdList(),
+                u.rangedWeaponIdList(),
+                u.meleeWeaponIdList()
+        );
+
+        units.put(id, fixed);
         return id;
     }
 
@@ -228,7 +250,10 @@ public class StaticDataService {
 
     public int addOtherAbility(OtherAbilities a) throws SQLException {
         int id = OtherAbilityRepository.addNewOtherAbility(a);
-        otherAbilities.put(id, a);
+
+        OtherAbilities fixed = new OtherAbilities(id, a.ability());
+        otherAbilities.put(id, fixed);
+
         return id;
     }
 

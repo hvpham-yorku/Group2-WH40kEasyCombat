@@ -23,13 +23,12 @@ public class RuleEditorController {
     @FXML private Button abilityButton;
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
-
     @FXML private Button unitKeywordAddButton;
     @FXML private Button weaponAddButton;
-    @FXML private Button keywordEditButton_Unit;
 
     // ======================= ComboBox ===================================
     @FXML private ComboBox<Factions> factionCBbox;
+    @FXML private ComboBox<String> categoryCBbox;
 
     // ======================= Keyword Area ===============================
     @FXML private TextArea keywordTextbox;
@@ -68,37 +67,46 @@ public class RuleEditorController {
 
     // ======================= Tables - Unit Keyword =======================
     @FXML private TableView<UnitKeywords> unitKeywordTable;
-    @FXML private TableColumn<UnitKeywords, String> keywords; // you said you added this column
+    @FXML private TableColumn<UnitKeywords, String> keywords;
 
     // ======================= Service ====================================
     private final StaticDataService data = StaticDataService.getInstance();
 
     // ======================= Draft state =================================
-    private Units baseUnit;                 // null => add mode
-    private Integer editingUnitId = null;   // null => add mode
-    private int currentCategory = 2;        // default INFANTRY (you can change)
+    private Units workingUnit;               // null => add mode
+    private Integer editingUnitId = null;    // null => add mode
+
+    // category only has 3: 1 CHARACTER, 2 INFANTRY, 3 VEHICLE
+    private int currentCategory = 2;
+
+    // Unit composition is edited in UnitAbility page; keep it here and carry around.
     private String draftComposition = "";
 
+    // selections
     private final LinkedHashSet<Integer> selectedUnitKeywordIds = new LinkedHashSet<>();
     private final LinkedHashSet<Integer> selectedRangedWeaponIds = new LinkedHashSet<>();
     private final LinkedHashSet<Integer> selectedMeleeWeaponIds = new LinkedHashSet<>();
     private final LinkedHashSet<Integer> selectedCoreAbilityIds = new LinkedHashSet<>();
     private final LinkedHashSet<Integer> selectedOtherAbilityIds = new LinkedHashSet<>();
 
+    // caches for displaying names
     private final Map<Integer, String> unitKeywordById = new HashMap<>();
     private final Map<Integer, String> weaponKeywordById = new HashMap<>();
 
     private final ObservableList<Factions> factions = FXCollections.observableArrayList();
+    private final ObservableList<UnitKeywords> allUnitKeywords = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
 
         data.loadAll();
 
-        // cache
-        factions.setAll(data.getAllFactions().stream()
-                .sorted(Comparator.comparing(Factions::name, String.CASE_INSENSITIVE_ORDER))
-                .toList());
+        // ---- load caches ----
+        factions.setAll(
+                data.getAllFactions().stream()
+                        .sorted(Comparator.comparing(Factions::name, String.CASE_INSENSITIVE_ORDER))
+                        .toList()
+        );
 
         unitKeywordById.clear();
         for (UnitKeywords uk : data.getAllUnitKeywords()) unitKeywordById.put(uk.id(), uk.keyword());
@@ -106,27 +114,38 @@ public class RuleEditorController {
         weaponKeywordById.clear();
         for (WeaponKeywords wk : data.getAllWeaponKeywords()) weaponKeywordById.put(wk.id(), wk.keyword());
 
+        allUnitKeywords.setAll(
+                data.getAllUnitKeywords().stream()
+                        .sorted(Comparator.comparing(UnitKeywords::keyword, String.CASE_INSENSITIVE_ORDER))
+                        .toList()
+        );
+
         setupFactionCombo();
+        setupCategoryComboBox();
         setupKeywordTable();
         setupWeaponTables();
 
-        // decide add/edit mode
-        baseUnit = SelectedUnitContext.getSelectedUnit();
-        if (baseUnit == null) {
+        // ---- load from context ----
+        workingUnit = SelectedUnitContext.getSelectedUnit();
+        if (workingUnit == null) {
             setAddModeDefaults();
         } else {
-            loadUnitToUI(baseUnit);
+            loadUnitToUI(workingUnit);
         }
     }
 
+    // ======================= Setup UI =======================
+
     private void setupFactionCombo() {
         factionCBbox.setItems(factions);
+
         factionCBbox.setCellFactory(lv -> new ListCell<>() {
             @Override protected void updateItem(Factions item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? "" : item.name());
             }
         });
+
         factionCBbox.setButtonCell(new ListCell<>() {
             @Override protected void updateItem(Factions item, boolean empty) {
                 super.updateItem(item, empty);
@@ -135,13 +154,34 @@ public class RuleEditorController {
         });
     }
 
-    private void setupKeywordTable() {
-        unitKeywordTable.setItems(FXCollections.observableArrayList(
-                data.getAllUnitKeywords().stream()
-                        .sorted(Comparator.comparing(UnitKeywords::keyword, String.CASE_INSENSITIVE_ORDER))
-                        .toList()
+    private void setupCategoryComboBox() {
+        if (categoryCBbox == null) return;
+
+        categoryCBbox.setItems(FXCollections.observableArrayList(
+                "CHARACTER",
+                "INFANTRY",
+                "VEHICLE"
         ));
+
+        // default INFANTRY
+        categoryCBbox.getSelectionModel().select("INFANTRY");
+        currentCategory = 2;
+
+        categoryCBbox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
+            switch (newVal) {
+                case "CHARACTER" -> currentCategory = 1;
+                case "INFANTRY" -> currentCategory = 2;
+                case "VEHICLE" -> currentCategory = 3;
+                default -> currentCategory = 2;
+            }
+        });
+    }
+
+    private void setupKeywordTable() {
+        unitKeywordTable.setItems(allUnitKeywords);
         unitKeywordTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
         if (keywords != null) {
             keywords.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().keyword()));
         }
@@ -169,12 +209,10 @@ public class RuleEditorController {
         if (rK != null) rK.setCellValueFactory(d -> new SimpleStringProperty(toWeaponKeywordText(d.getValue().keywordIdList())));
     }
 
+    // ======================= Mode load =======================
+
     private void setAddModeDefaults() {
         editingUnitId = null;
-        currentCategory = 2;
-        draftComposition = "";
-
-        clearInputs();
 
         // default faction: Space Marines
         Factions defaultFaction = factions.stream()
@@ -183,14 +221,44 @@ public class RuleEditorController {
                 .orElse(factions.isEmpty() ? null : factions.get(0));
         factionCBbox.getSelectionModel().select(defaultFaction);
 
+        unitNametxtBox.clear();
+        pointtxtBox.clear();
+        mBox.clear();
+        tBox.clear();
+        svBox.clear();
+        wBox.clear();
+        ldBox.clear();
+        ocBOX.clear();
+        isvBox.clear();
+
+        currentCategory = 2;
+        if (categoryCBbox != null) categoryCBbox.getSelectionModel().select("INFANTRY");
+
+        draftComposition = "";
+
+        selectedUnitKeywordIds.clear();
+        selectedRangedWeaponIds.clear();
+        selectedMeleeWeaponIds.clear();
+        selectedCoreAbilityIds.clear();
+        selectedOtherAbilityIds.clear();
+
         refreshKeywordTextbox();
-        refreshWeapons();
+        refreshWeaponsTables();
     }
 
     private void loadUnitToUI(Units u) {
         editingUnitId = u.id();
         currentCategory = u.category();
         draftComposition = safe(u.composition());
+
+        if (categoryCBbox != null) {
+            switch (currentCategory) {
+                case 1 -> categoryCBbox.getSelectionModel().select("CHARACTER");
+                case 2 -> categoryCBbox.getSelectionModel().select("INFANTRY");
+                case 3 -> categoryCBbox.getSelectionModel().select("VEHICLE");
+                default -> categoryCBbox.getSelectionModel().select("INFANTRY");
+            }
+        }
 
         factionCBbox.getSelectionModel().select(
                 factions.stream().filter(f -> f.id() == u.factionId()).findFirst().orElse(null)
@@ -222,7 +290,7 @@ public class RuleEditorController {
         if (u.otherAbilityIdList() != null) selectedOtherAbilityIds.addAll(u.otherAbilityIdList());
 
         refreshKeywordTextbox();
-        refreshWeapons();
+        refreshWeaponsTables();
     }
 
     private void refreshKeywordTextbox() {
@@ -233,8 +301,7 @@ public class RuleEditorController {
         );
     }
 
-    private void refreshWeapons() {
-
+    private void refreshWeaponsTables() {
         List<MeleeWeapons> melee = selectedMeleeWeaponIds.stream()
                 .map(id -> data.getMeleeWeaponById(id).orElse(null))
                 .filter(Objects::nonNull)
@@ -251,51 +318,24 @@ public class RuleEditorController {
 
     private String toWeaponKeywordText(List<Integer> ids) {
         if (ids == null || ids.isEmpty()) return "";
-        return ids.stream().map(id -> weaponKeywordById.getOrDefault(id, "WK#" + id))
+        return ids.stream()
+                .map(id -> weaponKeywordById.getOrDefault(id, "WK#" + id))
                 .collect(Collectors.joining(", "));
     }
 
-    private void clearInputs() {
-        unitNametxtBox.clear();
-        pointtxtBox.clear();
-        mBox.clear();
-        tBox.clear();
-        svBox.clear();
-        wBox.clear();
-        ldBox.clear();
-        ocBOX.clear();
-        isvBox.clear();
-
-        selectedUnitKeywordIds.clear();
-        selectedRangedWeaponIds.clear();
-        selectedMeleeWeaponIds.clear();
-        selectedCoreAbilityIds.clear();
-        selectedOtherAbilityIds.clear();
-    }
-
-    // ======================= Actions =======================
+    // ======================= Navigation =======================
 
     @FXML
     void cancel(MouseEvent event) throws IOException {
+        SelectedUnitContext.clear();
         FixedAspectView.switchTo((Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/RulesUI.fxml",
                 1200.0, 800.0);
     }
 
     @FXML
-    void keywordAdd(MouseEvent event) {
-        List<UnitKeywords> picked = unitKeywordTable.getSelectionModel().getSelectedItems();
-        if (picked == null || picked.isEmpty()) {
-            warn("No Selection", "Please select keyword(s) to add.");
-            return;
-        }
-        for (UnitKeywords uk : picked) selectedUnitKeywordIds.add(uk.id());
-        refreshKeywordTextbox();
-    }
-
-    @FXML
     void addWeapon(MouseEvent event) throws IOException {
-        SelectedUnitContext.setSelectedUnit(buildDraftUnit());
+        SelectedUnitContext.setSelectedUnit(buildDraftUnitFromUI());
         FixedAspectView.switchTo((Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/WeaponEditor.fxml",
                 1200.0, 800.0);
@@ -303,26 +343,40 @@ public class RuleEditorController {
 
     @FXML
     void abilitySetting(MouseEvent event) throws IOException {
-        SelectedUnitContext.setSelectedUnit(buildDraftUnit());
+        SelectedUnitContext.setSelectedUnit(buildDraftUnitFromUI());
         FixedAspectView.switchTo((Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/UnitAbility.fxml",
                 1000.0, 600.0);
     }
 
-    @FXML
-    void save(MouseEvent event) {
+    // ======================= Keyword Add =======================
 
-        List<String> errors = validateRequiredFields();
-        if (!errors.isEmpty()) {
-            warn("Missing Required Fields", String.join("\n", errors));
+    @FXML
+    void keywordAdd(MouseEvent event) {
+        List<UnitKeywords> selected = unitKeywordTable.getSelectionModel().getSelectedItems();
+        if (selected == null || selected.isEmpty()) {
+            showWarning("No Selection", "Please select keyword(s) to add.");
             return;
         }
 
-        try {
-            Units u = buildUnitFromUI();
+        for (UnitKeywords k : selected) selectedUnitKeywordIds.add(k.id());
+        refreshKeywordTextbox();
+    }
 
-            if (editingUnitId == null) data.addUnit(u);
-            else data.updateUnit(u);
+    // ======================= Save =======================
+
+    @FXML
+    void save(MouseEvent event) {
+        try {
+            validateRequiredFields();
+
+            Units toSave = buildUnitForDBSave();
+
+            if (toSave.id() == 0) {
+                data.addUnit(toSave);
+            } else {
+                data.updateUnit(toSave);
+            }
 
             data.loadAll();
             SelectedUnitContext.clear();
@@ -332,96 +386,67 @@ public class RuleEditorController {
                     1200.0, 800.0);
 
         } catch (SQLException e) {
-            error("Database Error", e.getMessage());
-        } catch (IOException e) {
-            error("Navigation Error", e.getMessage());
+            e.printStackTrace();
+            showError("Database Error", e.getMessage());
         } catch (Exception e) {
-            error("Error", e.getMessage());
+            e.printStackTrace();
+            showError("Save Error", e.getMessage());
         }
     }
 
-    // ======================= Validation =======================
+    private void validateRequiredFields() {
 
-    private List<String> validateRequiredFields() {
-        List<String> errors = new ArrayList<>();
+        if (factionCBbox.getValue() == null) {
+            throw new IllegalArgumentException("Faction is required.");
+        }
 
-        if (factionCBbox.getValue() == null) errors.add("Faction must be selected.");
-        if (safe(unitNametxtBox.getText()).trim().isEmpty()) errors.add("Unit name is required.");
+        if (categoryCBbox != null && categoryCBbox.getValue() == null) {
+            throw new IllegalArgumentException("Category is required.");
+        }
 
-        requireInt(pointtxtBox, "Points", errors);
-        requireInt(mBox, "M", errors);
-        requireInt(tBox, "T", errors);
-        requireInt(svBox, "SV", errors);
-        requireInt(wBox, "W", errors);
-        requireInt(ldBox, "LD", errors);
-        requireInt(ocBOX, "OC", errors);
+        if (safe(unitNametxtBox.getText()).trim().isEmpty()) {
+            throw new IllegalArgumentException("Unit name is required.");
+        }
+
+        requireInt(pointtxtBox, "Points");
+        requireInt(mBox, "M");
+        requireInt(tBox, "T");
+        requireInt(svBox, "SV");
+        requireInt(wBox, "W");
+        requireInt(ldBox, "LD");
+        requireInt(ocBOX, "OC");
 
         String inv = safe(isvBox.getText()).trim();
-        if (!inv.isEmpty() && !isInt(inv)) errors.add("Invulnerable Save must be an integer.");
-
-        // You said user must provide all data; keep at least one keyword required
-        if (selectedUnitKeywordIds.isEmpty()) errors.add("At least one Unit Keyword is required.");
-
-        return errors;
+        if (!inv.isEmpty()) {
+            parseIntStrict(inv, "Invulnerable Save");
+        }
     }
 
-    private void requireInt(TextField field, String name, List<String> errors) {
+    private void requireInt(TextField field, String name) {
         String v = safe(field.getText()).trim();
-        if (v.isEmpty()) { errors.add(name + " is required."); return; }
-        if (!isInt(v)) errors.add(name + " must be an integer.");
+        if (v.isEmpty()) throw new IllegalArgumentException(name + " is required.");
+        parseIntStrict(v, name);
     }
 
-    private boolean isInt(String s) {
-        try { Integer.parseInt(s.trim()); return true; }
-        catch (Exception e) { return false; }
+    private int parseIntStrict(String raw, String fieldName) {
+        try { return Integer.parseInt(raw.trim()); }
+        catch (Exception e) { throw new IllegalArgumentException(fieldName + " must be an integer."); }
     }
 
-    // ======================= Build Units =======================
-
-    private Units buildUnitFromUI() {
+    // Build a unit snapshot to pass to sub-editors (Weapon/Ability)
+    private Units buildDraftUnitFromUI() {
 
         int id = (editingUnitId == null) ? 0 : editingUnitId;
+        int factionId = factionCBbox.getValue() == null ? 0 : factionCBbox.getValue().id();
 
-        int factionId = factionCBbox.getValue().id();
-        String name = safe(unitNametxtBox.getText()).trim();
-
-        int points = Integer.parseInt(pointtxtBox.getText().trim());
-        int m = Integer.parseInt(mBox.getText().trim());
-        int t = Integer.parseInt(tBox.getText().trim());
-        int sv = Integer.parseInt(svBox.getText().trim());
-        int w = Integer.parseInt(wBox.getText().trim());
-        int ld = Integer.parseInt(ldBox.getText().trim());
-        int oc = Integer.parseInt(ocBOX.getText().trim());
-
-        int inv = 0;
-        String invText = safe(isvBox.getText()).trim();
-        if (!invText.isEmpty()) inv = Integer.parseInt(invText);
-
-        return new Units(
-                id,
-                factionId,
-                name,
-                points,
-                m,
-                t,
-                sv,
-                w,
-                ld,
-                oc,
-                inv,
-                currentCategory,
-                draftComposition,
-                new ArrayList<>(selectedCoreAbilityIds),
-                new ArrayList<>(selectedOtherAbilityIds),
-                new ArrayList<>(selectedUnitKeywordIds),
-                new ArrayList<>(selectedRangedWeaponIds),
-                new ArrayList<>(selectedMeleeWeaponIds)
-        );
-    }
-
-    private Units buildDraftUnit() {
-        int id = (editingUnitId == null) ? 0 : editingUnitId;
-        int factionId = (factionCBbox.getValue() == null) ? 0 : factionCBbox.getValue().id();
+        // sync category from combobox in case listener didn't fire
+        if (categoryCBbox != null && categoryCBbox.getValue() != null) {
+            switch (categoryCBbox.getValue()) {
+                case "CHARACTER" -> currentCategory = 1;
+                case "INFANTRY" -> currentCategory = 2;
+                case "VEHICLE" -> currentCategory = 3;
+            }
+        }
 
         return new Units(
                 id,
@@ -445,6 +470,76 @@ public class RuleEditorController {
         );
     }
 
+    // Build unit for DB save: must use validated fields but also must keep selections (keywords/weapons/abilities)
+    private Units buildUnitForDBSave() {
+
+        int id = (editingUnitId == null) ? 0 : editingUnitId;
+
+        int factionId = factionCBbox.getValue().id();
+        String name = safe(unitNametxtBox.getText()).trim();
+
+        int points = Integer.parseInt(pointtxtBox.getText().trim());
+        int m = Integer.parseInt(mBox.getText().trim());
+        int t = Integer.parseInt(tBox.getText().trim());
+        int sv = Integer.parseInt(svBox.getText().trim());
+        int w = Integer.parseInt(wBox.getText().trim());
+        int ld = Integer.parseInt(ldBox.getText().trim());
+        int oc = Integer.parseInt(ocBOX.getText().trim());
+
+        int inv = 0;
+        String invText = safe(isvBox.getText()).trim();
+        if (!invText.isEmpty()) inv = Integer.parseInt(invText);
+
+        // IMPORTANT: if came back from Weapon/Ability editor, SelectedUnitContext might contain updated lists.
+        Units ctx = SelectedUnitContext.getSelectedUnit();
+        if (ctx != null) {
+            selectedRangedWeaponIds.clear();
+            if (ctx.rangedWeaponIdList() != null) selectedRangedWeaponIds.addAll(ctx.rangedWeaponIdList());
+
+            selectedMeleeWeaponIds.clear();
+            if (ctx.meleeWeaponIdList() != null) selectedMeleeWeaponIds.addAll(ctx.meleeWeaponIdList());
+
+            selectedCoreAbilityIds.clear();
+            if (ctx.coreAbilityIdList() != null) selectedCoreAbilityIds.addAll(ctx.coreAbilityIdList());
+
+            selectedOtherAbilityIds.clear();
+            if (ctx.otherAbilityIdList() != null) selectedOtherAbilityIds.addAll(ctx.otherAbilityIdList());
+
+            draftComposition = safe(ctx.composition());
+            currentCategory = ctx.category();
+        } else {
+            // if no ctx (normal save), still sync from combobox
+            if (categoryCBbox != null && categoryCBbox.getValue() != null) {
+                switch (categoryCBbox.getValue()) {
+                    case "CHARACTER" -> currentCategory = 1;
+                    case "INFANTRY" -> currentCategory = 2;
+                    case "VEHICLE" -> currentCategory = 3;
+                }
+            }
+        }
+
+        return new Units(
+                id,
+                factionId,
+                name,
+                points,
+                m,
+                t,
+                sv,
+                w,
+                ld,
+                oc,
+                inv,
+                currentCategory,
+                draftComposition,
+                new ArrayList<>(selectedCoreAbilityIds),
+                new ArrayList<>(selectedOtherAbilityIds),
+                new ArrayList<>(selectedUnitKeywordIds),
+                new ArrayList<>(selectedRangedWeaponIds),
+                new ArrayList<>(selectedMeleeWeaponIds)
+        );
+    }
+
     private int safeInt(String raw) {
         try { return Integer.parseInt(raw == null ? "" : raw.trim()); }
         catch (Exception e) { return 0; }
@@ -452,7 +547,7 @@ public class RuleEditorController {
 
     private String safe(String s) { return s == null ? "" : s; }
 
-    private void warn(String title, String msg) {
+    private void showWarning(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle(title);
         a.setHeaderText(null);
@@ -460,7 +555,7 @@ public class RuleEditorController {
         a.showAndWait();
     }
 
-    private void error(String title, String msg) {
+    private void showError(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle(title);
         a.setHeaderText(null);

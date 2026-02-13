@@ -16,23 +16,14 @@ import java.util.*;
 
 public class WeaponEditorController {
 
-    // ======================= Buttons ===============================
-    @FXML private Button backButton;
-    @FXML private Button saveButton;
-    @FXML private Button clearbutton;
-    @FXML private Button editButton;
-    @FXML private Button deleteButton;
-    @FXML private Button deleteWeaponButton;
-    @FXML private Button keywordAddButton;
-
     // ======================= ComboBox ==============================
-    @FXML private ComboBox<String> categoryCBbox; // MELEE / RANGED
+    @FXML private ComboBox<String> categoryCBbox; // "MELEE" / "RANGED"
 
     // ======================= TextFields ============================
     @FXML private TextField nametxt;
     @FXML private TextField rangetxt;
     @FXML private TextField atxt;
-    @FXML private TextField bstxt;
+    @FXML private TextField bstxt;  // MELEE uses WS, RANGED uses BS
     @FXML private TextField stxt;
     @FXML private TextField aptxt;
     @FXML private TextField dtxt;
@@ -45,23 +36,31 @@ public class WeaponEditorController {
     @FXML private TableColumn<MeleeWeapons, String> meleeWeaponName;
 
     // ======================= Tables – Keywords =====================
-    @FXML private TableView<WeaponKeywords> selectionKeywordTable; // all keywords in DB
+    @FXML private TableView<WeaponKeywords> selectionKeywordTable; // DB keywords
     @FXML private TableColumn<WeaponKeywords, String> selectionKeyword;
 
     @FXML private TableView<WeaponKeywords> keywordTable; // current weapon keywords
     @FXML private TableColumn<WeaponKeywords, String> words;
 
+    // ======================= Service / State =======================
     private final StaticDataService data = StaticDataService.getInstance();
-
     private Units workingUnit;
 
     private final LinkedHashSet<Integer> selectedRangedIds = new LinkedHashSet<>();
     private final LinkedHashSet<Integer> selectedMeleeIds = new LinkedHashSet<>();
 
+    // caches
     private final Map<Integer, WeaponKeywords> weaponKeywordById = new HashMap<>();
 
+    // currently selected weapon (edit mode)
     private RangeWeapons currentRanged = null;
     private MeleeWeapons currentMelee = null;
+
+    // if true => editing ranged weapon, else melee (only meaningful when a weapon is selected)
+    private boolean editingRanged = false;
+
+    // if no weapon selected => creating new weapon using form fields
+    private boolean creatingNewWeapon = true;
 
     @FXML
     private void initialize() {
@@ -70,70 +69,32 @@ public class WeaponEditorController {
 
         workingUnit = SelectedUnitContext.getSelectedUnit();
         if (workingUnit == null) {
-            warn("No Unit", "Please open Weapon Editor from Unit Editor.");
+            showWarning("No Unit", "Please open Weapon Editor from Unit Editor.");
             return;
         }
 
         if (workingUnit.rangedWeaponIdList() != null) selectedRangedIds.addAll(workingUnit.rangedWeaponIdList());
         if (workingUnit.meleeWeaponIdList() != null) selectedMeleeIds.addAll(workingUnit.meleeWeaponIdList());
 
+        weaponKeywordById.clear();
         for (WeaponKeywords wk : data.getAllWeaponKeywords()) weaponKeywordById.put(wk.id(), wk);
 
-        // category selector (DEFAULT MELEE)
+        setupCategory();
+        setupTables();
+        loadEquippedWeapons();
+
+        // start in "new weapon" mode
+        enterCreateMode();
+    }
+
+    // ======================= Setup =======================
+
+    private void setupCategory() {
         categoryCBbox.setItems(FXCollections.observableArrayList("MELEE", "RANGED"));
-        categoryCBbox.getSelectionModel().select("MELEE");
+        categoryCBbox.getSelectionModel().select("MELEE"); // default MELEE
         syncRangeField();
 
         categoryCBbox.valueProperty().addListener((obs, ov, nv) -> syncRangeField());
-
-        setupTables();
-        loadEquippedWeapons();
-    }
-
-    private void setupTables() {
-
-        rangeWeaponName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
-        meleeWeaponName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
-
-        selectionKeyword.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().keyword()));
-        words.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().keyword()));
-
-        selectionKeywordTable.getItems().setAll(
-                data.getAllWeaponKeywords().stream()
-                        .sorted(Comparator.comparing(WeaponKeywords::keyword, String.CASE_INSENSITIVE_ORDER))
-                        .toList()
-        );
-        selectionKeywordTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        keywordTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
-        // selecting a weapon loads editor fields
-        rangedWepponTable.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
-            if (nv == null) return;
-            meleeWeaponTable.getSelectionModel().clearSelection();
-            selectRanged(nv);
-        });
-
-        meleeWeaponTable.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
-            if (nv == null) return;
-            rangedWepponTable.getSelectionModel().clearSelection();
-            selectMelee(nv);
-        });
-    }
-
-    private void loadEquippedWeapons() {
-        rangedWepponTable.getItems().setAll(
-                selectedRangedIds.stream()
-                        .map(id -> data.getRangeWeaponById(id).orElse(null))
-                        .filter(Objects::nonNull)
-                        .toList()
-        );
-
-        meleeWeaponTable.getItems().setAll(
-                selectedMeleeIds.stream()
-                        .map(id -> data.getMeleeWeaponById(id).orElse(null))
-                        .filter(Objects::nonNull)
-                        .toList()
-        );
     }
 
     private void syncRangeField() {
@@ -142,7 +103,87 @@ public class WeaponEditorController {
         if (melee) rangetxt.clear();
     }
 
+    private void setupTables() {
+
+        // weapon tables columns
+        rangeWeaponName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
+        meleeWeaponName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().name()));
+
+        // keyword columns
+        selectionKeyword.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().keyword()));
+        words.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().keyword()));
+
+        meleeWeaponTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        rangedWepponTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        selectionKeywordTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        keywordTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        // load all weapon keywords into selection table
+        selectionKeywordTable.getItems().setAll(
+                data.getAllWeaponKeywords().stream()
+                        .sorted(Comparator.comparing(WeaponKeywords::keyword, String.CASE_INSENSITIVE_ORDER))
+                        .toList()
+        );
+
+        // selecting melee weapon
+        meleeWeaponTable.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
+            if (nv == null) return;
+            rangedWepponTable.getSelectionModel().clearSelection();
+            selectMelee(nv);
+        });
+
+        // selecting ranged weapon
+        rangedWepponTable.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
+            if (nv == null) return;
+            meleeWeaponTable.getSelectionModel().clearSelection();
+            selectRanged(nv);
+        });
+    }
+
+    private void loadEquippedWeapons() {
+
+        List<MeleeWeapons> melee = selectedMeleeIds.stream()
+                .map(id -> data.getMeleeWeaponById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(MeleeWeapons::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        List<RangeWeapons> ranged = selectedRangedIds.stream()
+                .map(id -> data.getRangeWeaponById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(RangeWeapons::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        meleeWeaponTable.getItems().setAll(melee);
+        rangedWepponTable.getItems().setAll(ranged);
+    }
+
+    // ======================= Select weapon =======================
+
+    private void selectMelee(MeleeWeapons w) {
+        creatingNewWeapon = false;
+        editingRanged = false;
+        currentMelee = w;
+        currentRanged = null;
+
+        categoryCBbox.getSelectionModel().select("MELEE");
+        syncRangeField();
+
+        nametxt.setText(safe(w.name()));
+        atxt.setText(safe(w.A()));
+        bstxt.setText(String.valueOf(w.WS())); // WS in bstxt
+        stxt.setText(String.valueOf(w.S()));
+        aptxt.setText(String.valueOf(w.AP()));
+        dtxt.setText(safe(w.D()));
+        rangetxt.clear();
+
+        loadKeywordsToKeywordTable(w.keywordIdList());
+    }
+
     private void selectRanged(RangeWeapons w) {
+        creatingNewWeapon = false;
+        editingRanged = true;
         currentRanged = w;
         currentMelee = null;
 
@@ -152,42 +193,44 @@ public class WeaponEditorController {
         nametxt.setText(safe(w.name()));
         rangetxt.setText(String.valueOf(w.range()));
         atxt.setText(safe(w.A()));
-        bstxt.setText(String.valueOf(w.BS()));
+        bstxt.setText(String.valueOf(w.BS())); // BS in bstxt
         stxt.setText(String.valueOf(w.S()));
         aptxt.setText(String.valueOf(w.AP()));
         dtxt.setText(safe(w.D()));
 
-        loadCurrentWeaponKeywords(w.keywordIdList());
+        loadKeywordsToKeywordTable(w.keywordIdList());
     }
 
-    private void selectMelee(MeleeWeapons w) {
-        currentMelee = w;
-        currentRanged = null;
-
-        categoryCBbox.getSelectionModel().select("MELEE");
-        syncRangeField();
-
-        nametxt.setText(safe(w.name()));
-        atxt.setText(safe(w.A()));
-        bstxt.setText(String.valueOf(w.WS())); // WS shown in BS field
-        stxt.setText(String.valueOf(w.S()));
-        aptxt.setText(String.valueOf(w.AP()));
-        dtxt.setText(safe(w.D()));
-
-        loadCurrentWeaponKeywords(w.keywordIdList());
-    }
-
-    private void loadCurrentWeaponKeywords(List<Integer> ids) {
-        if (ids == null) {
+    private void loadKeywordsToKeywordTable(List<Integer> keywordIds) {
+        if (keywordIds == null || keywordIds.isEmpty()) {
             keywordTable.getItems().clear();
             return;
         }
         keywordTable.getItems().setAll(
-                ids.stream().map(weaponKeywordById::get).filter(Objects::nonNull).toList()
+                keywordIds.stream()
+                        .map(weaponKeywordById::get)
+                        .filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(WeaponKeywords::keyword, String.CASE_INSENSITIVE_ORDER))
+                        .toList()
         );
     }
 
-    // ======================= Handlers (match FXML) =======================
+    private void enterCreateMode() {
+        creatingNewWeapon = true;
+        currentMelee = null;
+        currentRanged = null;
+        meleeWeaponTable.getSelectionModel().clearSelection();
+        rangedWepponTable.getSelectionModel().clearSelection();
+
+        // default new weapon type = MELEE
+        categoryCBbox.getSelectionModel().select("MELEE");
+        syncRangeField();
+
+        clearFieldsOnly();
+        keywordTable.getItems().clear();
+    }
+
+    // ======================= FXML handlers (must match FXML) =======================
 
     @FXML
     void backToUnitEdtior(MouseEvent event) throws IOException {
@@ -198,104 +241,127 @@ public class WeaponEditorController {
 
     @FXML
     void ClearText(MouseEvent event) {
-        nametxt.clear();
-        rangetxt.clear();
-        atxt.clear();
-        bstxt.clear();
-        stxt.clear();
-        aptxt.clear();
-        dtxt.clear();
-        keywordTable.getItems().clear();
-        syncRangeField();
+        enterCreateMode();
     }
 
+    // Add keyword(s) from DB selection to keywordTable
     @FXML
     void addKeyword(MouseEvent event) {
-        if (currentRanged == null && currentMelee == null) {
-            warn("No Weapon Selected", "Please select a weapon first.");
-            return;
-        }
 
         List<WeaponKeywords> picked = selectionKeywordTable.getSelectionModel().getSelectedItems();
         if (picked == null || picked.isEmpty()) {
-            warn("No Keyword Selected", "Please select keyword(s) to add.");
+            showWarning("No Keyword Selected", "Please select keyword(s) to add.");
             return;
         }
 
-        LinkedHashSet<Integer> ids = new LinkedHashSet<>(getCurrentKeywordIds());
+        LinkedHashSet<Integer> ids = new LinkedHashSet<>(getKeywordIdsFromKeywordTable());
         for (WeaponKeywords wk : picked) ids.add(wk.id());
 
-        setCurrentKeywordIds(new ArrayList<>(ids));
-        loadCurrentWeaponKeywords(new ArrayList<>(ids));
+        keywordTable.getItems().setAll(
+                ids.stream().map(weaponKeywordById::get).filter(Objects::nonNull).toList()
+        );
+
+        // if editing existing weapon, also update current object in memory
+        if (!creatingNewWeapon) {
+            setCurrentWeaponKeywordIds(new ArrayList<>(ids));
+        }
     }
 
+    // Delete keyword(s) from keywordTable
     @FXML
     void deleteKeyword(MouseEvent event) {
-        if (currentRanged == null && currentMelee == null) return;
 
         List<WeaponKeywords> picked = keywordTable.getSelectionModel().getSelectedItems();
-        if (picked == null || picked.isEmpty()) return;
+        if (picked == null || picked.isEmpty()) {
+            showWarning("No Keyword Selected", "Please select keyword(s) to delete.");
+            return;
+        }
 
-        LinkedHashSet<Integer> ids = new LinkedHashSet<>(getCurrentKeywordIds());
+        LinkedHashSet<Integer> ids = new LinkedHashSet<>(getKeywordIdsFromKeywordTable());
         for (WeaponKeywords wk : picked) ids.remove(wk.id());
 
-        setCurrentKeywordIds(new ArrayList<>(ids));
-        loadCurrentWeaponKeywords(new ArrayList<>(ids));
+        keywordTable.getItems().setAll(
+                ids.stream().map(weaponKeywordById::get).filter(Objects::nonNull).toList()
+        );
+
+        if (!creatingNewWeapon) {
+            setCurrentWeaponKeywordIds(new ArrayList<>(ids));
+        }
     }
 
-    @FXML
-    void deleteWeapon(MouseEvent event) {
-        if (currentRanged != null) selectedRangedIds.remove(currentRanged.id());
-        if (currentMelee != null) selectedMeleeIds.remove(currentMelee.id());
-
-        currentRanged = null;
-        currentMelee = null;
-
-        ClearText(event);
-        loadEquippedWeapons();
-    }
-
+    // Update selected weapon (no navigation)
     @FXML
     void editWeapon(MouseEvent event) {
-        if (currentRanged == null && currentMelee == null) {
-            warn("No Weapon Selected", "Please select a weapon first.");
+        if (creatingNewWeapon || (currentMelee == null && currentRanged == null)) {
+            showWarning("No Weapon Selected", "Please select a weapon to edit, or use Save to create a new weapon.");
             return;
         }
 
         try {
-            applyChangesToCurrentWeapon();
+            applyFieldsToSelectedWeaponAndPersist();
             data.loadAll();
             loadEquippedWeapons();
         } catch (Exception e) {
-            error("Update Error", e.getMessage());
+            showError("Update Error", "Failed to update weapon.", e);
         }
     }
 
+    // Remove weapon from unit loadout (NOT deleting DB record)
+    @FXML
+    void deleteWeapon(MouseEvent event) {
+
+        if (currentMelee == null && currentRanged == null) {
+            showWarning("No Weapon Selected", "Please select a weapon to remove from unit.");
+            return;
+        }
+
+        if (editingRanged && currentRanged != null) {
+            selectedRangedIds.remove(currentRanged.id());
+        } else if (!editingRanged && currentMelee != null) {
+            selectedMeleeIds.remove(currentMelee.id());
+        }
+
+        enterCreateMode();
+        loadEquippedWeapons();
+    }
+
+    // Save:
+    // - if no weapon selected => INSERT new weapon and bind to unit
+    // - if weapon selected => UPDATE weapon and keep binding
+    // Then write unit back to SelectedUnitContext and return
     @FXML
     void save(MouseEvent event) throws IOException {
-        // Save unit weapon id lists back to context, DB writes happen in editor buttons
-        Units updated = new Units(
-                workingUnit.id(),
-                workingUnit.factionId(),
-                workingUnit.name(),
-                workingUnit.points(),
-                workingUnit.M(),
-                workingUnit.T(),
-                workingUnit.SV(),
-                workingUnit.W(),
-                workingUnit.LD(),
-                workingUnit.OC(),
-                workingUnit.invulnerableSave(),
-                workingUnit.category(),
-                workingUnit.composition(),
-                workingUnit.coreAbilityIdList(),
-                workingUnit.otherAbilityIdList(),
-                workingUnit.keywordIdList(),
-                new ArrayList<>(selectedRangedIds),
-                new ArrayList<>(selectedMeleeIds)
-        );
 
-        SelectedUnitContext.setSelectedUnit(updated);
+        try {
+            if (creatingNewWeapon) {
+                int newId = createNewWeaponFromFieldsAndInsert();
+                // bind to unit
+                if ("RANGED".equalsIgnoreCase(categoryCBbox.getValue())) {
+                    selectedRangedIds.add(newId);
+                } else {
+                    selectedMeleeIds.add(newId);
+                }
+                data.loadAll();
+                loadEquippedWeapons();
+                enterCreateMode(); // keep ready for next new weapon
+            } else {
+                // editing existing selected weapon => update DB
+                applyFieldsToSelectedWeaponAndPersist();
+                data.loadAll();
+                loadEquippedWeapons();
+            }
+
+            Units updatedUnit = rebuildUnitWithWeapons(
+                    workingUnit,
+                    new ArrayList<>(selectedRangedIds),
+                    new ArrayList<>(selectedMeleeIds)
+            );
+            SelectedUnitContext.setSelectedUnit(updatedUnit);
+
+        } catch (Exception e) {
+            showError("Save Error", "Failed to save weapon.", e);
+            return; // stay on page
+        }
 
         FixedAspectView.switchTo((Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
@@ -304,62 +370,79 @@ public class WeaponEditorController {
 
     // ======================= Core logic =======================
 
-    private void applyChangesToCurrentWeapon() throws SQLException {
+    private int createNewWeaponFromFieldsAndInsert() throws SQLException {
 
-        // If current weapon is MELEE, we NEVER read/write range
-        if (currentMelee != null) {
+        String type = categoryCBbox.getValue();
+        if (type == null) type = "MELEE";
+
+        String name = safe(nametxt.getText()).trim();
+        if (name.isEmpty()) throw new IllegalArgumentException("Name is required.");
+
+        String a = safe(atxt.getText()).trim();
+        String d = safe(dtxt.getText()).trim();
+
+        int s = parseIntStrict(stxt.getText(), "S");
+        int ap = parseIntStrict(aptxt.getText(), "AP");
+
+        List<Integer> keywordIds = getKeywordIdsFromKeywordTable();
+
+        if ("RANGED".equalsIgnoreCase(type)) {
+            int range = parseIntStrict(rangetxt.getText(), "Range");
+            int bs = parseIntStrict(bstxt.getText(), "BS");
+            RangeWeapons nw = new RangeWeapons(0, name, range, a, bs, s, ap, d, keywordIds);
+            return data.addRangeWeapon(nw);
+        } else {
+            // MELEE: ignore range
             int ws = parseIntStrict(bstxt.getText(), "WS");
-            MeleeWeapons updated = new MeleeWeapons(
-                    currentMelee.id(),
-                    safe(nametxt.getText()),
-                    safe(atxt.getText()),
-                    ws,
-                    parseIntStrict(stxt.getText(), "S"),
-                    parseIntStrict(aptxt.getText(), "AP"),
-                    safe(dtxt.getText()),
-                    getCurrentKeywordIds()
-            );
-            data.updateMeleeWeapon(updated);
-            currentMelee = updated;
-
-            // force UI state
-            categoryCBbox.getSelectionModel().select("MELEE");
-            syncRangeField();
-            return;
+            MeleeWeapons nw = new MeleeWeapons(0, name, a, ws, s, ap, d, keywordIds);
+            return data.addMeleeWeapon(nw);
         }
+    }
 
-        // current ranged -> must have range
-        if (currentRanged != null) {
+    private void applyFieldsToSelectedWeaponAndPersist() throws SQLException {
+
+        String name = safe(nametxt.getText()).trim();
+        if (name.isEmpty()) throw new IllegalArgumentException("Name is required.");
+
+        String a = safe(atxt.getText()).trim();
+        String d = safe(dtxt.getText()).trim();
+
+        int s = parseIntStrict(stxt.getText(), "S");
+        int ap = parseIntStrict(aptxt.getText(), "AP");
+
+        List<Integer> keywordIds = getKeywordIdsFromKeywordTable();
+
+        if (editingRanged && currentRanged != null) {
             int range = parseIntStrict(rangetxt.getText(), "Range");
             int bs = parseIntStrict(bstxt.getText(), "BS");
 
             RangeWeapons updated = new RangeWeapons(
-                    currentRanged.id(),
-                    safe(nametxt.getText()),
-                    range,
-                    safe(atxt.getText()),
-                    bs,
-                    parseIntStrict(stxt.getText(), "S"),
-                    parseIntStrict(aptxt.getText(), "AP"),
-                    safe(dtxt.getText()),
-                    getCurrentKeywordIds()
+                    currentRanged.id(), name, range, a, bs, s, ap, d, keywordIds
             );
             data.updateRangeWeapon(updated);
             currentRanged = updated;
 
-            categoryCBbox.getSelectionModel().select("RANGED");
-            syncRangeField();
+        } else if (!editingRanged && currentMelee != null) {
+            int ws = parseIntStrict(bstxt.getText(), "WS");
+
+            MeleeWeapons updated = new MeleeWeapons(
+                    currentMelee.id(), name, a, ws, s, ap, d, keywordIds
+            );
+            data.updateMeleeWeapon(updated);
+            currentMelee = updated;
         }
     }
 
-    private List<Integer> getCurrentKeywordIds() {
-        if (currentRanged != null) return new ArrayList<>(currentRanged.keywordIdList());
-        if (currentMelee != null) return new ArrayList<>(currentMelee.keywordIdList());
-        return new ArrayList<>();
+    private List<Integer> getKeywordIdsFromKeywordTable() {
+        if (keywordTable == null) return new ArrayList<>();
+        return keywordTable.getItems().stream()
+                .map(WeaponKeywords::id)
+                .distinct()
+                .toList();
     }
 
-    private void setCurrentKeywordIds(List<Integer> ids) {
-        if (currentRanged != null) {
+    private void setCurrentWeaponKeywordIds(List<Integer> ids) {
+        if (editingRanged && currentRanged != null) {
             currentRanged = new RangeWeapons(
                     currentRanged.id(),
                     currentRanged.name(),
@@ -371,8 +454,7 @@ public class WeaponEditorController {
                     currentRanged.D(),
                     ids
             );
-        }
-        if (currentMelee != null) {
+        } else if (!editingRanged && currentMelee != null) {
             currentMelee = new MeleeWeapons(
                     currentMelee.id(),
                     currentMelee.name(),
@@ -386,14 +468,55 @@ public class WeaponEditorController {
         }
     }
 
-    private int parseIntStrict(String raw, String fieldName) {
-        try { return Integer.parseInt(raw == null ? "" : raw.trim()); }
-        catch (Exception e) { throw new IllegalArgumentException(fieldName + " must be an integer."); }
+    private Units rebuildUnitWithWeapons(Units base, List<Integer> rangedIds, List<Integer> meleeIds) {
+        return new Units(
+                base.id(),
+                base.factionId(),
+                base.name(),
+                base.points(),
+                base.M(),
+                base.T(),
+                base.SV(),
+                base.W(),
+                base.LD(),
+                base.OC(),
+                base.invulnerableSave(),
+                base.category(),
+                base.composition(),
+                base.coreAbilityIdList(),
+                base.otherAbilityIdList(),
+                base.keywordIdList(),
+                rangedIds,
+                meleeIds
+        );
     }
 
-    private String safe(String s) { return s == null ? "" : s; }
+    // ======================= small helpers =======================
 
-    private void warn(String title, String msg) {
+    private void clearFieldsOnly() {
+        nametxt.clear();
+        rangetxt.clear();
+        atxt.clear();
+        bstxt.clear();
+        stxt.clear();
+        aptxt.clear();
+        dtxt.clear();
+        syncRangeField();
+    }
+
+    private int parseIntStrict(String raw, String fieldName) {
+        try {
+            return Integer.parseInt(raw == null ? "" : raw.trim());
+        } catch (Exception e) {
+            throw new IllegalArgumentException(fieldName + " must be an integer.");
+        }
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
+    }
+
+    private void showWarning(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle(title);
         a.setHeaderText(null);
@@ -401,11 +524,12 @@ public class WeaponEditorController {
         a.showAndWait();
     }
 
-    private void error(String title, String msg) {
+    private void showError(String title, String header, Exception e) {
+        e.printStackTrace();
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
+        a.setHeaderText(header);
+        a.setContentText(e.getMessage());
         a.showAndWait();
     }
 }
