@@ -2,6 +2,9 @@
 
 .idea
 
+.settings/
+.vscode/
+
 # Compiled class file
 *.class
 

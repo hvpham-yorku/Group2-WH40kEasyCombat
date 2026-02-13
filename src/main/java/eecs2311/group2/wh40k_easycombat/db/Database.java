@@ -16,7 +16,11 @@ import java.sql.Statement;
 import java.util.List;
 
 public final class Database {
-    private static final String URL = "jdbc:sqlite:app.db";
+    private static String URL = "jdbc:sqlite:app.db";
+
+    public static void useTestDatabase() {
+        URL = "jdbc:sqlite:test.db";
+    }
 
     public static Connection getConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(URL);
