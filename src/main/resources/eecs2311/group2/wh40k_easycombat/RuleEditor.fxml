@@ -23,20 +23,20 @@
             </Label>
             <TableView fx:id="unitKeywordTable" prefHeight="160.0" prefWidth="200.0">
               <columns>
-                <TableColumn editable="false" prefWidth="262" text="Keywords" />
+                <TableColumn fx:id="keywords" editable="false" prefWidth="262" text="Keywords" />
               </columns>
             </TableView>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
             <Button fx:id="unitKeywordAddButton" mnemonicParsing="false" onMouseClicked="#keywordAdd" prefHeight="40.0" prefWidth="264.0" text="ADD" />
             <Button fx:id="keywordEditButton_Unit" mnemonicParsing="false" prefHeight="40.0" prefWidth="264.0" text="Edit or Add new Keywords" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Add Weapon" textAlignment="CENTER">
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Edit or Add Weapon" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Button fx:id="weaponAddButton" mnemonicParsing="false" onMouseClicked="#addWeapon" prefHeight="40.0" prefWidth="264.0" text="ADD" />
+            <Button fx:id="weaponAddButton" mnemonicParsing="false" onMouseClicked="#addWeapon" prefHeight="40.0" prefWidth="264.0" text="Edit ADD" />
          </children>
       </VBox>
    </right>

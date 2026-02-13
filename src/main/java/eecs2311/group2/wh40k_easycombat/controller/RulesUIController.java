@@ -1,8 +1,9 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.model.*;
-import eecs2311.group2.wh40k_easycombat.repository.*;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
+import eecs2311.group2.wh40k_easycombat.util.SelectedUnitContext;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -12,7 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +73,10 @@ public class RulesUIController {
     @FXML private TreeTableView<UnitRow> dataTreeTable;
     @FXML private TreeTableColumn<UnitRow, String> dataTreeColumn;
 
-    // ======================= In-memory caches =============================
+    // ======================= Service ======================================
+    private final StaticDataService data = StaticDataService.getInstance();
+
+    // ======================= In-memory caches (from service) ==============
     private List<Units> allUnits = new ArrayList<>();
     private final ObservableList<Factions> factionList = FXCollections.observableArrayList();
 
@@ -81,8 +84,6 @@ public class RulesUIController {
     private final Map<Integer, MeleeWeapons> meleeById = new HashMap<>();
     private final Map<Integer, String> unitKeywordById = new HashMap<>();
     private final Map<Integer, String> weaponKeywordById = new HashMap<>();
-
-    // NEW: abilities cache
     private final Map<Integer, String> coreAbilityById = new HashMap<>();
     private final Map<Integer, String> otherAbilityById = new HashMap<>();
 
@@ -96,12 +97,11 @@ public class RulesUIController {
             3, "VEHICLE"
     );
 
-    // NEW: faction ability binding (fill in your real texts)
-    // Key = factionId from table factions.id
+    // Faction ability binding (fill your real texts here)
     private static final Map<Integer, String> FACTION_ABILITY = Map.of(
-            1, "Oath of Moment"
-            // 2, "....",
-            // 3, "...."
+            1, "Oath of Moment",
+            2, "Code Chivalric, Super heavy Walker"
+            // 3, "..."
     );
 
     @FXML
@@ -115,16 +115,16 @@ public class RulesUIController {
         rangedWeaponTable.setItems(rangedList);
         meleeWeaponTable.setItems(meleeList);
 
-        // 3) Load DB data into memory (units + weapons + keywords + abilities)
-        reloadCachesFromDatabase();
+        // 3) Load data from service (cache)
+        reloadCachesFromService();
 
         // 4) Setup faction ComboBox
         setupFactionComboBox();
 
-        // 5) Select default faction on startup
+        // 5) Default faction on startup (Space Marines)
         selectDefaultFaction("Space Marines");
 
-        // 6) Build the tree using the selected faction (default)
+        // 6) Build the tree using selected faction
         Integer factionId = (factionCBbox.getValue() == null)
                 ? null
                 : factionCBbox.getValue().id();
@@ -141,7 +141,7 @@ public class RulesUIController {
             }
         });
 
-        // 8) Style category rows bold (optional)
+        // 8) Style category rows bold
         dataTreeTable.setRowFactory(tv -> new TreeTableRow<>() {
             @Override
             protected void updateItem(UnitRow item, boolean empty) {
@@ -158,7 +158,6 @@ public class RulesUIController {
     }
 
     private void setupTreeColumns() {
-        // Display name for both category and unit rows
         dataTreeColumn.setCellValueFactory(param ->
                 new SimpleStringProperty(param.getValue().getValue().displayName)
         );
@@ -188,8 +187,7 @@ public class RulesUIController {
     private void setupFactionComboBox() {
         factionCBbox.setItems(factionList);
 
-        // Show faction name in dropdown list
-        factionCBbox.setCellFactory(lv -> new ListCell<Factions>() {
+        factionCBbox.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(Factions item, boolean empty) {
                 super.updateItem(item, empty);
@@ -197,8 +195,7 @@ public class RulesUIController {
             }
         });
 
-        // Show selected faction name on the ComboBox button
-        factionCBbox.setButtonCell(new ListCell<Factions>() {
+        factionCBbox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(Factions item, boolean empty) {
                 super.updateItem(item, empty);
@@ -207,93 +204,93 @@ public class RulesUIController {
         });
     }
 
-    private void reloadCachesFromDatabase() {
-        try {
-            // Units
-            allUnits = UnitRepository.getAllUnits();
+    private void reloadCachesFromService() {
+        // Ensure service is synced (same behavior as "reload from DB" before)
+        data.loadAll();
 
-            // Factions
-            factionList.setAll(FactionRepository.getAllFactions());
+        // Units
+        allUnits = data.getAllUnits();
 
-            // Weapons
-            rangedById.clear();
-            for (RangeWeapons rw : RangeWeaponRepository.getAllRangeWeapons()) {
-                rangedById.put(rw.id(), rw);
+        // Factions
+        factionList.setAll(
+                data.getAllFactions().stream()
+                        .sorted(Comparator.comparing(Factions::name, String.CASE_INSENSITIVE_ORDER))
+                        .toList()
+        );
+
+        // Weapons maps
+        rangedById.clear();
+        for (RangeWeapons rw : data.getAllRangeWeapons()) rangedById.put(rw.id(), rw);
+
+        meleeById.clear();
+        for (MeleeWeapons mw : data.getAllMeleeWeapons()) meleeById.put(mw.id(), mw);
+
+        // Unit keywords
+        unitKeywordById.clear();
+        for (UnitKeywords uk : data.getAllUnitKeywords()) unitKeywordById.put(uk.id(), uk.keyword());
+
+        // Weapon keywords
+        weaponKeywordById.clear();
+        for (WeaponKeywords wk : data.getAllWeaponKeywords()) weaponKeywordById.put(wk.id(), wk.keyword());
+
+        // Abilities
+        coreAbilityById.clear();
+        for (CoreAbilities ca : data.getAllCoreAbilities()) coreAbilityById.put(ca.id(), ca.ability());
+
+        otherAbilityById.clear();
+        for (OtherAbilities oa : data.getAllOtherAbilities()) otherAbilityById.put(oa.id(), oa.ability());
+    }
+
+    private void selectDefaultFaction(String defaultFactionName) {
+        if (factionList.isEmpty()) return;
+
+        Factions found = null;
+        for (Factions f : factionList) {
+            if (f != null && f.name() != null && f.name().equalsIgnoreCase(defaultFactionName)) {
+                found = f;
+                break;
             }
-
-            meleeById.clear();
-            for (MeleeWeapons mw : MeleeWeaponRepository.getAllMeleeWeapons()) {
-                meleeById.put(mw.id(), mw);
-            }
-
-            // Keywords
-            unitKeywordById.clear();
-            for (UnitKeywords uk : UnitKeywordRepository.getAllUnitKeywords()) {
-                unitKeywordById.put(uk.id(), uk.keyword());
-            }
-
-            weaponKeywordById.clear();
-            for (WeaponKeywords wk : WeaponKeywordRepository.getAllWeaponKeywords()) {
-                weaponKeywordById.put(wk.id(), wk.keyword());
-            }
-
-            // NEW: Abilities
-            coreAbilityById.clear();
-            for (CoreAbilities ca : CoreAbilityRepository.getAllCoreAbilities()) {
-                coreAbilityById.put(ca.id(), ca.ability());
-            }
-
-            otherAbilityById.clear();
-            for (OtherAbilities oa : OtherAbilityRepository.getAllOtherAbilities()) {
-                otherAbilityById.put(oa.id(), oa.ability());
-            }
-
-        } catch (SQLException e) {
-            showError("Database Error", "Failed to load data from database.", e);
         }
+        if (found == null) found = factionList.get(0);
+
+        factionCBbox.getSelectionModel().select(found);
     }
 
-    // Select a faction by name (case-insensitive).
-    // If not found, the first faction in the list will be selected.
-    private void selectDefaultFaction(String factionName) {
-        if (factionList == null || factionList.isEmpty()) return;
+    private void rebuildUnitTree(Integer factionId, String nameFilterLower) {
 
-        Factions target = factionList.stream()
-                .filter(f -> f.name() != null && f.name().equalsIgnoreCase(factionName))
-                .findFirst()
-                .orElse(factionList.get(0));
+        List<Units> filtered = allUnits;
 
-        factionCBbox.getSelectionModel().select(target);
-    }
+        // Filter by faction
+        if (factionId != null) {
+            filtered = filtered.stream()
+                    .filter(u -> u.factionId() == factionId)
+                    .collect(Collectors.toList());
+        }
 
-    // Build the unit tree grouped by category.
-    // Filtering is done in-memory (no DB query needed).
-    private void rebuildUnitTree(Integer factionId, String nameKeyword) {
+        // Filter by name
+        if (nameFilterLower != null && !nameFilterLower.isBlank()) {
+            String f = nameFilterLower.trim();
+            filtered = filtered.stream()
+                    .filter(u -> u.name() != null && u.name().toLowerCase().contains(f))
+                    .collect(Collectors.toList());
+        }
 
-        List<Units> filtered = allUnits.stream()
-                .filter(u -> factionId == null || u.factionId() == factionId)
-                .filter(u -> nameKeyword == null || nameKeyword.isBlank()
-                        || u.name().toLowerCase().contains(nameKeyword.toLowerCase()))
-                .collect(Collectors.toList());
-
-        Map<Integer, List<Units>> byCategory = filtered.stream()
+        // Group by category
+        Map<Integer, List<Units>> byCat = filtered.stream()
                 .collect(Collectors.groupingBy(Units::category));
 
-        TreeItem<UnitRow> root = new TreeItem<>(UnitRow.category(-1, "ROOT"));
+        TreeItem<UnitRow> root = new TreeItem<>(UnitRow.categoryRoot("ROOT"));
         root.setExpanded(true);
 
-        List<Integer> cats = new ArrayList<>(byCategory.keySet());
-        Collections.sort(cats);
+        for (int catId : List.of(1, 2, 3)) {
+            String catName = CATEGORY_NAME.getOrDefault(catId, "CATEGORY " + catId);
+            TreeItem<UnitRow> catNode = new TreeItem<>(UnitRow.category(catId, catName));
+            catNode.setExpanded(true);
 
-        for (Integer cat : cats) {
-            String catName = CATEGORY_NAME.getOrDefault(cat, "CATEGORY " + cat);
-            TreeItem<UnitRow> catNode = new TreeItem<>(UnitRow.category(cat, catName));
-            catNode.setExpanded(false);
+            List<Units> units = new ArrayList<>(byCat.getOrDefault(catId, List.of()));
+            units.sort(Comparator.comparing(Units::name, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
-            List<Units> unitsInCat = byCategory.get(cat);
-            unitsInCat.sort(Comparator.comparing(Units::name, String.CASE_INSENSITIVE_ORDER));
-
-            for (Units u : unitsInCat) {
+            for (Units u : units) {
                 catNode.getChildren().add(new TreeItem<>(UnitRow.unit(u)));
             }
             root.getChildren().add(catNode);
@@ -304,189 +301,203 @@ public class RulesUIController {
     }
 
     private void showUnitDetails(Units u) {
-        // Basic stats
-        unitNameLabel.setText(u.name());
+        if (u == null) {
+            clearUnitDetails();
+            return;
+        }
+
+        unitNameLabel.setText(safe(u.name()));
         pointLable.setText(String.valueOf(u.points()));
         mLabel.setText(String.valueOf(u.M()));
         tLabel.setText(String.valueOf(u.T()));
-        wLabel.setText(String.valueOf(u.W()));
         svLabel.setText(String.valueOf(u.SV()));
+        wLabel.setText(String.valueOf(u.W()));
         ldLabel.setText(String.valueOf(u.LD()));
         ocLabel.setText(String.valueOf(u.OC()));
+        isvLabel.setText(u.invulnerableSave() <= 0 ? "-" : String.valueOf(u.invulnerableSave()));
 
-        // Invulnerable save
-        if (u.invulnerableSave() <= 0) isvLabel.setText("-");
-        else isvLabel.setText(String.valueOf(u.invulnerableSave()));
-
-        // Composition & keywords
-        unitBox.setText(u.composition() == null ? "" : u.composition());
+        // keywords
         keyBox.setText(toUnitKeywordText(u.keywordIdList()));
 
-        // Weapons
-        rangedList.setAll(toRangedWeapons(u.rangedWeaponIdList()));
-        meleeList.setAll(toMeleeWeapons(u.meleeWeaponIdList()));
-
-        // NEW: Abilities
+        // core abilities
         coreBox.setText(toCoreAbilityText(u.coreAbilityIdList()));
+
+        // other abilities
         mainBox.setText(toOtherAbilityText(u.otherAbilityIdList()));
 
-        // NEW: Faction ability (bound by factionId)
+        // composition
+        unitBox.setText(safe(u.composition()));
+
+        // faction ability bound by factionId
         factionBox.setText(FACTION_ABILITY.getOrDefault(u.factionId(), ""));
+
+        // weapons
+        meleeList.setAll(resolveMeleeWeapons(u.meleeWeaponIdList()));
+        rangedList.setAll(resolveRangedWeapons(u.rangedWeaponIdList()));
     }
 
-    // Clear the unit detail panel (recommended when switching faction)
     private void clearUnitDetails() {
         unitNameLabel.setText("");
         pointLable.setText("");
         mLabel.setText("");
         tLabel.setText("");
-        wLabel.setText("");
         svLabel.setText("");
+        wLabel.setText("");
         ldLabel.setText("");
         ocLabel.setText("");
         isvLabel.setText("");
 
-        unitBox.clear();
         keyBox.clear();
         coreBox.clear();
         mainBox.clear();
+        unitBox.clear();
         factionBox.clear();
 
-        rangedList.clear();
         meleeList.clear();
+        rangedList.clear();
     }
 
-    private List<RangeWeapons> toRangedWeapons(List<Integer> ids) {
-        if (ids == null) return List.of();
-        List<RangeWeapons> out = new ArrayList<>();
-        for (Integer id : ids) {
-            RangeWeapons rw = rangedById.get(id);
-            if (rw != null) out.add(rw);
-        }
-        return out;
-    }
-
-    private List<MeleeWeapons> toMeleeWeapons(List<Integer> ids) {
-        if (ids == null) return List.of();
-        List<MeleeWeapons> out = new ArrayList<>();
-        for (Integer id : ids) {
-            MeleeWeapons mw = meleeById.get(id);
-            if (mw != null) out.add(mw);
-        }
-        return out;
-    }
-
-    private String toUnitKeywordText(List<Integer> keywordIds) {
-        if (keywordIds == null || keywordIds.isEmpty()) return "";
-        return keywordIds.stream()
-                .map(id -> unitKeywordById.getOrDefault(id, "KW#" + id))
-                .collect(Collectors.joining(", "));
-    }
-
-    private String toWeaponKeywordText(List<Integer> keywordIds) {
-        if (keywordIds == null || keywordIds.isEmpty()) return "";
-        return keywordIds.stream()
-                .map(id -> weaponKeywordById.getOrDefault(id, "WK#" + id))
-                .collect(Collectors.joining(", "));
-    }
-
-    // NEW: core abilities text builder
-    private String toCoreAbilityText(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return "";
-        return ids.stream()
-                .map(id -> coreAbilityById.getOrDefault(id, "CORE#" + id))
-                .collect(Collectors.joining("\n\n"));
-    }
-
-    // NEW: other abilities text builder
-    private String toOtherAbilityText(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return "";
-        return ids.stream()
-                .map(id -> otherAbilityById.getOrDefault(id, "ABILITY#" + id))
-                .collect(Collectors.joining("\n\n"));
-    }
-
-    private void showError(String title, String header, Exception e) {
-        e.printStackTrace();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
-    }
-
-    // ======================= UI actions =======================
+    // ----------------------- Button handlers -----------------------
 
     @FXML
     void backMainpage(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo(
-                (Node) event.getSource(),
+        FixedAspectView.switchTo((Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-                1200.0,
-                800.0
-        );
-    }
-
-    @FXML
-    void search(MouseEvent event) {
-        Integer factionId = (factionCBbox.getValue() == null)
-                ? null
-                : factionCBbox.getValue().id();
-
-        String kw = (searchbox.getText() == null) ? "" : searchbox.getText().trim();
-        rebuildUnitTree(factionId, kw);
+                1200.0, 800.0);
     }
 
     @FXML
     void confirm(MouseEvent event) {
-        Integer factionId = (factionCBbox.getValue() == null)
-                ? null
-                : factionCBbox.getValue().id();
+        Factions selected = factionCBbox.getValue();
+        Integer factionId = (selected == null) ? null : selected.id();
 
+        searchbox.clear();
         rebuildUnitTree(factionId, null);
         clearUnitDetails();
     }
 
     @FXML
-    void add(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo(
-                (Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
-                1000.0,
-                600.0
-        );
+    void search(MouseEvent event) {
+        Factions selected = factionCBbox.getValue();
+        Integer factionId = (selected == null) ? null : selected.id();
+
+        String q = safe(searchbox.getText()).trim().toLowerCase();
+        if (q.isBlank()) rebuildUnitTree(factionId, null);
+        else rebuildUnitTree(factionId, q);
+
+        clearUnitDetails();
     }
 
     @FXML
-    void edit(MouseEvent event) {
-        // TODO:
-        // 1) Get selected UnitRow from the tree.
-        // 2) If it is a unit row, open editor and pass unit id.
+    void add(MouseEvent event) throws IOException {
+        SelectedUnitContext.clear();
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                1000.0, 600.0);
     }
 
-    // ======================= Tree row model ===================
+    @FXML
+    void edit(MouseEvent event) throws IOException {
+        TreeItem<UnitRow> selected = dataTreeTable.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getValue() == null || selected.getValue().isCategoryRow()) {
+            showWarning("No Unit Selected", "Please select a unit row (not a category).");
+            return;
+        }
+
+        SelectedUnitContext.setSelectedUnit(selected.getValue().unit);
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                1000.0, 600.0);
+    }
+
+    // ----------------------- Text helpers -----------------------
+
+    private String toUnitKeywordText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> unitKeywordById.getOrDefault(id, "KW#" + id))
+                .collect(Collectors.joining(", "));
+    }
+
+    private String toWeaponKeywordText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> weaponKeywordById.getOrDefault(id, "WK#" + id))
+                .collect(Collectors.joining(", "));
+    }
+
+    private String toCoreAbilityText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> coreAbilityById.getOrDefault(id, "CORE#" + id))
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String toOtherAbilityText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> otherAbilityById.getOrDefault(id, "OTHER#" + id))
+                .collect(Collectors.joining("\n"));
+    }
+
+    private List<MeleeWeapons> resolveMeleeWeapons(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return ids.stream()
+                .map(meleeById::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private List<RangeWeapons> resolveRangedWeapons(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return ids.stream()
+                .map(rangedById::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
+    }
+
+    private void showWarning(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.WARNING);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+
+    // ----------------------- Row model for TreeTable -----------------------
 
     public static class UnitRow {
-        final boolean categoryRow;
-        final int category;
-        final Units unit;
-        final String displayName;
+        public final String displayName;
+        public final Units unit;
+        private final boolean categoryRow;
+        public final int categoryId;
 
-        private UnitRow(boolean categoryRow, int category, Units unit, String displayName) {
-            this.categoryRow = categoryRow;
-            this.category = category;
-            this.unit = unit;
+        private UnitRow(String displayName, Units unit, boolean categoryRow, int categoryId) {
             this.displayName = displayName;
+            this.unit = unit;
+            this.categoryRow = categoryRow;
+            this.categoryId = categoryId;
         }
 
-        static UnitRow category(int category, String name) {
-            return new UnitRow(true, category, null, name);
+        public static UnitRow categoryRoot(String name) {
+            return new UnitRow(name, null, true, -1);
         }
 
-        static UnitRow unit(Units u) {
-            return new UnitRow(false, u.category(), u, u.name());
+        public static UnitRow category(int categoryId, String name) {
+            return new UnitRow(name, null, true, categoryId);
         }
 
-        boolean isCategoryRow() { return categoryRow; }
+        public static UnitRow unit(Units u) {
+            String n = (u == null || u.name() == null) ? "" : u.name();
+            return new UnitRow(n, u, false, (u == null ? -1 : u.category()));
+        }
+
+        public boolean isCategoryRow() {
+            return categoryRow;
+        }
     }
 }
