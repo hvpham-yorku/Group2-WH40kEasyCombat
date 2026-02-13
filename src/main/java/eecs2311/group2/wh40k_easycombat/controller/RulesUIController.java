@@ -1,17 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.model.Factions;
-import eecs2311.group2.wh40k_easycombat.model.MeleeWeapons;
-import eecs2311.group2.wh40k_easycombat.model.RangeWeapons;
-import eecs2311.group2.wh40k_easycombat.model.UnitKeywords;
-import eecs2311.group2.wh40k_easycombat.model.WeaponKeywords;
-import eecs2311.group2.wh40k_easycombat.model.Units;
-import eecs2311.group2.wh40k_easycombat.repository.FactionRepository;
-import eecs2311.group2.wh40k_easycombat.repository.MeleeWeaponRepository;
-import eecs2311.group2.wh40k_easycombat.repository.RangeWeaponRepository;
-import eecs2311.group2.wh40k_easycombat.repository.UnitKeywordRepository;
-import eecs2311.group2.wh40k_easycombat.repository.UnitRepository;
-import eecs2311.group2.wh40k_easycombat.repository.WeaponKeywordRepository;
+import eecs2311.group2.wh40k_easycombat.model.*;
+import eecs2311.group2.wh40k_easycombat.repository.*;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,7 +11,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -42,11 +31,11 @@ public class RulesUIController {
     @FXML private ComboBox<Factions> factionCBbox;
 
     // ======================= Text Areas =======================
-    @FXML private TextArea coreBox;
-    @FXML private TextArea factionBox;
-    @FXML private TextArea keyBox;
-    @FXML private TextArea mainBox;
-    @FXML private TextArea unitBox;
+    @FXML private TextArea coreBox;     // core abilities of the selected unit
+    @FXML private TextArea factionBox;  // faction ability (bound by factionId in controller)
+    @FXML private TextArea keyBox;      // unit keywords
+    @FXML private TextArea mainBox;     // other abilities of the selected unit
+    @FXML private TextArea unitBox;     // composition
 
     // ======================= Labels ===========================
     @FXML private Label unitNameLabel;
@@ -93,14 +82,26 @@ public class RulesUIController {
     private final Map<Integer, String> unitKeywordById = new HashMap<>();
     private final Map<Integer, String> weaponKeywordById = new HashMap<>();
 
+    // NEW: abilities cache
+    private final Map<Integer, String> coreAbilityById = new HashMap<>();
+    private final Map<Integer, String> otherAbilityById = new HashMap<>();
+
     private final ObservableList<RangeWeapons> rangedList = FXCollections.observableArrayList();
     private final ObservableList<MeleeWeapons> meleeList = FXCollections.observableArrayList();
 
-    // Category name mapping (adjust to your own rules)
+    // Category name mapping (your confirmed mapping)
     private static final Map<Integer, String> CATEGORY_NAME = Map.of(
             1, "CHARACTER",
-            2, "INFANTRY",    
+            2, "INFANTRY",
             3, "VEHICLE"
+    );
+
+    // NEW: faction ability binding (fill in your real texts)
+    // Key = factionId from table factions.id
+    private static final Map<Integer, String> FACTION_ABILITY = Map.of(
+            1, "Oath of Moment"
+            // 2, "....",
+            // 3, "...."
     );
 
     @FXML
@@ -114,7 +115,7 @@ public class RulesUIController {
         rangedWeaponTable.setItems(rangedList);
         meleeWeaponTable.setItems(meleeList);
 
-        // 3) Load DB data into memory
+        // 3) Load DB data into memory (units + weapons + keywords + abilities)
         reloadCachesFromDatabase();
 
         // 4) Setup faction ComboBox
@@ -236,6 +237,17 @@ public class RulesUIController {
                 weaponKeywordById.put(wk.id(), wk.keyword());
             }
 
+            // NEW: Abilities
+            coreAbilityById.clear();
+            for (CoreAbilities ca : CoreAbilityRepository.getAllCoreAbilities()) {
+                coreAbilityById.put(ca.id(), ca.ability());
+            }
+
+            otherAbilityById.clear();
+            for (OtherAbilities oa : OtherAbilityRepository.getAllOtherAbilities()) {
+                otherAbilityById.put(oa.id(), oa.ability());
+            }
+
         } catch (SQLException e) {
             showError("Database Error", "Failed to load data from database.", e);
         }
@@ -310,9 +322,16 @@ public class RulesUIController {
         unitBox.setText(u.composition() == null ? "" : u.composition());
         keyBox.setText(toUnitKeywordText(u.keywordIdList()));
 
-        // Weapons (IDs already decoded in repository)
+        // Weapons
         rangedList.setAll(toRangedWeapons(u.rangedWeaponIdList()));
         meleeList.setAll(toMeleeWeapons(u.meleeWeaponIdList()));
+
+        // NEW: Abilities
+        coreBox.setText(toCoreAbilityText(u.coreAbilityIdList()));
+        mainBox.setText(toOtherAbilityText(u.otherAbilityIdList()));
+
+        // NEW: Faction ability (bound by factionId)
+        factionBox.setText(FACTION_ABILITY.getOrDefault(u.factionId(), ""));
     }
 
     // Clear the unit detail panel (recommended when switching faction)
@@ -329,6 +348,9 @@ public class RulesUIController {
 
         unitBox.clear();
         keyBox.clear();
+        coreBox.clear();
+        mainBox.clear();
+        factionBox.clear();
 
         rangedList.clear();
         meleeList.clear();
@@ -368,6 +390,22 @@ public class RulesUIController {
                 .collect(Collectors.joining(", "));
     }
 
+    // NEW: core abilities text builder
+    private String toCoreAbilityText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> coreAbilityById.getOrDefault(id, "CORE#" + id))
+                .collect(Collectors.joining("\n\n"));
+    }
+
+    // NEW: other abilities text builder
+    private String toOtherAbilityText(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return "";
+        return ids.stream()
+                .map(id -> otherAbilityById.getOrDefault(id, "ABILITY#" + id))
+                .collect(Collectors.joining("\n\n"));
+    }
+
     private void showError(String title, String header, Exception e) {
         e.printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -391,15 +429,11 @@ public class RulesUIController {
 
     @FXML
     void search(MouseEvent event) {
-        // Get current faction filter (applied only when user clicks Confirm previously / or currently selected)
         Integer factionId = (factionCBbox.getValue() == null)
                 ? null
                 : factionCBbox.getValue().id();
 
-        // Get keyword from textbox
         String kw = (searchbox.getText() == null) ? "" : searchbox.getText().trim();
-
-        // Rebuild tree using name keyword (case-insensitive contains)
         rebuildUnitTree(factionId, kw);
     }
 
@@ -427,7 +461,7 @@ public class RulesUIController {
     void edit(MouseEvent event) {
         // TODO:
         // 1) Get selected UnitRow from the tree.
-        // 2) If it is a unit row, open editor and pass unit id (shared state / controller injection).
+        // 2) If it is a unit row, open editor and pass unit id.
     }
 
     // ======================= Tree row model ===================
