@@ -106,7 +106,7 @@ public class UnitInstance {
         return template.composition();
     }
 
-    public List<String> getKeywords() {
+    public List<Integer> getKeywords() {
         return template.keywordIdList();
     }
 
