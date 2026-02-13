@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class UnitRepository {
 		public static int addNewUnit(Units unit) throws SQLException {
 				return Dao.update(
-						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, coreAbilityId, otherAbilityIdList, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, composition, coreAbilityIdList, otherAbilityIdList, keywordIdList, rangedWeaponIdList, meleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 						unit.factionId(),
 						unit.name(),
 						unit.points(),
@@ -24,9 +24,9 @@ public class UnitRepository {
 						unit.OC(),
 						unit.invulnerableSave(),
 						unit.category(),
-						IntListCodec.encode(unit.coreAbilityId()),
-						IntListCodec.encode(unit.otherAbilityIdList()),
 						unit.composition(),
+						IntListCodec.encode(unit.coreAbilityIdList()),
+						IntListCodec.encode(unit.otherAbilityIdList()),
 						IntListCodec.encode(unit.keywordIdList()),
 						IntListCodec.encode(unit.rangedWeaponIdList()),
 						IntListCodec.encode(unit.meleeWeaponIdList())
@@ -48,9 +48,9 @@ public class UnitRepository {
 								rs.getInt("OC"),
 								rs.getInt("invulnerableSave"),
 								rs.getInt("category"),
-								IntListCodec.decode(rs.getString("coreAbilityId")),
-								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								rs.getString("composition"),
+								IntListCodec.decode(rs.getString("coreAbilityIdList")),
+								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								IntListCodec.decode(rs.getString("keywordIdList")),
 								IntListCodec.decode(rs.getString("rangedWeaponIdList")),
 								IntListCodec.decode(rs.getString("meleeWeaponIdList"))
@@ -74,9 +74,9 @@ public class UnitRepository {
 								rs.getInt("OC"),
 								rs.getInt("invulnerableSave"),
 								rs.getInt("category"),
-								IntListCodec.decode(rs.getString("coreAbilityId")),
-								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								rs.getString("composition"),
+								IntListCodec.decode(rs.getString("coreAbilityIdList")),
+								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								IntListCodec.decode(rs.getString("keywordIdList")),
 								IntListCodec.decode(rs.getString("rangedWeaponIdList")),
 								IntListCodec.decode(rs.getString("meleeWeaponIdList"))
@@ -85,7 +85,7 @@ public class UnitRepository {
 		}
 		public static void updateUnit(Units unit) throws SQLException {
 				Dao.update(
-						"UPDATE units SET factionId = ?, name = ?, points = ?, M = ?, T = ?, SV = ?, W = ?, LD = ?, OC = ?, invulnerableSave = ?, category = ?, coreAbilityId = ?, otherAbilityIdList = ?, composition = ?, keywordIdList = ?, rangedWeaponIdList = ?, meleeWeaponIdList = ? WHERE id = ?",
+						"UPDATE units SET factionId = ?, name = ?, points = ?, M = ?, T = ?, SV = ?, W = ?, LD = ?, OC = ?, invulnerableSave = ?, category = ?, composition = ?, coreAbilityIdList = ?, otherAbilityIdList = ?, keywordIdList = ?, rangedWeaponIdList = ?, meleeWeaponIdList = ? WHERE id = ?",
 						unit.factionId(),
 						unit.name(),
 						unit.points(),
@@ -97,9 +97,9 @@ public class UnitRepository {
 						unit.OC(),
 						unit.invulnerableSave(),
 						unit.category(),
-						IntListCodec.encode(unit.coreAbilityId()),
-						IntListCodec.encode(unit.otherAbilityIdList()),
 						unit.composition(),
+						IntListCodec.encode(unit.coreAbilityIdList()),
+						IntListCodec.encode(unit.otherAbilityIdList()),
 						IntListCodec.encode(unit.keywordIdList()),
 						IntListCodec.encode(unit.rangedWeaponIdList()),
 						IntListCodec.encode(unit.meleeWeaponIdList()),
