@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class CoreAbilityRepository {
 		public static int addNewCoreAbility(CoreAbilities coreability) throws SQLException {
 				return Dao.update(
-						"INSERT INTO core_abilities (ability VALUES (?)",
+						"INSERT INTO core_abilities (ability) VALUES (?)",
 						coreability.ability()
 				);
 		}
@@ -21,8 +22,7 @@ public class CoreAbilityRepository {
 						"SELECT * FROM core_abilities WHERE id = ?",
 						rs -> new CoreAbilities(
 								rs.getInt("id"),
-								rs.getString("ability")
-						),
+								rs.getString("ability")						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -31,8 +31,7 @@ public class CoreAbilityRepository {
 						"SELECT * FROM core_abilities",
 						rs -> new CoreAbilities(
 								rs.getInt("id"),
-								rs.getString("ability")
-						)						
+								rs.getString("ability")						)
 				);
 		}
 		public static void updateCoreAbility(CoreAbilities coreability) throws SQLException {

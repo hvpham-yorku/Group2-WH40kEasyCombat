@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class UnitRepository {
 		public static int addNewUnit(Units unit) throws SQLException {
 				return Dao.update(
-						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, composition, coreAbilityIdList, otherAbilityIdList, keywordIdList, rangedWeaponIdList, meleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, composition, coreAbilityIdList, otherAbilityIdList, keywordIdList, rangedWeaponIdList, meleeWeaponIdList) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 						unit.factionId(),
 						unit.name(),
 						unit.points(),
@@ -53,8 +54,7 @@ public class UnitRepository {
 								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								IntListCodec.decode(rs.getString("keywordIdList")),
 								IntListCodec.decode(rs.getString("rangedWeaponIdList")),
-								IntListCodec.decode(rs.getString("meleeWeaponIdList"))
-						),
+								IntListCodec.decode(rs.getString("meleeWeaponIdList"))						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -79,8 +79,7 @@ public class UnitRepository {
 								IntListCodec.decode(rs.getString("otherAbilityIdList")),
 								IntListCodec.decode(rs.getString("keywordIdList")),
 								IntListCodec.decode(rs.getString("rangedWeaponIdList")),
-								IntListCodec.decode(rs.getString("meleeWeaponIdList"))
-						)						
+								IntListCodec.decode(rs.getString("meleeWeaponIdList"))						)
 				);
 		}
 		public static void updateUnit(Units unit) throws SQLException {
