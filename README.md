@@ -8,5 +8,5 @@ Eclipse running configuration
 1. Going to src\main\java\eecs2311\group2\wh40k_easycombat
 2. Right click Main.Java
 3. Run As --> Run configurations --> Maven Build
-4. Enter  clean javafx:run  to Goals
+4. Enter  ```clean javafx:run```  to Goals
 5. Apply and Run
