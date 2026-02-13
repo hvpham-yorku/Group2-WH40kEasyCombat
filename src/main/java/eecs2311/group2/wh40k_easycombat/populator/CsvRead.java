@@ -1,3 +1,5 @@
+package eecs2311.group2.wh40k_easycombat.populator;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
