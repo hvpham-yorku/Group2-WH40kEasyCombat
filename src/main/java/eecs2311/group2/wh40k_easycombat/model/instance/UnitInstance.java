@@ -17,9 +17,7 @@ public class UnitInstance {
     private List<Integer> rangedWeaponIds;
 
     private boolean isBattleShocked = false;
-    private boolean hasMoved = false;
-    private boolean hasAttacked = false;
-
+    
     public UnitInstance(Units template) {
         this.template = template;
         this.instanceId = UUID.randomUUID().toString();

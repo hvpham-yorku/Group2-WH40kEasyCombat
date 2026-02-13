@@ -17,25 +17,25 @@
    <left>
       <VBox prefHeight="800.0" prefWidth="350.0" BorderPane.alignment="CENTER">
          <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="350.0" text="Select Faction" textAlignment="CENTER">
+            <Label alignment="CENTER" contentDisplay="CENTER" disable="true" prefHeight="37.0" prefWidth="350.0" text="Select Faction" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <ComboBox fx:id="factionCBbox" prefHeight="47.0" prefWidth="350.0" />
+            <ComboBox fx:id="factionCBbox" disable="true" prefHeight="47.0" prefWidth="350.0" />
             <Label prefHeight="15.0" prefWidth="401.0" />
-            <Button fx:id="confirmButton" mnemonicParsing="false" onMouseClicked="#confirm" prefHeight="29.0" prefWidth="350.0" text="Confirm">
+            <Button fx:id="confirmButton" disable="true" mnemonicParsing="false" onMouseClicked="#confirm" prefHeight="29.0" prefWidth="350.0" text="Confirm">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
             <Label prefHeight="3.0" prefWidth="350.0" />
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="350.0" text="Select Unit" textAlignment="CENTER">
+            <Label alignment="CENTER" contentDisplay="CENTER" disable="true" prefHeight="37.0" prefWidth="350.0" text="Select Unit" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <TreeTableView fx:id="unitSectionTreeTable" prefHeight="590.0" prefWidth="350.0">
+            <TreeTableView fx:id="unitSectionTreeTable" disable="true" prefHeight="590.0" prefWidth="350.0">
               <columns>
                 <TreeTableColumn fx:id="selectUnit" editable="false" prefWidth="268.0" text="Units" />
                   <TreeTableColumn fx:id="selectPoint" prefWidth="79.0" text="Points" />
@@ -55,18 +55,18 @@
                   <TableColumn fx:id="composition" prefWidth="99.0" text="Composition" />
               </columns>
             </TableView>
-            <Button fx:id="addButton" layoutX="14.0" layoutY="291.0" mnemonicParsing="false" onMouseClicked="#add" prefHeight="40.0" prefWidth="105.0" text="Add">
+            <Button fx:id="addButton" disable="true" layoutX="14.0" layoutY="291.0" mnemonicParsing="false" onMouseClicked="#add" prefHeight="40.0" prefWidth="105.0" text="Add">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button fx:id="removeButton" layoutX="137.0" layoutY="689.0" mnemonicParsing="false" onMouseClicked="#removeUnit" prefHeight="40.0" prefWidth="105.0" text="Remove">
+            <Button fx:id="removeButton" disable="true" layoutX="137.0" layoutY="689.0" mnemonicParsing="false" onMouseClicked="#removeUnit" prefHeight="40.0" prefWidth="105.0" text="Remove">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <ComboBox fx:id="datachmentCBbox" layoutX="593.0" layoutY="60.0" prefHeight="36.0" prefWidth="206.0" />
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="585.0" layoutY="29.0" text="Choose Your Detachment">
+            <ComboBox fx:id="datachmentCBbox" disable="true" layoutX="593.0" layoutY="60.0" prefHeight="36.0" prefWidth="206.0" />
+            <Label alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="585.0" layoutY="29.0" text="Choose Your Detachment">
                <font>
                   <Font size="18.0" />
                </font>
@@ -81,13 +81,13 @@
                   <Font size="14.0" />
                </font>
             </TextField>
-            <ComboBox fx:id="sizeCBbox" layoutX="286.0" layoutY="27.0" prefHeight="33.0" prefWidth="150.0" promptText="2000" />
+            <ComboBox fx:id="sizeCBbox" disable="true" layoutX="286.0" layoutY="27.0" prefHeight="33.0" prefWidth="150.0" promptText="2000" />
             <Label layoutX="176.0" layoutY="32.0" text="Battle Size:">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-            <Button fx:id="setWarlordButton" layoutX="370.0" layoutY="689.0" mnemonicParsing="false" onMouseClicked="#setWarlord" prefHeight="40.0" prefWidth="105.0" text="Set Warlord">
+            <Button fx:id="setWarlordButton" disable="true" layoutX="370.0" layoutY="689.0" mnemonicParsing="false" onMouseClicked="#setWarlord" prefHeight="40.0" prefWidth="105.0" text="Set Warlord">
                <font>
                   <Font size="14.0" />
                </font>
@@ -102,12 +102,12 @@
                   <Font size="24.0" />
                </font>
             </Label>
-            <Button fx:id="saveButton" layoutX="643.0" layoutY="271.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="40.0" prefWidth="105.0" text="Save">
+            <Button fx:id="saveButton" disable="true" layoutX="643.0" layoutY="271.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="40.0" prefWidth="105.0" text="Save">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button fx:id="CancelButton" layoutX="643.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#cancelTheChange" prefHeight="40.0" prefWidth="105.0" text="Cancel">
+            <Button fx:id="CancelButton" layoutX="643.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#cancelTheChange" prefHeight="40.0" prefWidth="105.0" text="Back">
                <font>
                   <Font size="14.0" />
                </font>
@@ -123,14 +123,14 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="deleteButton" layoutX="558.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="31.0" prefWidth="70.0" text="Delete" />
-            <Button fx:id="importButton" alignment="CENTER" layoutX="15.0" layoutY="390.0" mnemonicParsing="false" onMouseClicked="#importData" prefHeight="89.0" prefWidth="103.0" text="Import From the Clipboard" textAlignment="CENTER" wrapText="true">
+            <Button fx:id="deleteButton" disable="true" layoutX="558.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="31.0" prefWidth="70.0" text="Delete" />
+            <Button fx:id="importButton" alignment="CENTER" disable="true" layoutX="15.0" layoutY="390.0" mnemonicParsing="false" onMouseClicked="#importData" prefHeight="89.0" prefWidth="103.0" text="Import From the Clipboard" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
             <Button fx:id="loadButton" layoutX="764.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#loadArmy" prefHeight="31.0" prefWidth="69.0" text="Load" />
-            <Button fx:id="favoriteButton" alignment="CENTER" contentDisplay="CENTER" layoutX="661.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#favorite" prefHeight="31.0" prefWidth="70.0" text="Favorite " textAlignment="CENTER" />
+            <Button fx:id="favoriteButton" alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="661.0" layoutY="740.0" mnemonicParsing="false" onMouseClicked="#favorite" prefHeight="31.0" prefWidth="70.0" text="Favorite " textAlignment="CENTER" />
          </children>
       </AnchorPane>
    </center>
