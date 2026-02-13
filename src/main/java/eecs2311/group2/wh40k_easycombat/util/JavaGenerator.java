@@ -9,210 +9,238 @@ import java.util.*;
 
 public class JavaGenerator {
 
+    private static boolean isListField(Field field) {
+        return List.class.isAssignableFrom(field.getType());
+    }
+
     public static String generateAddFunc(Class<?> clazz) {
-        //Below are the several different styles used in making a repo file
-        String tableName = clazz.getAnnotation(Table.class).value(); //units
-        String className = clazz.getSimpleName(); //Units
-        String classNameSingular = pluralToSingular(className); //Unit
-        String classInstance = classNameSingular.toLowerCase(); //unit
-        
-        //Function header
-        String javaFunc = "\t\tpublic static int addNew" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n\t\t\t\treturn Dao.update(\n";
-        
+        String tableName = clazz.getAnnotation(Table.class).value();
+        String className = clazz.getSimpleName();
+        String classNameSingular = pluralToSingular(className);
+        String classInstance = classNameSingular.toLowerCase();
+
+        String javaFunc =
+                "\t\tpublic static int addNew" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n" +
+                "\t\t\t\treturn Dao.update(\n";
+
         StringBuilder sql = new StringBuilder("\t\t\t\t\t\t\"INSERT INTO " + tableName + " (");
-        StringBuilder placeholders = new StringBuilder(" VALUES (");
+        StringBuilder placeholders = new StringBuilder(") VALUES (");
         StringBuilder parameters = new StringBuilder();
-        
+
+        boolean first = true;
+
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.getName().equals("id")) { continue; }
-            //Id does not need an input for sql
+            if (field.getName().equals("id")) continue;
 
             sql.append(field.getName()).append(", ");
             placeholders.append("?, ");
 
-            //Assumption is that if there is an list we are using it for integers
-            if (field.getType().equals(List.class)){
-                parameters.append(",\n\t\t\t\t\t\t").append("IntListCodec.encode(").append(classInstance).append("." + field.getName() + "())");
-            }
-            else{
-                parameters.append(",\n\t\t\t\t\t\t").append(classInstance).append("." + field.getName() + "()");
-            }
+            if (first) first = false;
         }
-        
-        //For every field above it adds a comma and space afterwards, this should be case for every field except the last one so we truncate below after everythign
-        sql.setLength(sql.length() - 2);
-        placeholders.setLength(placeholders.length() - 2);
 
-        //Closes the sql statement
+        // remove last ", "
+        if (sql.toString().endsWith(", ")) sql.setLength(sql.length() - 2);
+        if (placeholders.toString().endsWith(", ")) placeholders.setLength(placeholders.length() - 2);
+
+        // close SQL string
         placeholders.append(")\"");
 
-        String result = javaFunc + sql.toString() + placeholders.toString() + parameters.toString() + "\n\t\t\t\t);\n\t\t}\n";
-        
-        return result;
+        // build parameters (NO leading comma)
+        boolean firstParam = true;
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getName().equals("id")) continue;
+
+            if (firstParam) {
+                parameters.append("\n");
+                firstParam = false;
+            } else {
+                parameters.append(",\n");
+            }
+
+            parameters.append("\t\t\t\t\t\t");
+            if (isListField(field)) {
+                parameters.append("IntListCodec.encode(").append(classInstance).append(".").append(field.getName()).append("())");
+            } else {
+                parameters.append(classInstance).append(".").append(field.getName()).append("()");
+            }
+        }
+
+        return javaFunc
+                + sql + placeholders + ","
+                + parameters
+                + "\n\t\t\t\t);\n\t\t}\n";
     }
 
     public static String generateGetFunc(Class<?> clazz) {
-        //Below are the several different styles used in making a repo file
-        String tableName = clazz.getAnnotation(Table.class).value(); //units
-        String className = clazz.getSimpleName(); //Units
-        String classNameSingular = pluralToSingular(className); //Unit
-        
-        //Function header
-        String javaFunc = "\t\tpublic static " + className + " get" + classNameSingular + "ById(int id) throws SQLException {\n\t\t\t\treturn Dao.query(\n";
-        
-        String sql = "\t\t\t\t\t\t\"SELECT * FROM " + tableName + " WHERE id = ?\",\n";
-        
-        StringBuilder lambda = new StringBuilder("\t\t\t\t\t\trs -> new "+ className +"(\n");
-        
-        for (Field field : clazz.getDeclaredFields()) {
+        String tableName = clazz.getAnnotation(Table.class).value();
+        String className = clazz.getSimpleName();
+        String classNameSingular = pluralToSingular(className);
 
-            if (field.getType().equals(List.class)){
-                lambda.append("\t\t\t\t\t\t\t\t").append("IntListCodec.decode(").append("rs.getString(\"").append(field.getName() + "\")),\n");
-            }
-            else if (field.getType().equals(String.class)){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getString(\"").append(field.getName() + "\"),\n");
-            }
-            else if (field.getType().equals(int.class) || (field.getType().equals(Integer.class))){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getInt(\"").append(field.getName() + "\"),\n");
-            }
-            else if (field.getType().equals(boolean.class) || (field.getType().equals(Boolean.class))){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getBoolean(\"").append(field.getName() + "\"),\n");
+        String javaFunc =
+                "\t\tpublic static " + className + " get" + classNameSingular + "ById(int id) throws SQLException {\n" +
+                "\t\t\t\treturn Dao.query(\n";
+
+        String sql = "\t\t\t\t\t\t\"SELECT * FROM " + tableName + " WHERE id = ?\",\n";
+
+        StringBuilder lambda = new StringBuilder("\t\t\t\t\t\trs -> new " + className + "(\n");
+
+        for (Field field : clazz.getDeclaredFields()) {
+            if (isListField(field)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("IntListCodec.decode(rs.getString(\"").append(field.getName()).append("\")),\n");
+            } else if (field.getType().equals(String.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getString(\"").append(field.getName()).append("\"),\n");
+            } else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getInt(\"").append(field.getName()).append("\"),\n");
+            } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getBoolean(\"").append(field.getName()).append("\"),\n");
+            } else {
+                // fallback: getObject
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("(").append(field.getType().getSimpleName()).append(") rs.getObject(\"").append(field.getName()).append("\"),\n");
             }
         }
-        
-        //For every field above it adds a comma and newling afterwards, this should be case for every field except the last one so we remove the comma below after everythign
-        lambda.deleteCharAt(lambda.length()-2);
 
-        //Closes the lambda statement
+        // remove last ",\n"
+        if (lambda.toString().endsWith(",\n")) lambda.setLength(lambda.length() - 2);
+
         lambda.append("\t\t\t\t\t\t),\n");
 
-        String result = javaFunc + sql + lambda.toString() + "\t\t\t\t\t\tid\n" + "\t\t\t\t).stream().findFirst().orElse(null);\n\t\t}\n";
-        
-        return result;
+        return javaFunc
+                + sql
+                + lambda
+                + "\t\t\t\t\t\tid\n"
+                + "\t\t\t\t).stream().findFirst().orElse(null);\n\t\t}\n";
     }
 
     public static String generateGetAllFunc(Class<?> clazz) {
-        //Below are the several different styles used in making a repo file
-        String tableName = clazz.getAnnotation(Table.class).value(); //units
-        String className = clazz.getSimpleName(); //Units
-        
-        //Function header
-        String javaFunc = "\t\tpublic static List<" + className + "> getAll" + className + "() throws SQLException {\n\t\t\t\treturn Dao.query(\n";
-        
-        String sql = "\t\t\t\t\t\t\"SELECT * FROM " + tableName + "\",\n";
-        
-        StringBuilder lambda = new StringBuilder("\t\t\t\t\t\trs -> new "+ className +"(\n");
-        
-        for (Field field : clazz.getDeclaredFields()) {
+        String tableName = clazz.getAnnotation(Table.class).value();
+        String className = clazz.getSimpleName();
 
-            if (field.getType().equals(List.class)){
-                lambda.append("\t\t\t\t\t\t\t\t").append("IntListCodec.decode(").append("rs.getString(\"").append(field.getName() + "\")),\n");
-            }
-            else if (field.getType().equals(String.class)){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getString(\"").append(field.getName() + "\"),\n");
-            }
-            else if (field.getType().equals(int.class) || (field.getType().equals(Integer.class))){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getInt(\"").append(field.getName() + "\"),\n");
-            }
-            else if (field.getType().equals(boolean.class) || (field.getType().equals(Boolean.class))){
-                lambda.append("\t\t\t\t\t\t\t\t").append("rs.getBoolean(\"").append(field.getName() + "\"),\n");
+        String javaFunc =
+                "\t\tpublic static List<" + className + "> getAll" + className + "() throws SQLException {\n" +
+                "\t\t\t\treturn Dao.query(\n";
+
+        String sql = "\t\t\t\t\t\t\"SELECT * FROM " + tableName + "\",\n";
+
+        StringBuilder lambda = new StringBuilder("\t\t\t\t\t\trs -> new " + className + "(\n");
+
+        for (Field field : clazz.getDeclaredFields()) {
+            if (isListField(field)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("IntListCodec.decode(rs.getString(\"").append(field.getName()).append("\")),\n");
+            } else if (field.getType().equals(String.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getString(\"").append(field.getName()).append("\"),\n");
+            } else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getInt(\"").append(field.getName()).append("\"),\n");
+            } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("rs.getBoolean(\"").append(field.getName()).append("\"),\n");
+            } else {
+                lambda.append("\t\t\t\t\t\t\t\t")
+                        .append("(").append(field.getType().getSimpleName()).append(") rs.getObject(\"").append(field.getName()).append("\"),\n");
             }
         }
-        
-        //For every field above it adds a comma and newling afterwards, this should be case for every field except the last one so we remove the comma below after everythign
-        lambda.deleteCharAt(lambda.length()-2);
 
-        //Closes the lambda statement
-        lambda.append("\t\t\t\t\t\t)");
+        if (lambda.toString().endsWith(",\n")) lambda.setLength(lambda.length() - 2);
 
-        String result = javaFunc + sql + lambda.toString() + "\t\t\t\t\t\t\n" + "\t\t\t\t);\n\t\t}\n";
-        
-        return result;
+        lambda.append("\t\t\t\t\t\t)\n");
+
+        return javaFunc
+                + sql
+                + lambda
+                + "\t\t\t\t);\n\t\t}\n";
     }
 
     public static String generateUpdateFunc(Class<?> clazz) {
-        //Below are the several different styles used in making a repo file
-        String tableName = clazz.getAnnotation(Table.class).value(); //units
-        String className = clazz.getSimpleName(); //Units
-        String classNameSingular = pluralToSingular(className); //Unit
-        String classInstance = classNameSingular.toLowerCase(); //unit
-        
-        //Function header
-        String javaFunc = "\t\tpublic static void update" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n\t\t\t\tDao.update(\n";
-        
+        String tableName = clazz.getAnnotation(Table.class).value();
+        String className = clazz.getSimpleName();
+        String classNameSingular = pluralToSingular(className);
+        String classInstance = classNameSingular.toLowerCase();
+
+        String javaFunc =
+                "\t\tpublic static void update" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n" +
+                "\t\t\t\tDao.update(\n";
+
         StringBuilder sql = new StringBuilder("\t\t\t\t\t\t\"UPDATE " + tableName + " SET ");
-        StringBuilder placeholders = new StringBuilder();
-        StringBuilder parameters = new StringBuilder();
-        
+
+        // build SET ...
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.getName().equals("id")) { continue; }
-            //Id does not need an input for sql
+            if (field.getName().equals("id")) continue;
+            sql.append(field.getName()).append(" = ?, ");
+        }
+        if (sql.toString().endsWith(", ")) sql.setLength(sql.length() - 2);
 
-            placeholders.append(field.getName() + " = ?, ");
+        sql.append(" WHERE id = ?\"");
 
-            //Assumption is that if there is an list we are using it for integers
-            if (field.getType().equals(List.class)){
-                parameters.append(",\n\t\t\t\t\t\t").append("IntListCodec.encode(").append(classInstance).append("." + field.getName() + "())");
+        // build params
+        StringBuilder parameters = new StringBuilder();
+
+        boolean firstParam = true;
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getName().equals("id")) continue;
+
+            if (firstParam) {
+                parameters.append("\n");
+                firstParam = false;
+            } else {
+                parameters.append(",\n");
             }
-            else{
-                parameters.append(",\n\t\t\t\t\t\t").append(classInstance).append("." + field.getName() + "()");
+
+            parameters.append("\t\t\t\t\t\t");
+            if (isListField(field)) {
+                parameters.append("IntListCodec.encode(").append(classInstance).append(".").append(field.getName()).append("())");
+            } else {
+                parameters.append(classInstance).append(".").append(field.getName()).append("()");
             }
         }
 
-        //For every field above it adds a comma and space afterwards, this should be case for every field except the last one so we truncate below after everythign
-        placeholders.setLength(placeholders.length() - 2);
-
-        //Id is a common part of all models so we always put it at the end
-        placeholders.append(" WHERE id = ?\"");
+        // add id last
         parameters.append(",\n\t\t\t\t\t\t").append(classInstance).append(".id()");
 
-        String result = javaFunc + sql.toString() + placeholders.toString() + parameters.toString() + "\n\t\t\t\t);\n\t\t}\n";
-        
-        return result;
+        return javaFunc
+                + sql + ","
+                + parameters
+                + "\n\t\t\t\t);\n\t\t}\n";
     }
 
     public static String generateDeleteFunc(Class<?> clazz) {
-        //Below are the several different styles used in making a repo file
-        String tableName = clazz.getAnnotation(Table.class).value(); //units
-        String className = clazz.getSimpleName(); //Units
-        String classNameSingular = pluralToSingular(className); //Unit
-        String classInstance = classNameSingular.toLowerCase(); //unit
-        
-        //Function header
-        String javaFunc = "\t\tpublic static void delete" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n\t\t\t\tDao.update(\n";
-        
-        StringBuilder sql = new StringBuilder("\t\t\t\t\t\t\"DELETE FROM " + tableName);
-        StringBuilder placeholders = new StringBuilder();
-        StringBuilder parameters = new StringBuilder();
+        String tableName = clazz.getAnnotation(Table.class).value();
+        String className = clazz.getSimpleName();
+        String classNameSingular = pluralToSingular(className);
+        String classInstance = classNameSingular.toLowerCase();
 
-        //Id is a common part of all models so we always put it at the end
-        placeholders.append(" WHERE id = ?\"");
-        parameters.append(",\n\t\t\t\t\t\t").append(classInstance).append(".id()");
+        String javaFunc =
+                "\t\tpublic static void delete" + classNameSingular + "(" + className + " " + classInstance + ") throws SQLException {\n" +
+                "\t\t\t\tDao.update(\n";
 
-        String result = javaFunc + sql.toString() + placeholders.toString() + parameters.toString() + "\n\t\t\t\t);\n\t\t}\n";
-        
-        return result;
+        String sql = "\t\t\t\t\t\t\"DELETE FROM " + tableName + " WHERE id = ?\",\n";
+        String params = "\t\t\t\t\t\t" + classInstance + ".id()\n";
+
+        return javaFunc + sql + params + "\t\t\t\t);\n\t\t}\n";
     }
 
     public static String generateCrudCode(Class<?> clazz) throws Exception {
 
         StringBuilder fullJava = new StringBuilder();
-        fullJava.append("//-- Auto Generated Java File --").append("\n");
-        
-        fullJava.append("package eecs2311.group2.wh40k_easycombat.repository;").append("\n\n");
+        fullJava.append("//-- Auto Generated Java File --\n\n");
 
-        fullJava.append("import eecs2311.group2.wh40k_easycombat.db.Dao;").append("\n");
-        //fullJava.append("import eecs2311.group2.wh40k_easycombat.db.Tx;").append("\n");
-        fullJava.append("import eecs2311.group2.wh40k_easycombat.model.").append(clazz.getSimpleName()).append(";").append("\n");
-        //fullJava.append("import eecs2311.group2.wh40k_easycombat.util.StringListCodec;").append("\n");
-        fullJava.append("import eecs2311.group2.wh40k_easycombat.util.IntListCodec;").append("\n\n");
+        fullJava.append("package eecs2311.group2.wh40k_easycombat.repository;\n\n");
 
-        //fullJava.append("import java.sql.Connection;").append("\n");
-        fullJava.append("import java.util.List;").append("\n");
-        fullJava.append("import java.sql.SQLException;").append("\n\n");
+        fullJava.append("import eecs2311.group2.wh40k_easycombat.db.Dao;\n");
+        fullJava.append("import eecs2311.group2.wh40k_easycombat.model.").append(clazz.getSimpleName()).append(";\n");
+        fullJava.append("import eecs2311.group2.wh40k_easycombat.util.IntListCodec;\n\n");
 
-        fullJava.append("@SuppressWarnings(\"unused\")").append("\n");
-        fullJava.append("public class ").append(pluralToSingular(clazz.getSimpleName())).append("Repository {").append("\n");
+        fullJava.append("import java.util.List;\n");
+        fullJava.append("import java.sql.SQLException;\n\n");
+
+        fullJava.append("@SuppressWarnings(\"unused\")\n");
+        fullJava.append("public class ").append(pluralToSingular(clazz.getSimpleName())).append("Repository {\n");
 
         fullJava.append(generateAddFunc(clazz));
         fullJava.append(generateGetFunc(clazz));
@@ -220,8 +248,7 @@ public class JavaGenerator {
         fullJava.append(generateUpdateFunc(clazz));
         fullJava.append(generateDeleteFunc(clazz));
 
-        fullJava.append("}");
-        
+        fullJava.append("}\n");
 
         return fullJava.toString();
     }
@@ -229,11 +256,11 @@ public class JavaGenerator {
     // -----------------------------
     // Helpers
     // -----------------------------
-    
+
     public static String pluralToSingular(String input){
-      return input.substring(input.length() - 3).equals("ies") ? 
-        input.substring(0, input.length() - 3) + "y" :
-        input.substring(0, input.length() - 1);
+        return input.substring(input.length() - 3).equals("ies") ?
+                input.substring(0, input.length() - 3) + "y" :
+                input.substring(0, input.length() - 1);
     }
 
     public static List<Class<?>> getClassesWithTableAnnotation(String packageName) throws Exception {
