@@ -69,10 +69,18 @@ public class Dao {
     ) throws SQLException {
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             bind(ps, params);
-            return ps.executeUpdate();
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new SQLException("No ID returned.");
+                }
+            }
         }
     }
 
@@ -103,9 +111,16 @@ public class Dao {
         Object... params
     ) throws SQLException {
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             bind(ps, params);
-            return ps.executeUpdate();
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new SQLException("No ID returned.");
+                }
+            }
         }
     }
 

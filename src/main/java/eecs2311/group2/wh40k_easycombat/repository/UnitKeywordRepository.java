@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.UnitKeywords;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class UnitKeywordRepository {
-		public static void insertUnitKeyword(UnitKeywords unitkeyword) throws SQLException {
-				Dao.update(
+		public static int addNewUnitKeyword(UnitKeywords unitkeyword) throws SQLException {
+				return Dao.update(
 						"INSERT INTO unit_keywords (keyword VALUES (?)",
 						unitkeyword.keyword()
 				);
@@ -24,6 +25,15 @@ public class UnitKeywordRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<UnitKeywords> getAllUnitKeywords() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM unit_keywords",
+						rs -> new UnitKeywords(
+								rs.getInt("id"),
+								rs.getString("keyword")
+						)						
+				);
 		}
 		public static void updateUnitKeyword(UnitKeywords unitkeyword) throws SQLException {
 				Dao.update(

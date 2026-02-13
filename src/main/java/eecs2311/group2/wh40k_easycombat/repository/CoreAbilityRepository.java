@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.CoreAbilities;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class CoreAbilityRepository {
-		public static void insertCoreAbility(CoreAbilities coreability) throws SQLException {
-				Dao.update(
+		public static int addNewCoreAbility(CoreAbilities coreability) throws SQLException {
+				return Dao.update(
 						"INSERT INTO core_abilities (ability VALUES (?)",
 						coreability.ability()
 				);
@@ -24,6 +25,15 @@ public class CoreAbilityRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<CoreAbilities> getAllCoreAbilities() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM core_abilities",
+						rs -> new CoreAbilities(
+								rs.getInt("id"),
+								rs.getString("ability")
+						)						
+				);
 		}
 		public static void updateCoreAbility(CoreAbilities coreability) throws SQLException {
 				Dao.update(

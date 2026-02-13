@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.MeleeWeapons;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class MeleeWeaponRepository {
-		public static void insertMeleeWeapon(MeleeWeapons meleeweapon) throws SQLException {
-				Dao.update(
+		public static int addNewMeleeWeapon(MeleeWeapons meleeweapon) throws SQLException {
+				return Dao.update(
 						"INSERT INTO melee_weapons (name, A, WS, S, AP, D, keywordIdList VALUES (?, ?, ?, ?, ?, ?, ?)",
 						meleeweapon.name(),
 						meleeweapon.A(),
@@ -36,6 +37,21 @@ public class MeleeWeaponRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<MeleeWeapons> getAllMeleeWeapons() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM melee_weapons",
+						rs -> new MeleeWeapons(
+								rs.getInt("id"),
+								rs.getString("name"),
+								rs.getString("A"),
+								rs.getInt("WS"),
+								rs.getInt("S"),
+								rs.getInt("AP"),
+								rs.getString("D"),
+								IntListCodec.decode(rs.getString("keywordIdList"))
+						)						
+				);
 		}
 		public static void updateMeleeWeapon(MeleeWeapons meleeweapon) throws SQLException {
 				Dao.update(

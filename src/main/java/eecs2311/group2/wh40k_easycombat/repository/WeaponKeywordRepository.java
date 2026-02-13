@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.WeaponKeywords;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class WeaponKeywordRepository {
-		public static void insertWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
-				Dao.update(
+		public static int addNewWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
+				return Dao.update(
 						"INSERT INTO weapon_keywords (keyword VALUES (?)",
 						weaponkeyword.keyword()
 				);
@@ -24,6 +25,15 @@ public class WeaponKeywordRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<WeaponKeywords> getAllWeaponKeywords() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM weapon_keywords",
+						rs -> new WeaponKeywords(
+								rs.getInt("id"),
+								rs.getString("keyword")
+						)						
+				);
 		}
 		public static void updateWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
 				Dao.update(

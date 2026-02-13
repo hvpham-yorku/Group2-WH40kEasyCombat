@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.Detachments;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class DetachmentRepository {
-		public static void insertDetachment(Detachments detachment) throws SQLException {
-				Dao.update(
+		public static int addNewDetachment(Detachments detachment) throws SQLException {
+				return Dao.update(
 						"INSERT INTO detachments (name, factionId, strategyId, detachmentRule VALUES (?, ?, ?, ?)",
 						detachment.name(),
 						detachment.factionId(),
@@ -30,6 +31,18 @@ public class DetachmentRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<Detachments> getAllDetachments() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM detachments",
+						rs -> new Detachments(
+								rs.getInt("id"),
+								rs.getString("name"),
+								rs.getInt("factionId"),
+								rs.getInt("strategyId"),
+								rs.getString("detachmentRule")
+						)						
+				);
 		}
 		public static void updateDetachment(Detachments detachment) throws SQLException {
 				Dao.update(

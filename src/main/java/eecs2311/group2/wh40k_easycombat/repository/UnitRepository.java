@@ -5,12 +5,13 @@ import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.Units;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
+import java.util.List;
 import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class UnitRepository {
-		public static void insertUnit(Units unit) throws SQLException {
-				Dao.update(
+		public static int addNewUnit(Units unit) throws SQLException {
+				return Dao.update(
 						"INSERT INTO units (factionId, name, points, M, T, SV, W, LD, OC, invulnerableSave, category, composition, keywordIdList, rangedWeaponIdList, meleeWeaponIdList VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 						unit.factionId(),
 						unit.name(),
@@ -52,6 +53,29 @@ public class UnitRepository {
 						),
 						id
 				).stream().findFirst().orElse(null);
+		}
+		public static List<Units> getAllUnits() throws SQLException {
+				return Dao.query(
+						"SELECT * FROM units",
+						rs -> new Units(
+								rs.getInt("id"),
+								rs.getInt("factionId"),
+								rs.getString("name"),
+								rs.getInt("points"),
+								rs.getInt("M"),
+								rs.getInt("T"),
+								rs.getInt("SV"),
+								rs.getInt("W"),
+								rs.getInt("LD"),
+								rs.getInt("OC"),
+								rs.getInt("invulnerableSave"),
+								rs.getInt("category"),
+								rs.getString("composition"),
+								IntListCodec.decode(rs.getString("keywordIdList")),
+								IntListCodec.decode(rs.getString("rangedWeaponIdList")),
+								IntListCodec.decode(rs.getString("meleeWeaponIdList"))
+						)						
+				);
 		}
 		public static void updateUnit(Units unit) throws SQLException {
 				Dao.update(
