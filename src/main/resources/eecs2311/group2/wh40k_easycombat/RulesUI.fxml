@@ -30,7 +30,7 @@
                         <Button fx:id="addButton" layoutX="210.0" layoutY="33.0" mnemonicParsing="false" onMouseClicked="#add" prefHeight="25.0" prefWidth="58.0" text="Add" />
                         <Label fx:id="unitNameLabel" layoutX="304.0" layoutY="22.0" prefHeight="47.0" prefWidth="345.0" text="Unit Name">
                            <font>
-                              <Font name="System Bold" size="36.0" />
+                              <Font name="System Bold" size="24.0" />
                            </font>
                         </Label>
                         <TreeTableView fx:id="dataTreeTable" layoutX="27.0" layoutY="149.0" prefHeight="511.0" prefWidth="240.0">
@@ -169,11 +169,7 @@
                         </VBox>
                         <VBox layoutX="935.0" layoutY="539.0" prefHeight="165.0" prefWidth="237.0" style="-fx-border-color: #000000;">
                            <children>
-                              <TextArea fx:id="unitBox" editable="false" prefHeight="163.0" prefWidth="214.0" promptText="composition">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </TextArea>
+                              <TextArea fx:id="unitBox" editable="false" prefHeight="163.0" prefWidth="214.0" promptText="composition" />
                            </children>
                         </VBox>
                         <Label layoutX="947.0" layoutY="493.0" text="Unit Composition">
