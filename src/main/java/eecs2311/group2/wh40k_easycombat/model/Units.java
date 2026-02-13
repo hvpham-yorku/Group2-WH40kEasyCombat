@@ -20,6 +20,8 @@ public record Units(
     @NotNull int invulnerableSave,
     @NotNull int category,
     @NotNull String composition,
+    @NotNull List<Integer> coreAbilityId,
+    @NotNull List<Integer> otherAbilityIdList,
     @NotNull List<Integer> keywordIdList,
     @NotNull List<Integer> rangedWeaponIdList,
     @NotNull List<Integer> meleeWeaponIdList

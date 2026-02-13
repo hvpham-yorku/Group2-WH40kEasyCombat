@@ -85,6 +85,8 @@ CREATE TABLE IF NOT EXISTS units (
     OC INTEGER NOT NULL,
     invulnerableSave INTEGER NOT NULL,
     category INTEGER NOT NULL,
+    coreAbilityId TEXT NOT NULL,
+    otherAbilityIdList TEXT NOT NULL,
     composition TEXT NOT NULL,
     keywordIdList TEXT NOT NULL,
     rangedWeaponIdList TEXT NOT NULL,
