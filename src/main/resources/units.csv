@@ -1,0 +1,41 @@
+﻿ID,Name,Faction,Type,Point Cost
+1,Chaos Lord,Chaos Space Marines,Character,75
+1,Chaos Sorcerer,Chaos Space Marines,Character,80
+1,Champion of Chaos,Chaos Space Marines,Character,70
+2,Chaos Space Marines Squad,Chaos Space Marines,Regular,55
+2,Chaos Terminators,Chaos Space Marines,Regular,195
+2,Khorne Berzerkers,Chaos Space Marines,Regular,75
+2,Plague Marines,Chaos Space Marines,Regular,80
+2,Noise Marines,Chaos Space Marines,Regular,65
+3,Hellbrute,Chaos Space Marines,Vehicle,130
+3,Chaos Predator,Chaos Space Marines,Vehicle,130
+1,Mortarion,Death Guard,Character,375
+1,Lord of Contagion,Death Guard,Character,100
+1,Malignant Plaguecaster,Death Guard,Character,75
+2,Plague Marine Squad,Death Guard,Regular,115
+2,Blightlord Terminators,Death Guard,Regular,185
+2,Poxwalkers,Death Guard,Regular,60
+3,Myphitic Blight‑Hauler,Death Guard,Vehicle,115
+3,Plagueburst Crawler,Death Guard,Vehicle,180
+3,Bloat‑Drone,Death Guard,Vehicle,120
+3,Foetid Bloat‑Drone,Death Guard,Vehicle,95
+1,Overlord,Necrons,Character,90
+1,Cryptek,Necrons,Character,80
+1,Necron Lord,Necrons,Character,130
+2,Necron Warriors,Necrons,Regular,120
+2,Immortals,Necrons,Regular,80
+2,Flayed Ones,Necrons,Regular,100
+2,Deathmarks,Necrons,Regular,125
+2,Canoptek Scarab Swarm,Necrons,Regular,15
+3,Monolith,Necrons,Vehicle,210
+3,Doomsday Ark,Necrons,Vehicle,160
+3,Acastus Knight Asterius,Imperial Knights,Vehicle,850
+3,Acastus Knight Porphyrion,Imperial Knights,Vehicle,740
+3,Cerastus Knight Lancer,Imperial Knights,Vehicle,465
+3,Cerastus Knight Castigator,Imperial Knights,Vehicle,480
+3,Cerastus Knight Acheron,Imperial Knights,Vehicle,465
+3,Cerastus Knight Atrapos,Imperial Knights,Vehicle,465
+3,Questoris Knight Magaera,Imperial Knights,Vehicle,465
+3,Questoris Knight Styrix,Imperial Knights,Vehicle,505
+3,Armiger Moirax,Imperial Knights,Vehicle,170
+1,Knight Commander,Imperial Knights,Character,485
