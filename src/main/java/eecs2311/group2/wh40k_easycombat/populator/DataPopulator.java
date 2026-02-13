@@ -1,3 +1,5 @@
+package eecs2311.group2.wh40k_easycombat.populator;
+
 import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.db.Tx;
 import java.io.InputStream;
