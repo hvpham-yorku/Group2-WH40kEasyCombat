@@ -5,7 +5,6 @@ import eecs2311.group2.wh40k_easycombat.util.JavaGenerator;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -99,8 +98,16 @@ public final class Database {
         try (Connection conn = Database.getConnection();
              Statement st = conn.createStatement()) {
 
-            DirectoryStream<Path> stream = Files.newDirectoryStream(folder, "*.sql");
-            for (Path file : stream) {
+            // IMPORTANT: run in filename order: 001_schema.sql -> 002_seed.sql -> ...
+            List<Path> sqlFiles;
+            try (var paths = Files.list(folder)) {
+                sqlFiles = paths
+                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".sql"))
+                        .sorted((a, b) -> a.getFileName().toString().compareToIgnoreCase(b.getFileName().toString()))
+                        .toList();
+            }
+
+            for (Path file : sqlFiles) {
                 String sql = Files.readString(file);
                 String[] statements = sql.split(";");
 
@@ -111,7 +118,6 @@ public final class Database {
                     }
                 }
             }
-            stream.close();
         }
     }
 
