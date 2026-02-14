@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class FactionRepository {
 		public static int addNewFaction(Factions faction) throws SQLException {
 				return Dao.update(
-						"INSERT INTO factions (name VALUES (?)",
+						"INSERT INTO factions (name) VALUES (?)",
 						faction.name()
 				);
 		}
@@ -21,8 +22,7 @@ public class FactionRepository {
 						"SELECT * FROM factions WHERE id = ?",
 						rs -> new Factions(
 								rs.getInt("id"),
-								rs.getString("name")
-						),
+								rs.getString("name")						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -31,8 +31,7 @@ public class FactionRepository {
 						"SELECT * FROM factions",
 						rs -> new Factions(
 								rs.getInt("id"),
-								rs.getString("name")
-						)						
+								rs.getString("name")						)
 				);
 		}
 		public static void updateFaction(Factions faction) throws SQLException {

@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class DetachmentRepository {
 		public static int addNewDetachment(Detachments detachment) throws SQLException {
 				return Dao.update(
-						"INSERT INTO detachments (name, factionId, strategyId, detachmentRule VALUES (?, ?, ?, ?)",
+						"INSERT INTO detachments (name, factionId, strategyId, detachmentRule) VALUES (?, ?, ?, ?)",
 						detachment.name(),
 						detachment.factionId(),
 						detachment.strategyId(),
@@ -27,8 +28,7 @@ public class DetachmentRepository {
 								rs.getString("name"),
 								rs.getInt("factionId"),
 								rs.getInt("strategyId"),
-								rs.getString("detachmentRule")
-						),
+								rs.getString("detachmentRule")						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -40,8 +40,7 @@ public class DetachmentRepository {
 								rs.getString("name"),
 								rs.getInt("factionId"),
 								rs.getInt("strategyId"),
-								rs.getString("detachmentRule")
-						)						
+								rs.getString("detachmentRule")						)
 				);
 		}
 		public static void updateDetachment(Detachments detachment) throws SQLException {

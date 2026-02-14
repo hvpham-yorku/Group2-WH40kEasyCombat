@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class UnitKeywordRepository {
 		public static int addNewUnitKeyword(UnitKeywords unitkeyword) throws SQLException {
 				return Dao.update(
-						"INSERT INTO unit_keywords (keyword VALUES (?)",
+						"INSERT INTO unit_keywords (keyword) VALUES (?)",
 						unitkeyword.keyword()
 				);
 		}
@@ -21,8 +22,7 @@ public class UnitKeywordRepository {
 						"SELECT * FROM unit_keywords WHERE id = ?",
 						rs -> new UnitKeywords(
 								rs.getInt("id"),
-								rs.getString("keyword")
-						),
+								rs.getString("keyword")						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -31,8 +31,7 @@ public class UnitKeywordRepository {
 						"SELECT * FROM unit_keywords",
 						rs -> new UnitKeywords(
 								rs.getInt("id"),
-								rs.getString("keyword")
-						)						
+								rs.getString("keyword")						)
 				);
 		}
 		public static void updateUnitKeyword(UnitKeywords unitkeyword) throws SQLException {

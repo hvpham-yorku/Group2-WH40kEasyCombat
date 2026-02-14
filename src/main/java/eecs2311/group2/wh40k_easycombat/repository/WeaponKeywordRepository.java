@@ -1,4 +1,5 @@
 //-- Auto Generated Java File --
+
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class WeaponKeywordRepository {
 		public static int addNewWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
 				return Dao.update(
-						"INSERT INTO weapon_keywords (keyword VALUES (?)",
+						"INSERT INTO weapon_keywords (keyword) VALUES (?)",
 						weaponkeyword.keyword()
 				);
 		}
@@ -21,8 +22,7 @@ public class WeaponKeywordRepository {
 						"SELECT * FROM weapon_keywords WHERE id = ?",
 						rs -> new WeaponKeywords(
 								rs.getInt("id"),
-								rs.getString("keyword")
-						),
+								rs.getString("keyword")						),
 						id
 				).stream().findFirst().orElse(null);
 		}
@@ -31,8 +31,7 @@ public class WeaponKeywordRepository {
 						"SELECT * FROM weapon_keywords",
 						rs -> new WeaponKeywords(
 								rs.getInt("id"),
-								rs.getString("keyword")
-						)						
+								rs.getString("keyword")						)
 				);
 		}
 		public static void updateWeaponKeyword(WeaponKeywords weaponkeyword) throws SQLException {
