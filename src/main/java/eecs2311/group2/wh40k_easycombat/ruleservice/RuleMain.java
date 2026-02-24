@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.ruleservice;
 
 import java.util.List;
 import java.util.Scanner;
@@ -22,7 +22,7 @@ public class RuleMain {
             if (a.isEmpty())
                 continue;
 
-            List<String> matches = searcher.searchAll(a, 3);
+            List<String> matches = searcher.searchAll(a, 100);
 
             if (matches.isEmpty()) {
                 System.out.println("No matches found.\n");

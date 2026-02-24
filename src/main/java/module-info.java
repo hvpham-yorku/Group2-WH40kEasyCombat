@@ -10,4 +10,5 @@ module wh40k_easycomba {
     opens eecs2311.group2.wh40k_easycombat.service to com.fasterxml.jackson.databind;
 
     exports eecs2311.group2.wh40k_easycombat;
+    opens eecs2311.group2.wh40k_easycombat.ruleservice to com.fasterxml.jackson.databind;
 }
