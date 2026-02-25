@@ -31,3 +31,7 @@ hs_err_pid*
 replay_pid*
 
 *.db
+
+# auto generated files
+src/main/java/eecs2311/group2/wh40k_easycombat/repository/
+src/main/resources/sql/001_schema.sql
