@@ -31,6 +31,7 @@ hs_err_pid*
 replay_pid*
 
 *.db
+.DS_Store
 
 # Auto-generated database schema and repository files
 src/main/resources/sql/001_schema.sql
