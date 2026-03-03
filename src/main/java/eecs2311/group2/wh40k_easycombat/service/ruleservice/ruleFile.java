@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.ruleservice;
+package eecs2311.group2.wh40k_easycombat.service.ruleservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
