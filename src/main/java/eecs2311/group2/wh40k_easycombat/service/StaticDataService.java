@@ -42,6 +42,7 @@ public final class StaticDataService {
                 List<Datasheets_detachment_abilities> detachmentAbilities
         ) {
             this.datasheet = datasheet;
+
             this.models = models;
             this.wargear = wargear;
             this.abilities = abilities;
@@ -73,6 +74,35 @@ public final class StaticDataService {
     private static final Map<String, List<Datasheets_stratagems>> stratagemsByDatasheetId = new ConcurrentHashMap<>();
     private static final Map<String, List<Datasheets_enhancements>> enhancementsByDatasheetId = new ConcurrentHashMap<>();
     private static final Map<String, List<Datasheets_detachment_abilities>> detachmentAbilitiesByDatasheetId = new ConcurrentHashMap<>();
+
+    /**
+     * Clear in-memory caches. Must be called under synchronization.
+     */
+    private static void clearCache() {
+        datasheetsById.clear();
+
+        modelsByDatasheetId.clear();
+        wargearByDatasheetId.clear();
+        abilitiesByDatasheetId.clear();
+        compositionByDatasheetId.clear();
+        costsByDatasheetId.clear();
+        keywordsByDatasheetId.clear();
+
+        optionsByDatasheetId.clear();
+        leadersByDatasheetId.clear();
+        stratagemsByDatasheetId.clear();
+        enhancementsByDatasheetId.clear();
+        detachmentAbilitiesByDatasheetId.clear();
+    }
+
+    /**
+     * Force reload all static data from DB, used after CRUD write.
+     */
+    public static synchronized void reloadFromSqlite() throws SQLException {
+        loaded = false;
+        clearCache();
+        loadAllFromSqlite();
+    }
 
     public static synchronized void loadAllFromSqlite() throws SQLException {
         if (loaded) return;
@@ -158,7 +188,6 @@ public final class StaticDataService {
                 tmp.computeIfAbsent(k.datasheet_id(), x -> new ArrayList<>()).add(k);
             }
             for (var e : tmp.entrySet()) {
-                // keywords table can have model dimension now; sort by keyword then model for stable UI
                 e.getValue().sort(
                         Comparator.comparing(Datasheets_keywords::keyword, Comparator.nullsLast(String::compareToIgnoreCase))
                                 .thenComparing(Datasheets_keywords::model, Comparator.nullsLast(String::compareToIgnoreCase))
@@ -184,7 +213,7 @@ public final class StaticDataService {
         try {
             Map<String, List<Datasheets_leader>> tmp = new HashMap<>();
             for (Datasheets_leader l : Datasheets_leaderRepository.getAllDatasheets_leader()) {
-                // CSV uses leader_id/attached_id; we group by attached_id as the "datasheet" being viewed.
+                // group by attached_id as the "datasheet" being viewed
                 if (l == null || l.attached_id() == null) continue;
                 tmp.computeIfAbsent(l.attached_id(), k -> new ArrayList<>()).add(l);
             }
