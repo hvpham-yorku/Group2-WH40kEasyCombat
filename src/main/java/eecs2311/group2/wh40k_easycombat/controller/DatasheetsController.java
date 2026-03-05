@@ -6,10 +6,12 @@ import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -32,7 +34,7 @@ public class DatasheetsController implements Initializable {
 
     // ======================= Inputs ===========================
     @FXML private TextField searchTextField;
-    @FXML private ChoiceBox<String> factionChoiceBox;
+    @FXML private ComboBox<String> factionComboBox;
 
     // ======================= Lists ============================
     @FXML private ListView<Object> datasheetsList;
@@ -53,8 +55,8 @@ public class DatasheetsController implements Initializable {
 
     // ======================= Unit 2 - Properties ==============
     @FXML private HBox unit2PropertyHBox;
-    @FXML private Label unit2TLabel;
     @FXML private Label unit2MLabel;
+    @FXML private Label unit2TLabel;
     @FXML private Label unit2SvLabel;
     @FXML private Label unit2WLabel;
     @FXML private Label unit2OcLabel;
@@ -90,6 +92,9 @@ public class DatasheetsController implements Initializable {
     private final ObservableList<Object> allDatasheets = FXCollections.observableArrayList();
     private final ObservableList<Object> filteredDatasheets = FXCollections.observableArrayList();
 
+    // Optional mapping if datasheets store faction_id but UI shows faction name
+    private final Map<String, String> factionNameToId = new HashMap<>();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTables();
@@ -97,30 +102,31 @@ public class DatasheetsController implements Initializable {
         wireEvents();
     }
 
-    // ---------- 1) 表格列绑定 + 武器名自动换行 ----------
+    // -------------------- Table setup --------------------
+
     private void setupTables() {
-        // ranged
-        rangedWeaponName.setCellValueFactory(c -> c.getValue().displayName);
-        rangedWeaponRange.setCellValueFactory(c -> c.getValue().range);
-        rangedWeaponA.setCellValueFactory(c -> c.getValue().a);
-        rangedWeaponBS.setCellValueFactory(c -> c.getValue().skill);
-        rangedWeaponAP.setCellValueFactory(c -> c.getValue().ap);
-        rangedWeaponD.setCellValueFactory(c -> c.getValue().d);
+        if (rangedWeaponName != null) {
+            rangedWeaponName.setCellValueFactory(c -> c.getValue().displayName);
+            rangedWeaponRange.setCellValueFactory(c -> c.getValue().range);
+            rangedWeaponA.setCellValueFactory(c -> c.getValue().a);
+            rangedWeaponBS.setCellValueFactory(c -> c.getValue().skill);
+            rangedWeaponAP.setCellValueFactory(c -> c.getValue().ap);
+            rangedWeaponD.setCellValueFactory(c -> c.getValue().d);
+            applyWrapCellFactory(rangedWeaponName);
+        }
 
-        // melee
-        meleeWeaponName.setCellValueFactory(c -> c.getValue().displayName);
-        meleeWeaponRange.setCellValueFactory(c -> c.getValue().range);
-        meleeWeaponA.setCellValueFactory(c -> c.getValue().a);
-        meleeWeaponWS.setCellValueFactory(c -> c.getValue().skill);
-        meleeWeaponAP.setCellValueFactory(c -> c.getValue().ap);
-        meleeWeaponD.setCellValueFactory(c -> c.getValue().d);
+        if (meleeWeaponName != null) {
+            meleeWeaponName.setCellValueFactory(c -> c.getValue().displayName);
+            meleeWeaponRange.setCellValueFactory(c -> c.getValue().range);
+            meleeWeaponA.setCellValueFactory(c -> c.getValue().a);
+            meleeWeaponWS.setCellValueFactory(c -> c.getValue().skill);
+            meleeWeaponAP.setCellValueFactory(c -> c.getValue().ap);
+            meleeWeaponD.setCellValueFactory(c -> c.getValue().d);
+            applyWrapCellFactory(meleeWeaponName);
+        }
 
-        // 让武器名（含description）可以换行显示
-        applyWrapCellFactory(rangedWeaponName);
-        applyWrapCellFactory(meleeWeaponName);
-
-        rangedWeaponTable.setItems(FXCollections.observableArrayList());
-        meleeWeaponTable.setItems(FXCollections.observableArrayList());
+        if (rangedWeaponTable != null) rangedWeaponTable.setItems(FXCollections.observableArrayList());
+        if (meleeWeaponTable != null) meleeWeaponTable.setItems(FXCollections.observableArrayList());
     }
 
     private void applyWrapCellFactory(TableColumn<WeaponRow, String> col) {
@@ -130,7 +136,6 @@ public class DatasheetsController implements Initializable {
                 label.setWrapText(true);
                 label.setMaxWidth(Double.MAX_VALUE);
             }
-
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -144,14 +149,14 @@ public class DatasheetsController implements Initializable {
         });
     }
 
-    // ---------- 2) 从 sqlite 读取所有 datasheets + faction ----------
+    // -------------------- Data loading --------------------
     private void loadDatasheetsAndFactions() {
         try {
+            // Load caches
             StaticDataService.loadAllFromSqlite();
 
-            // 这里用 Repository 拿列表（如果你后面愿意，我也可以教你改成 Service 暴露 getAllDatasheets）
+            // Load datasheets list
             List<?> list = eecs2311.group2.wh40k_easycombat.repository.DatasheetsRepository.getAllDatasheets();
-
             allDatasheets.setAll((Collection<? extends Object>) list);
             filteredDatasheets.setAll(allDatasheets);
 
@@ -160,54 +165,157 @@ public class DatasheetsController implements Initializable {
                 @Override
                 protected void updateItem(Object item, boolean empty) {
                     super.updateItem(item, empty);
-                    if (empty || item == null) { setText(null); return; }
+                    if (empty || item == null) {
+                        setText(null);
+                        return;
+                    }
                     String name = s(getAny(item, "name", "datasheet_name", "title"));
                     if (name.isBlank()) name = s(getAny(item, "id", "datasheet_id"));
                     setText(name);
                 }
             });
 
-            // factions
-            Set<String> factions = allDatasheets.stream()
-                    .map(d -> s(getAny(d, "faction", "faction_name", "army")))
-                    .filter(x -> !x.isBlank())
-                    .collect(Collectors.toCollection(TreeSet::new));
+            loadFactionsIntoComboBox();
 
-            factionChoiceBox.getItems().clear();
-            factionChoiceBox.getItems().add("ALL");
-            factionChoiceBox.getItems().addAll(factions);
-            factionChoiceBox.setValue("ALL");
-
+            // Default selection
             if (!filteredDatasheets.isEmpty()) {
                 datasheetsList.getSelectionModel().select(0);
                 showSelectedDatasheet();
+            } else {
+                clearRightPanel();
             }
         } catch (Exception e) {
             showError("Load data failed", e);
         }
     }
 
-    // ---------- 3) 事件绑定 ----------
-    private void wireEvents() {
-        datasheetsList.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldV, newV) -> showSelectedDatasheet());
+    private void loadFactionsIntoComboBox() {
+        if (factionComboBox == null) return;
 
-        factionChoiceBox.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldV, newV) -> applyFilters());
+        factionComboBox.getItems().clear();
+        factionComboBox.getItems().add("ALL");
+        factionNameToId.clear();
 
-        searchButton.setOnMouseClicked(e -> applyFilters());
+        // Preferred: read factions from FactionsRepository if it exists
+        boolean loadedFromFactionRepo = false;
+        try {
+            Class<?> repo = Class.forName("eecs2311.group2.wh40k_easycombat.repository.FactionsRepository");
+            Method m = repo.getMethod("getAllFactions");
+            Object result = m.invoke(null);
+            if (result instanceof List<?> factions) {
+                for (Object f : factions) {
+                    String id = s(getAny(f, "id", "faction_id"));
+                    String name = s(getAny(f, "name", "faction_name"));
+                    if (!id.isBlank() && !name.isBlank()) {
+                        factionNameToId.put(name, id);
+                    }
+                }
+                loadedFromFactionRepo = !factionNameToId.isEmpty();
+            }
+        } catch (Exception ignored) {
+            // Fall back below
+        }
+
+        if (loadedFromFactionRepo) {
+            List<String> names = new ArrayList<>(factionNameToId.keySet());
+            Collections.sort(names);
+            factionComboBox.getItems().addAll(names);
+            factionComboBox.setValue("ALL");
+            return;
+        }
+
+        // Fallback: derive from datasheets object fields (may already be faction_name)
+        Set<String> factions = allDatasheets.stream()
+                .map(d -> s(getAny(d, "faction_name", "faction", "army")))
+                .filter(x -> !x.isBlank())
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        factionComboBox.getItems().addAll(factions);
+        factionComboBox.setValue("ALL");
     }
 
+    // -------------------- Events wiring --------------------
+
+    private void wireEvents() {
+        if (datasheetsList != null) {
+            datasheetsList.getSelectionModel().selectedItemProperty()
+                    .addListener((obs, oldV, newV) -> showSelectedDatasheet());
+        }
+
+        // Faction selection should refresh list immediately
+        if (factionComboBox != null) {
+            factionComboBox.getSelectionModel().selectedItemProperty()
+                    .addListener((obs, oldV, newV) -> applyFilters());
+        }
+
+        // Search button triggers filters
+        if (searchButton != null) {
+            searchButton.setOnMouseClicked(e -> applyFilters());
+        }
+    }
+
+    // FXML may have onAction bound to this
+    @FXML
+    private void selectFaction(ActionEvent event) {
+        applyFilters();
+    }
+
+    // FXML legacy handler (if still wired somewhere)
+    @FXML
+    void changeFaction(InputMethodEvent event) {
+        // InputMethodEvent is NOT ideal for ComboBox, but keep it so FXML won't crash if still wired.
+        applyFilters();
+    }
+
+    @FXML
+    void clickSearchButton(MouseEvent event) {
+        applyFilters();
+    }
+
+    @FXML
+    void clickAddButton(MouseEvent event) {
+        // TODO
+    }
+
+    @FXML
+    void clickEditButton(MouseEvent event) {
+        // TODO
+    }
+
+    @FXML
+    void clickBackButton(MouseEvent event) throws IOException {
+        FixedAspectView.switchTo((Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+                1200.0, 800.0);
+    }
+
+    // -------------------- Filtering --------------------
+
     private void applyFilters() {
-        String faction = factionChoiceBox.getValue() == null ? "ALL" : factionChoiceBox.getValue();
-        String keyword = searchTextField.getText() == null ? "" : searchTextField.getText().trim().toLowerCase();
+        String keyword = searchTextField == null || searchTextField.getText() == null
+                ? ""
+                : searchTextField.getText().trim().toLowerCase();
+
+        String selectedFaction = (factionComboBox == null || factionComboBox.getValue() == null)
+                ? "ALL"
+                : factionComboBox.getValue();
+
+        // If mapping exists (name -> id), use id too
+        String selectedFactionId = factionNameToId.getOrDefault(selectedFaction, selectedFaction);
 
         filteredDatasheets.setAll(allDatasheets.stream()
                 .filter(d -> {
-                    if (!"ALL".equalsIgnoreCase(faction)) {
-                        String f = s(getAny(d, "faction", "faction_name", "army"));
-                        if (!f.equalsIgnoreCase(faction)) return false;
+                    if (!"ALL".equalsIgnoreCase(selectedFaction)) {
+                        String fName = s(getAny(d, "faction_name", "faction", "army"));
+                        String fId = s(getAny(d, "faction_id"));
+
+                        boolean match = false;
+                        if (!fId.isBlank()) match = fId.equalsIgnoreCase(selectedFactionId);
+                        if (!match && !fName.isBlank()) match = fName.equalsIgnoreCase(selectedFaction);
+
+                        if (!match) return false;
                     }
+
                     if (!keyword.isBlank()) {
                         String name = s(getAny(d, "name", "datasheet_name", "title")).toLowerCase();
                         String id = s(getAny(d, "id", "datasheet_id")).toLowerCase();
@@ -217,165 +325,105 @@ public class DatasheetsController implements Initializable {
                 })
                 .toList());
 
-        if (!filteredDatasheets.isEmpty()) datasheetsList.getSelectionModel().select(0);
-        else clearRightPanel();
+        if (!filteredDatasheets.isEmpty()) {
+            datasheetsList.getSelectionModel().select(0);
+            showSelectedDatasheet();
+        } else {
+            clearRightPanel();
+        }
     }
 
-    // ---------- 4) 显示选中的 datasheet ----------
+    // -------------------- Selection rendering --------------------
+
     private void showSelectedDatasheet() {
-        Object selected = datasheetsList.getSelectionModel().getSelectedItem();
-        if (selected == null) { clearRightPanel(); return; }
+        Object selected = datasheetsList == null ? null : datasheetsList.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            clearRightPanel();
+            return;
+        }
 
         String datasheetId = s(getAny(selected, "id", "datasheet_id"));
-        if (datasheetId.isBlank()) { clearRightPanel(); return; }
+        if (datasheetId.isBlank()) {
+            clearRightPanel();
+            return;
+        }
 
         try {
             DatasheetBundle bundle = StaticDataService.getDatasheetBundle(datasheetId);
-            if (bundle == null) { clearRightPanel(); return; }
+            if (bundle == null) {
+                clearRightPanel();
+                return;
+            }
             renderBundle(bundle);
         } catch (SQLException e) {
             showError("Read datasheet failed: " + datasheetId, e);
         }
     }
 
-    // ======================= 你要的渲染规则在这里 =======================
     private void renderBundle(DatasheetBundle bundle) {
-
         // Datasheet Name
-        datasheetName.setText(s(getAny(bundle.datasheet, "name", "datasheet_name", "title")));
+        if (datasheetName != null) {
+            datasheetName.setText(s(getAny(bundle.datasheet, "name", "datasheet_name", "title")));
+        }
 
-        // ---- Models：如果只有一个 unit，隐藏 unit2PropertyHBox ----
-        Object model1 = bundle.models.size() > 0 ? bundle.models.get(0) : null;
-        Object model2 = bundle.models.size() > 1 ? bundle.models.get(1) : null;
-
-        unitName1.setText(model1 == null ? "" : s(getAny(model1, "name", "model", "unit_name")));
-        fillStats(model1, unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
+        // Models & stats
+        Object model1 = (bundle.models != null && bundle.models.size() > 0) ? bundle.models.get(0) : null;
+        Object model2 = (bundle.models != null && bundle.models.size() > 1) ? bundle.models.get(1) : null;
 
         boolean hasModel2 = (model2 != null);
 
-        unitName2.setText(hasModel2 ? s(getAny(model2, "name", "model", "unit_name")) : "");
+        if (unitName1 != null) unitName1.setText(model1 == null ? "" : s(getAny(model1, "name", "model", "unit_name")));
+        fillStats(model1, unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
+
+        if (unitName2 != null) unitName2.setText(hasModel2 ? s(getAny(model2, "name", "model", "unit_name")) : "");
         fillStats(model2, unit2MLabel, unit2TLabel, unit2SvLabel, unit2WLabel, unit2LdLabel, unit2OcLabel);
 
+        // Hide Unit2 panel if only one unit
         setVisibleManaged(unit2PropertyHBox, hasModel2);
         setVisibleManaged(unitName2, hasModel2);
 
-        // ---- Text blocks ----
+        // Text sections
         setFlow(unitCompositionTextFlow, joinLines(bundle.compositions,
                 "text", "composition", "rule", "description", "line_text"));
 
+        // Model cost: description + cost
         setFlow(costTextFlow, buildModelCost(bundle.costs));
 
-        setFlow(keywordsTextFlow, joinKeywords(bundle.keywords));
+        // Keywords: comma-separated
+        setFlow(keywordsTextFlow, joinKeywordsComma(bundle.keywords));
 
-        setFlow(abilityTextFlow, joinLines(bundle.abilities,
-                "ability", "name", "text", "description", "line_text"));
+        // Abilities: show name + description
+        setFlow(abilityTextFlow, formatAbilities(bundle.abilities));
 
-        setFlow(factionAbilityTextFlow, joinLines(bundle.detachmentAbilities,
-                "ability", "name", "text", "description", "line_text"));
+        // Faction abilities (detachment abilities): show name + description
+        setFlow(factionAbilityTextFlow, formatAbilities(bundle.detachmentAbilities));
 
-        // ---- Other：你要显示 Attached Unit / 其它信息 ----
-        setFlow(otherTextFlow, buildOtherSection(bundle));
+        // Other: only show existing parts; if empty, hide TextFlow
+        String other = buildOtherSection(bundle);
+        setFlow(otherTextFlow, other);
+        setVisibleManaged(otherTextFlow, !other.isBlank());
 
-        // ---- Weapons：melee / ranged 分开，melee range 固定显示 “Melee”，武器名后带 description ----
+        // Weapons: split melee/ranged, melee range forced to "Melee", name includes description
         List<WeaponRow> ranged = new ArrayList<>();
         List<WeaponRow> melee = new ArrayList<>();
 
-        for (Object w : bundle.wargear) {
-            WeaponRow row = WeaponRow.fromWargear(w);
-            if (row == null) continue;
-
-            if (row.isMelee) melee.add(row);
-            else ranged.add(row);
+        if (bundle.wargear != null) {
+            for (Object w : bundle.wargear) {
+                WeaponRow row = WeaponRow.fromWargear(w);
+                if (row == null) continue;
+                if (row.isMelee) melee.add(row);
+                else ranged.add(row);
+            }
         }
 
-        rangedWeaponTable.getItems().setAll(ranged);
-        meleeWeaponTable.getItems().setAll(melee);
-    }
-    
-    private String buildModelCost(List<?> costs) {
-        if (costs == null || costs.isEmpty()) return "";
-
-        List<String> lines = new ArrayList<>();
-        for (Object c : costs) {
-            // “描述”优先：model / description / text ...
-            String desc = s(getAny(c, "model", "description", "text", "line_text", "name"));
-            // “cost”优先：cost / points ...
-            String cost = s(getAny(c, "cost", "points", "value"));
-
-            if (desc.isBlank() && cost.isBlank()) continue;
-
-            // ✅ 描述 + cost
-            if (!desc.isBlank() && !cost.isBlank()) lines.add(desc + " " + cost);
-            else if (!desc.isBlank()) lines.add(desc);
-            else lines.add(cost);
-        }
-        return String.join("\n", lines);
+        if (rangedWeaponTable != null) rangedWeaponTable.getItems().setAll(ranged);
+        if (meleeWeaponTable != null) meleeWeaponTable.getItems().setAll(melee);
     }
 
-    private String buildOtherSection(DatasheetBundle bundle) {
-        List<String> sections = new ArrayList<>();
-
-        // Attached Unit (leaders)
-        String leadersText = joinLines(bundle.leaders, "text", "rule", "description", "line_text", "name");
-        if (!leadersText.isBlank()) {
-            sections.add("ATTACHED UNIT\n" + leadersText);
-        }
-
-        // Options
-        String optionsText = joinLines(bundle.options, "text", "option", "description", "line_text", "name");
-        if (!optionsText.isBlank()) {
-            sections.add("OPTIONS\n" + optionsText);
-        }
-
-        // Stratagems
-        String stratsText = joinLines(bundle.stratagems, "text", "name", "description", "line_text");
-        if (!stratsText.isBlank()) {
-            sections.add("STRATAGEMS\n" + stratsText);
-        }
-
-        // Enhancements
-        String enhText = joinLines(bundle.enhancements, "text", "name", "description", "line_text");
-        if (!enhText.isBlank()) {
-            sections.add("ENHANCEMENTS\n" + enhText);
-        }
-
-        return String.join("\n\n", sections).trim();
-    }
-
-    private void setVisibleManaged(Node node, boolean visible) {
-        if (node == null) return;
-        node.setVisible(visible);
-        node.setManaged(visible);
-    }
-
-    // ======================= Back Button ======================
-    @FXML
-    void clickBackButton(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-                1200.0, 800.0);
-    }
-    
-    @FXML
-    private void clickSearchButton(MouseEvent event) {
-        applyFilters();
-    }
-    
-    @FXML
-    private void clickAddButton(MouseEvent event) {
-
-    }
-
-    @FXML
-    private void clickEditButton(MouseEvent event) {
-
-    }
-
-    // ======================= Clear UI =========================
     private void clearRightPanel() {
-        datasheetName.setText("");
-        unitName1.setText("");
-        unitName2.setText("");
+        if (datasheetName != null) datasheetName.setText("");
+        if (unitName1 != null) unitName1.setText("");
+        if (unitName2 != null) unitName2.setText("");
 
         clearLabels(unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
         clearLabels(unit2MLabel, unit2TLabel, unit2SvLabel, unit2WLabel, unit2LdLabel, unit2OcLabel);
@@ -386,47 +434,89 @@ public class DatasheetsController implements Initializable {
         setFlow(abilityTextFlow, "");
         setFlow(factionAbilityTextFlow, "");
         setFlow(otherTextFlow, "");
+        setVisibleManaged(otherTextFlow, false);
 
-        rangedWeaponTable.getItems().clear();
-        meleeWeaponTable.getItems().clear();
+        if (rangedWeaponTable != null) rangedWeaponTable.getItems().clear();
+        if (meleeWeaponTable != null) meleeWeaponTable.getItems().clear();
 
         setVisibleManaged(unit2PropertyHBox, false);
         setVisibleManaged(unitName2, false);
     }
 
-    private void clearLabels(Label... labels) {
-        for (Label l : labels) if (l != null) l.setText("");
-    }
+    // -------------------- Formatting helpers --------------------
 
-    private void fillStats(Object model, Label m, Label t, Label sv, Label w, Label ld, Label oc) {
-        if (model == null) {
-            clearLabels(m, t, sv, w, ld, oc);
-            return;
-        }
-        m.setText(s(getAny(model, "m", "move", "movement", "M")));
-        t.setText(s(getAny(model, "t", "toughness", "T")));
-        sv.setText(s(getAny(model, "sv", "save", "Sv")));
-        w.setText(s(getAny(model, "w", "wounds", "W")));
-        ld.setText(s(getAny(model, "ld", "leadership", "Ld")));
-        oc.setText(s(getAny(model, "oc", "objective_control", "OC")));
-    }
-
-    private String joinKeywords(List<?> keywords) {
+    private String joinKeywordsComma(List<?> keywords) {
         if (keywords == null || keywords.isEmpty()) return "";
-
         List<String> ks = new ArrayList<>();
         for (Object k : keywords) {
             String kw = s(getAny(k, "keyword", "name", "text"));
             if (!kw.isBlank()) ks.add(kw);
         }
-        
         return String.join(", ", ks);
+    }
+
+    private String formatAbilities(List<?> list) {
+        if (list == null || list.isEmpty()) return "";
+
+        List<String> out = new ArrayList<>();
+        for (Object a : list) {
+            String name = s(getAny(a, "name", "ability"));
+            String text = s(getAny(a, "text", "description", "line_text"));
+
+            if (!name.isBlank() && !text.isBlank()) out.add(name + ": " + text);
+            else if (!name.isBlank()) out.add(name);
+            else if (!text.isBlank()) out.add(text);
+        }
+        return String.join("\n", out);
+    }
+
+    private String buildModelCost(List<?> costs) {
+        if (costs == null || costs.isEmpty()) return "";
+
+        List<String> lines = new ArrayList<>();
+        for (Object c : costs) {
+            String desc = s(getAny(c, "model", "description", "text", "line_text", "name"));
+            String cost = s(getAny(c, "cost", "points", "value"));
+
+            if (desc.isBlank() && cost.isBlank()) continue;
+
+            if (!desc.isBlank() && !cost.isBlank()) lines.add(desc + " " + cost);
+            else if (!desc.isBlank()) lines.add(desc);
+            else lines.add(cost);
+        }
+        return String.join("\n", lines);
+    }
+
+    private String buildOtherSection(DatasheetBundle bundle) {
+        List<String> sections = new ArrayList<>();
+
+        String leadersText = joinLines(bundle.leaders, "text", "rule", "description", "line_text", "name");
+        if (!leadersText.isBlank()) sections.add("ATTACHED UNIT\n" + leadersText);
+
+        String optionsText = joinLines(bundle.options, "text", "option", "description", "line_text", "name");
+        if (!optionsText.isBlank()) sections.add("OPTIONS\n" + optionsText);
+
+        String stratsText = joinLines(bundle.stratagems, "text", "name", "description", "line_text");
+        if (!stratsText.isBlank()) sections.add("STRATAGEMS\n" + stratsText);
+
+        String enhText = joinLines(bundle.enhancements, "text", "name", "description", "line_text");
+        if (!enhText.isBlank()) sections.add("ENHANCEMENTS\n" + enhText);
+
+        return String.join("\n\n", sections).trim();
     }
 
     private String joinLines(List<?> items, String... fields) {
         if (items == null || items.isEmpty()) return "";
         List<String> out = new ArrayList<>();
         for (Object x : items) {
+            // Prefer combining name + text if both exist
+            String name = s(getAny(x, "name", "ability", "title"));
+            String text = s(getAny(x, "text", "description", "line_text"));
+            if (!name.isBlank() && !text.isBlank()) {
+                out.add(name + ": " + text);
+                continue;
+            }
+
             String line = "";
             for (String f : fields) {
                 String v = s(getAny(x, f));
@@ -443,6 +533,29 @@ public class DatasheetsController implements Initializable {
         flow.getChildren().add(new Text(text == null ? "" : text));
     }
 
+    private void setVisibleManaged(Node node, boolean visible) {
+        if (node == null) return;
+        node.setVisible(visible);
+        node.setManaged(visible);
+    }
+
+    private void clearLabels(Label... labels) {
+        for (Label l : labels) if (l != null) l.setText("");
+    }
+
+    private void fillStats(Object model, Label m, Label t, Label sv, Label w, Label ld, Label oc) {
+        if (model == null) {
+            clearLabels(m, t, sv, w, ld, oc);
+            return;
+        }
+        if (m != null) m.setText(s(getAny(model, "m", "move", "movement", "M")));
+        if (t != null) t.setText(s(getAny(model, "t", "toughness", "T")));
+        if (sv != null) sv.setText(s(getAny(model, "sv", "save", "Sv")));
+        if (w != null) w.setText(s(getAny(model, "w", "wounds", "W")));
+        if (ld != null) ld.setText(s(getAny(model, "ld", "leadership", "Ld")));
+        if (oc != null) oc.setText(s(getAny(model, "oc", "objective_control", "OC")));
+    }
+
     private void showError(String title, Exception e) {
         e.printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -457,7 +570,7 @@ public class DatasheetsController implements Initializable {
     }
 
     /**
-     * Record/accessor reflection (tolerant to different model field naming)
+     * Read value from record/accessor via reflection.
      */
     private static Object getAny(Object obj, String... methodNames) {
         if (obj == null) return null;
@@ -465,17 +578,19 @@ public class DatasheetsController implements Initializable {
             try {
                 Method m = obj.getClass().getMethod(name);
                 return m.invoke(obj);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return null;
     }
 
-    // ======================= Weapon Row =======================
+    // -------------------- Weapon row --------------------
+
     public static final class WeaponRow {
         final SimpleStringProperty displayName = new SimpleStringProperty("");
         final SimpleStringProperty range = new SimpleStringProperty("");
         final SimpleStringProperty a = new SimpleStringProperty("");
-        final SimpleStringProperty skill = new SimpleStringProperty(""); // BS or WS
+        final SimpleStringProperty skill = new SimpleStringProperty("");
         final SimpleStringProperty ap = new SimpleStringProperty("");
         final SimpleStringProperty d = new SimpleStringProperty("");
         final boolean isMelee;
@@ -489,8 +604,8 @@ public class DatasheetsController implements Initializable {
 
             String name = s(getAny(w, "wargear", "weapon", "name"));
             String desc = s(getAny(w, "description", "desc", "text", "line_text", "special_rules"));
-            String range = s(getAny(w, "range", "weapon_range"));
 
+            String range = s(getAny(w, "range", "weapon_range"));
             String attacks = s(getAny(w, "a", "attacks", "A"));
             String bs = s(getAny(w, "bs", "BS"));
             String ws = s(getAny(w, "ws", "WS"));
@@ -505,12 +620,12 @@ public class DatasheetsController implements Initializable {
 
             WeaponRow row = new WeaponRow(melee);
 
-            // ✅ 你要的：武器名字后面显示 description（建议换行更像 GW）
-            String combinedName = name;
-            if (!desc.isBlank()) combinedName = name + "\n[" + desc + "]";
-            row.displayName.set(combinedName);
+            // Weapon name + description
+            String combined = name;
+            if (!desc.isBlank()) combined = name + "\n[" + desc + "]";
+            row.displayName.set(combined);
 
-            // ✅ 你要的：melee 的 range 列固定显示 “Melee”
+            // Melee range always "Melee"
             row.range.set(melee ? "Melee" : range);
 
             row.a.set(attacks);
