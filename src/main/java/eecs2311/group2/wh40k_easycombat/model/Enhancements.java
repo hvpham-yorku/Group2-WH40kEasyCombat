@@ -4,7 +4,8 @@ import eecs2311.group2.wh40k_easycombat.annotation.*;
 
 @Table("Enhancements")
 public record Enhancements(
-        @PK String id,
+		@PK @AutoIncrement int auto_id,
+        @NotNull String id,
         String faction_id,
         String name,
         String legend,

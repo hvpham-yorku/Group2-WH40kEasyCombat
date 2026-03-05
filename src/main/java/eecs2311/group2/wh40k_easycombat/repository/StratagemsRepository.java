@@ -14,7 +14,8 @@ public class StratagemsRepository {
 
 	public static int addNewStratagems(Stratagems stratagems) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Stratagems (id, faction_id, name, type, cp_cost, legend, turn, phase, description, detachment, detachment_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Stratagems (auto_id, id, faction_id, name, type, cp_cost, legend, turn, phase, description, detachment, detachment_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			stratagems.auto_id(),
 			stratagems.id(),
 			stratagems.faction_id(),
 			stratagems.name(),
@@ -29,10 +30,11 @@ public class StratagemsRepository {
 		);
 	}
 
-	public static Stratagems getStratagemsByPk(String id, String faction_id) throws java.sql.SQLException {
+	public static Stratagems getStratagemsByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Stratagems WHERE id = ? AND faction_id = ?",
+			"SELECT * FROM Stratagems WHERE auto_id = ?",
 			rs -> new Stratagems(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("faction_id"),
 				rs.getString("name"),
@@ -45,7 +47,7 @@ public class StratagemsRepository {
 				rs.getString("detachment"),
 				rs.getString("detachment_id")
 			),
-			id, faction_id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -53,6 +55,7 @@ public class StratagemsRepository {
 		return Dao.query(
 			"SELECT * FROM Stratagems",
 			rs -> new Stratagems(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("faction_id"),
 				rs.getString("name"),
@@ -70,7 +73,9 @@ public class StratagemsRepository {
 
 	public static void updateStratagems(Stratagems stratagems) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Stratagems SET name = ?, type = ?, cp_cost = ?, legend = ?, turn = ?, phase = ?, description = ?, detachment = ?, detachment_id = ? WHERE id = ? AND faction_id = ?",
+			"UPDATE Stratagems SET id = ?, faction_id = ?, name = ?, type = ?, cp_cost = ?, legend = ?, turn = ?, phase = ?, description = ?, detachment = ?, detachment_id = ? WHERE auto_id = ?",
+			stratagems.id(),
+			stratagems.faction_id(),
 			stratagems.name(),
 			stratagems.type(),
 			stratagems.cp_cost(),
@@ -80,16 +85,14 @@ public class StratagemsRepository {
 			stratagems.description(),
 			stratagems.detachment(),
 			stratagems.detachment_id(),
-			stratagems.id(),
-			stratagems.faction_id()
+			stratagems.auto_id()
 		);
 	}
 
 	public static void deleteStratagems(Stratagems stratagems) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Stratagems WHERE id = ? AND faction_id = ?",
-			stratagems.id(),
-			stratagems.faction_id()
+			"DELETE FROM Stratagems WHERE auto_id = ?",
+			stratagems.auto_id()
 		);
 	}
 

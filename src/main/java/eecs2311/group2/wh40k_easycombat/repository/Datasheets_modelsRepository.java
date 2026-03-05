@@ -14,7 +14,8 @@ public class Datasheets_modelsRepository {
 
 	public static int addNewDatasheets_models(Datasheets_models datasheets_models) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_models (datasheet_id, line, name, M, T, Sv, inv_sv, inv_sv_descr, W, Ld, OC, base_size, base_size_descr) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Datasheets_models (auto_id, datasheet_id, line, name, M, T, Sv, inv_sv, inv_sv_descr, W, Ld, OC, base_size, base_size_descr) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			datasheets_models.auto_id(),
 			datasheets_models.datasheet_id(),
 			datasheets_models.line(),
 			datasheets_models.name(),
@@ -31,10 +32,11 @@ public class Datasheets_modelsRepository {
 		);
 	}
 
-	public static Datasheets_models getDatasheets_modelsByPk(String datasheet_id, String line) throws java.sql.SQLException {
+	public static Datasheets_models getDatasheets_modelsByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_models WHERE datasheet_id = ? AND line = ?",
+			"SELECT * FROM Datasheets_models WHERE auto_id = ?",
 			rs -> new Datasheets_models(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("name"),
@@ -49,7 +51,7 @@ public class Datasheets_modelsRepository {
 				rs.getString("base_size"),
 				rs.getString("base_size_descr")
 			),
-			datasheet_id, line
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -57,6 +59,7 @@ public class Datasheets_modelsRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_models",
 			rs -> new Datasheets_models(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("name"),
@@ -76,7 +79,9 @@ public class Datasheets_modelsRepository {
 
 	public static void updateDatasheets_models(Datasheets_models datasheets_models) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Datasheets_models SET name = ?, M = ?, T = ?, Sv = ?, inv_sv = ?, inv_sv_descr = ?, W = ?, Ld = ?, OC = ?, base_size = ?, base_size_descr = ? WHERE datasheet_id = ? AND line = ?",
+			"UPDATE Datasheets_models SET datasheet_id = ?, line = ?, name = ?, M = ?, T = ?, Sv = ?, inv_sv = ?, inv_sv_descr = ?, W = ?, Ld = ?, OC = ?, base_size = ?, base_size_descr = ? WHERE auto_id = ?",
+			datasheets_models.datasheet_id(),
+			datasheets_models.line(),
 			datasheets_models.name(),
 			datasheets_models.M(),
 			datasheets_models.T(),
@@ -88,16 +93,14 @@ public class Datasheets_modelsRepository {
 			datasheets_models.OC(),
 			datasheets_models.base_size(),
 			datasheets_models.base_size_descr(),
-			datasheets_models.datasheet_id(),
-			datasheets_models.line()
+			datasheets_models.auto_id()
 		);
 	}
 
 	public static void deleteDatasheets_models(Datasheets_models datasheets_models) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_models WHERE datasheet_id = ? AND line = ?",
-			datasheets_models.datasheet_id(),
-			datasheets_models.line()
+			"DELETE FROM Datasheets_models WHERE auto_id = ?",
+			datasheets_models.auto_id()
 		);
 	}
 

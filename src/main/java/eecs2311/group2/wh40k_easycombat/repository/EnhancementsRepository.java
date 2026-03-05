@@ -14,7 +14,8 @@ public class EnhancementsRepository {
 
 	public static int addNewEnhancements(Enhancements enhancements) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Enhancements (id, faction_id, name, legend, description, cost, detachment, detachment_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Enhancements (auto_id, id, faction_id, name, legend, description, cost, detachment, detachment_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			enhancements.auto_id(),
 			enhancements.id(),
 			enhancements.faction_id(),
 			enhancements.name(),
@@ -26,10 +27,11 @@ public class EnhancementsRepository {
 		);
 	}
 
-	public static Enhancements getEnhancementsByPk(String id) throws java.sql.SQLException {
+	public static Enhancements getEnhancementsByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Enhancements WHERE id = ?",
+			"SELECT * FROM Enhancements WHERE auto_id = ?",
 			rs -> new Enhancements(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("faction_id"),
 				rs.getString("name"),
@@ -39,7 +41,7 @@ public class EnhancementsRepository {
 				rs.getString("detachment"),
 				rs.getString("detachment_id")
 			),
-			id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -47,6 +49,7 @@ public class EnhancementsRepository {
 		return Dao.query(
 			"SELECT * FROM Enhancements",
 			rs -> new Enhancements(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("faction_id"),
 				rs.getString("name"),
@@ -61,7 +64,8 @@ public class EnhancementsRepository {
 
 	public static void updateEnhancements(Enhancements enhancements) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Enhancements SET faction_id = ?, name = ?, legend = ?, description = ?, cost = ?, detachment = ?, detachment_id = ? WHERE id = ?",
+			"UPDATE Enhancements SET id = ?, faction_id = ?, name = ?, legend = ?, description = ?, cost = ?, detachment = ?, detachment_id = ? WHERE auto_id = ?",
+			enhancements.id(),
 			enhancements.faction_id(),
 			enhancements.name(),
 			enhancements.legend(),
@@ -69,14 +73,14 @@ public class EnhancementsRepository {
 			enhancements.cost(),
 			enhancements.detachment(),
 			enhancements.detachment_id(),
-			enhancements.id()
+			enhancements.auto_id()
 		);
 	}
 
 	public static void deleteEnhancements(Enhancements enhancements) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Enhancements WHERE id = ?",
-			enhancements.id()
+			"DELETE FROM Enhancements WHERE auto_id = ?",
+			enhancements.auto_id()
 		);
 	}
 

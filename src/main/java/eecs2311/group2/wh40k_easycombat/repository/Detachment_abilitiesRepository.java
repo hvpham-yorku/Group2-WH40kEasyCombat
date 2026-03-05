@@ -14,7 +14,8 @@ public class Detachment_abilitiesRepository {
 
 	public static int addNewDetachment_abilities(Detachment_abilities detachment_abilities) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Detachment_abilities (id, detachment_id, faction_id, name, legend, description, detachment) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Detachment_abilities (auto_id, id, detachment_id, faction_id, name, legend, description, detachment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			detachment_abilities.auto_id(),
 			detachment_abilities.id(),
 			detachment_abilities.detachment_id(),
 			detachment_abilities.faction_id(),
@@ -25,10 +26,11 @@ public class Detachment_abilitiesRepository {
 		);
 	}
 
-	public static Detachment_abilities getDetachment_abilitiesByPk(String id, String detachment_id) throws java.sql.SQLException {
+	public static Detachment_abilities getDetachment_abilitiesByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Detachment_abilities WHERE id = ? AND detachment_id = ?",
+			"SELECT * FROM Detachment_abilities WHERE auto_id = ?",
 			rs -> new Detachment_abilities(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("detachment_id"),
 				rs.getString("faction_id"),
@@ -37,7 +39,7 @@ public class Detachment_abilitiesRepository {
 				rs.getString("description"),
 				rs.getString("detachment")
 			),
-			id, detachment_id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -45,6 +47,7 @@ public class Detachment_abilitiesRepository {
 		return Dao.query(
 			"SELECT * FROM Detachment_abilities",
 			rs -> new Detachment_abilities(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("detachment_id"),
 				rs.getString("faction_id"),
@@ -58,22 +61,22 @@ public class Detachment_abilitiesRepository {
 
 	public static void updateDetachment_abilities(Detachment_abilities detachment_abilities) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Detachment_abilities SET faction_id = ?, name = ?, legend = ?, description = ?, detachment = ? WHERE id = ? AND detachment_id = ?",
+			"UPDATE Detachment_abilities SET id = ?, detachment_id = ?, faction_id = ?, name = ?, legend = ?, description = ?, detachment = ? WHERE auto_id = ?",
+			detachment_abilities.id(),
+			detachment_abilities.detachment_id(),
 			detachment_abilities.faction_id(),
 			detachment_abilities.name(),
 			detachment_abilities.legend(),
 			detachment_abilities.description(),
 			detachment_abilities.detachment(),
-			detachment_abilities.id(),
-			detachment_abilities.detachment_id()
+			detachment_abilities.auto_id()
 		);
 	}
 
 	public static void deleteDetachment_abilities(Detachment_abilities detachment_abilities) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Detachment_abilities WHERE id = ? AND detachment_id = ?",
-			detachment_abilities.id(),
-			detachment_abilities.detachment_id()
+			"DELETE FROM Detachment_abilities WHERE auto_id = ?",
+			detachment_abilities.auto_id()
 		);
 	}
 

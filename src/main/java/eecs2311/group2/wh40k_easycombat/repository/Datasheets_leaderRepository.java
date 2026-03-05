@@ -14,20 +14,22 @@ public class Datasheets_leaderRepository {
 
 	public static int addNewDatasheets_leader(Datasheets_leader datasheets_leader) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_leader (leader_id, attached_id) VALUES (?, ?)",
+			"INSERT INTO Datasheets_leader (auto_id, leader_id, attached_id) VALUES (?, ?, ?)",
+			datasheets_leader.auto_id(),
 			datasheets_leader.leader_id(),
 			datasheets_leader.attached_id()
 		);
 	}
 
-	public static Datasheets_leader getDatasheets_leaderByPk(String leader_id, String attached_id) throws java.sql.SQLException {
+	public static Datasheets_leader getDatasheets_leaderByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_leader WHERE leader_id = ? AND attached_id = ?",
+			"SELECT * FROM Datasheets_leader WHERE auto_id = ?",
 			rs -> new Datasheets_leader(
+				rs.getInt("auto_id"),
 				rs.getString("leader_id"),
 				rs.getString("attached_id")
 			),
-			leader_id, attached_id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -35,18 +37,26 @@ public class Datasheets_leaderRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_leader",
 			rs -> new Datasheets_leader(
+				rs.getInt("auto_id"),
 				rs.getString("leader_id"),
 				rs.getString("attached_id")
 			)
 		);
 	}
 
+	public static void updateDatasheets_leader(Datasheets_leader datasheets_leader) throws java.sql.SQLException {
+		Dao.update(
+			"UPDATE Datasheets_leader SET leader_id = ?, attached_id = ? WHERE auto_id = ?",
+			datasheets_leader.leader_id(),
+			datasheets_leader.attached_id(),
+			datasheets_leader.auto_id()
+		);
+	}
 
 	public static void deleteDatasheets_leader(Datasheets_leader datasheets_leader) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_leader WHERE leader_id = ? AND attached_id = ?",
-			datasheets_leader.leader_id(),
-			datasheets_leader.attached_id()
+			"DELETE FROM Datasheets_leader WHERE auto_id = ?",
+			datasheets_leader.auto_id()
 		);
 	}
 

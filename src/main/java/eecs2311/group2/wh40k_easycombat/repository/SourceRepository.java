@@ -14,7 +14,8 @@ public class SourceRepository {
 
 	public static int addNewSource(Source source) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Source (id, name, type, edition, version, errata_date, errata_link) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Source (auto_id, id, name, type, edition, version, errata_date, errata_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			source.auto_id(),
 			source.id(),
 			source.name(),
 			source.type(),
@@ -25,10 +26,11 @@ public class SourceRepository {
 		);
 	}
 
-	public static Source getSourceByPk(String id) throws java.sql.SQLException {
+	public static Source getSourceByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Source WHERE id = ?",
+			"SELECT * FROM Source WHERE auto_id = ?",
 			rs -> new Source(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("name"),
 				rs.getString("type"),
@@ -37,7 +39,7 @@ public class SourceRepository {
 				rs.getString("errata_date"),
 				rs.getString("errata_link")
 			),
-			id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -45,6 +47,7 @@ public class SourceRepository {
 		return Dao.query(
 			"SELECT * FROM Source",
 			rs -> new Source(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("name"),
 				rs.getString("type"),
@@ -58,21 +61,22 @@ public class SourceRepository {
 
 	public static void updateSource(Source source) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Source SET name = ?, type = ?, edition = ?, version = ?, errata_date = ?, errata_link = ? WHERE id = ?",
+			"UPDATE Source SET id = ?, name = ?, type = ?, edition = ?, version = ?, errata_date = ?, errata_link = ? WHERE auto_id = ?",
+			source.id(),
 			source.name(),
 			source.type(),
 			source.edition(),
 			source.version(),
 			source.errata_date(),
 			source.errata_link(),
-			source.id()
+			source.auto_id()
 		);
 	}
 
 	public static void deleteSource(Source source) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Source WHERE id = ?",
-			source.id()
+			"DELETE FROM Source WHERE auto_id = ?",
+			source.auto_id()
 		);
 	}
 

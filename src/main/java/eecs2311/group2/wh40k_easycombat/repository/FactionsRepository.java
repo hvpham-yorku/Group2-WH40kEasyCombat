@@ -14,22 +14,24 @@ public class FactionsRepository {
 
 	public static int addNewFactions(Factions factions) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Factions (id, name, link) VALUES (?, ?, ?)",
+			"INSERT INTO Factions (auto_id, id, name, link) VALUES (?, ?, ?, ?)",
+			factions.auto_id(),
 			factions.id(),
 			factions.name(),
 			factions.link()
 		);
 	}
 
-	public static Factions getFactionsByPk(String id) throws java.sql.SQLException {
+	public static Factions getFactionsByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Factions WHERE id = ?",
+			"SELECT * FROM Factions WHERE auto_id = ?",
 			rs -> new Factions(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("name"),
 				rs.getString("link")
 			),
-			id
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -37,6 +39,7 @@ public class FactionsRepository {
 		return Dao.query(
 			"SELECT * FROM Factions",
 			rs -> new Factions(
+				rs.getInt("auto_id"),
 				rs.getString("id"),
 				rs.getString("name"),
 				rs.getString("link")
@@ -46,17 +49,18 @@ public class FactionsRepository {
 
 	public static void updateFactions(Factions factions) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Factions SET name = ?, link = ? WHERE id = ?",
+			"UPDATE Factions SET id = ?, name = ?, link = ? WHERE auto_id = ?",
+			factions.id(),
 			factions.name(),
 			factions.link(),
-			factions.id()
+			factions.auto_id()
 		);
 	}
 
 	public static void deleteFactions(Factions factions) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Factions WHERE id = ?",
-			factions.id()
+			"DELETE FROM Factions WHERE auto_id = ?",
+			factions.auto_id()
 		);
 	}
 

@@ -14,22 +14,24 @@ public class Datasheets_unit_compositionRepository {
 
 	public static int addNewDatasheets_unit_composition(Datasheets_unit_composition datasheets_unit_composition) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_unit_composition (datasheet_id, line, description) VALUES (?, ?, ?)",
+			"INSERT INTO Datasheets_unit_composition (auto_id, datasheet_id, line, description) VALUES (?, ?, ?, ?)",
+			datasheets_unit_composition.auto_id(),
 			datasheets_unit_composition.datasheet_id(),
 			datasheets_unit_composition.line(),
 			datasheets_unit_composition.description()
 		);
 	}
 
-	public static Datasheets_unit_composition getDatasheets_unit_compositionByPk(String datasheet_id, String line) throws java.sql.SQLException {
+	public static Datasheets_unit_composition getDatasheets_unit_compositionByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_unit_composition WHERE datasheet_id = ? AND line = ?",
+			"SELECT * FROM Datasheets_unit_composition WHERE auto_id = ?",
 			rs -> new Datasheets_unit_composition(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("description")
 			),
-			datasheet_id, line
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -37,6 +39,7 @@ public class Datasheets_unit_compositionRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_unit_composition",
 			rs -> new Datasheets_unit_composition(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("description")
@@ -46,18 +49,18 @@ public class Datasheets_unit_compositionRepository {
 
 	public static void updateDatasheets_unit_composition(Datasheets_unit_composition datasheets_unit_composition) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Datasheets_unit_composition SET description = ? WHERE datasheet_id = ? AND line = ?",
-			datasheets_unit_composition.description(),
+			"UPDATE Datasheets_unit_composition SET datasheet_id = ?, line = ?, description = ? WHERE auto_id = ?",
 			datasheets_unit_composition.datasheet_id(),
-			datasheets_unit_composition.line()
+			datasheets_unit_composition.line(),
+			datasheets_unit_composition.description(),
+			datasheets_unit_composition.auto_id()
 		);
 	}
 
 	public static void deleteDatasheets_unit_composition(Datasheets_unit_composition datasheets_unit_composition) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_unit_composition WHERE datasheet_id = ? AND line = ?",
-			datasheets_unit_composition.datasheet_id(),
-			datasheets_unit_composition.line()
+			"DELETE FROM Datasheets_unit_composition WHERE auto_id = ?",
+			datasheets_unit_composition.auto_id()
 		);
 	}
 

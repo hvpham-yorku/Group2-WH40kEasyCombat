@@ -14,7 +14,8 @@ public class Datasheets_abilitiesRepository {
 
 	public static int addNewDatasheets_abilities(Datasheets_abilities datasheets_abilities) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_abilities (datasheet_id, line, ability_id, model, name, description, type, parameter) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Datasheets_abilities (auto_id, datasheet_id, line, ability_id, model, name, description, type, parameter) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			datasheets_abilities.auto_id(),
 			datasheets_abilities.datasheet_id(),
 			datasheets_abilities.line(),
 			datasheets_abilities.ability_id(),
@@ -26,10 +27,11 @@ public class Datasheets_abilitiesRepository {
 		);
 	}
 
-	public static Datasheets_abilities getDatasheets_abilitiesByPk(String datasheet_id, String line) throws java.sql.SQLException {
+	public static Datasheets_abilities getDatasheets_abilitiesByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_abilities WHERE datasheet_id = ? AND line = ?",
+			"SELECT * FROM Datasheets_abilities WHERE auto_id = ?",
 			rs -> new Datasheets_abilities(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("ability_id"),
@@ -39,7 +41,7 @@ public class Datasheets_abilitiesRepository {
 				rs.getString("type"),
 				rs.getString("parameter")
 			),
-			datasheet_id, line
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -47,6 +49,7 @@ public class Datasheets_abilitiesRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_abilities",
 			rs -> new Datasheets_abilities(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("ability_id"),
@@ -61,23 +64,23 @@ public class Datasheets_abilitiesRepository {
 
 	public static void updateDatasheets_abilities(Datasheets_abilities datasheets_abilities) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Datasheets_abilities SET ability_id = ?, model = ?, name = ?, description = ?, type = ?, parameter = ? WHERE datasheet_id = ? AND line = ?",
+			"UPDATE Datasheets_abilities SET datasheet_id = ?, line = ?, ability_id = ?, model = ?, name = ?, description = ?, type = ?, parameter = ? WHERE auto_id = ?",
+			datasheets_abilities.datasheet_id(),
+			datasheets_abilities.line(),
 			datasheets_abilities.ability_id(),
 			datasheets_abilities.model(),
 			datasheets_abilities.name(),
 			datasheets_abilities.description(),
 			datasheets_abilities.type(),
 			datasheets_abilities.parameter(),
-			datasheets_abilities.datasheet_id(),
-			datasheets_abilities.line()
+			datasheets_abilities.auto_id()
 		);
 	}
 
 	public static void deleteDatasheets_abilities(Datasheets_abilities datasheets_abilities) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_abilities WHERE datasheet_id = ? AND line = ?",
-			datasheets_abilities.datasheet_id(),
-			datasheets_abilities.line()
+			"DELETE FROM Datasheets_abilities WHERE auto_id = ?",
+			datasheets_abilities.auto_id()
 		);
 	}
 

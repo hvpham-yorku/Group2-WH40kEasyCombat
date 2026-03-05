@@ -6,16 +6,17 @@ PRAGMA journal_mode = WAL;
 PRAGMA synchronous = NORMAL;
 
 CREATE TABLE IF NOT EXISTS Abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     id TEXT NOT NULL,
     faction_id TEXT NOT NULL,
     name TEXT,
     legend TEXT,
-    description TEXT,
-    PRIMARY KEY (id, faction_id)
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets (
-    id TEXT PRIMARY KEY,
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
     name TEXT,
     faction_id TEXT,
     source_id TEXT,
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS Datasheets (
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
     ability_id TEXT,
@@ -39,37 +41,37 @@ CREATE TABLE IF NOT EXISTS Datasheets_abilities (
     name TEXT,
     description TEXT,
     type TEXT,
-    parameter TEXT,
-    PRIMARY KEY (datasheet_id, line)
+    parameter TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_detachment_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
-    detachment_ability_id TEXT NOT NULL,
-    PRIMARY KEY (datasheet_id, detachment_ability_id)
+    detachment_ability_id TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_enhancements (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
-    enhancement_id TEXT NOT NULL,
-    PRIMARY KEY (datasheet_id, enhancement_id)
+    enhancement_id TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_keywords (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     keyword TEXT NOT NULL,
     model TEXT NOT NULL,
-    is_faction_keyword TEXT,
-    PRIMARY KEY (datasheet_id, keyword, model)
+    is_faction_keyword TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_leader (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     leader_id TEXT NOT NULL,
-    attached_id TEXT NOT NULL,
-    PRIMARY KEY (leader_id, attached_id)
+    attached_id TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_models (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
     name TEXT,
@@ -82,40 +84,40 @@ CREATE TABLE IF NOT EXISTS Datasheets_models (
     Ld TEXT,
     OC TEXT,
     base_size TEXT,
-    base_size_descr TEXT,
-    PRIMARY KEY (datasheet_id, line)
+    base_size_descr TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_models_cost (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
     description TEXT,
-    cost TEXT,
-    PRIMARY KEY (datasheet_id, line)
+    cost TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_options (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
     button TEXT,
-    description TEXT,
-    PRIMARY KEY (datasheet_id, line)
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_stratagems (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
-    stratagem_id TEXT NOT NULL,
-    PRIMARY KEY (datasheet_id, stratagem_id)
+    stratagem_id TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_unit_composition (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
-    description TEXT,
-    PRIMARY KEY (datasheet_id, line)
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Datasheets_wargear (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     datasheet_id TEXT NOT NULL,
     line TEXT NOT NULL,
     line_in_wargear TEXT NOT NULL,
@@ -128,32 +130,32 @@ CREATE TABLE IF NOT EXISTS Datasheets_wargear (
     BS_WS TEXT,
     S TEXT,
     AP TEXT,
-    D TEXT,
-    PRIMARY KEY (datasheet_id, line, line_in_wargear)
+    D TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Detachments (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     id TEXT NOT NULL,
     faction_id TEXT NOT NULL,
     name TEXT,
     legend TEXT,
-    type TEXT,
-    PRIMARY KEY (id, faction_id)
+    type TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Detachment_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     id TEXT NOT NULL,
     detachment_id TEXT NOT NULL,
     faction_id TEXT,
     name TEXT,
     legend TEXT,
     description TEXT,
-    detachment TEXT,
-    PRIMARY KEY (id, detachment_id)
+    detachment TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Enhancements (
-    id TEXT PRIMARY KEY,
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
     faction_id TEXT,
     name TEXT,
     legend TEXT,
@@ -164,17 +166,20 @@ CREATE TABLE IF NOT EXISTS Enhancements (
 );
 
 CREATE TABLE IF NOT EXISTS Factions (
-    id TEXT PRIMARY KEY,
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
     name TEXT,
     link TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Last_update (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     last_update TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Source (
-    id TEXT PRIMARY KEY,
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
     name TEXT,
     type TEXT,
     edition TEXT,
@@ -184,6 +189,7 @@ CREATE TABLE IF NOT EXISTS Source (
 );
 
 CREATE TABLE IF NOT EXISTS Stratagems (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     id TEXT NOT NULL,
     faction_id TEXT NOT NULL,
     name TEXT,
@@ -194,7 +200,6 @@ CREATE TABLE IF NOT EXISTS Stratagems (
     phase TEXT,
     description TEXT,
     detachment TEXT,
-    detachment_id TEXT,
-    PRIMARY KEY (id, faction_id)
+    detachment_id TEXT
 );
 

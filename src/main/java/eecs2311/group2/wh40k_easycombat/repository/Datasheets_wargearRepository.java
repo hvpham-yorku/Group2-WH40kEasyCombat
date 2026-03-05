@@ -14,7 +14,8 @@ public class Datasheets_wargearRepository {
 
 	public static int addNewDatasheets_wargear(Datasheets_wargear datasheets_wargear) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_wargear (datasheet_id, line, line_in_wargear, dice, name, description, range, type, A, BS_WS, S, AP, D) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO Datasheets_wargear (auto_id, datasheet_id, line, line_in_wargear, dice, name, description, range, type, A, BS_WS, S, AP, D) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			datasheets_wargear.auto_id(),
 			datasheets_wargear.datasheet_id(),
 			datasheets_wargear.line(),
 			datasheets_wargear.line_in_wargear(),
@@ -31,10 +32,11 @@ public class Datasheets_wargearRepository {
 		);
 	}
 
-	public static Datasheets_wargear getDatasheets_wargearByPk(String datasheet_id, String line, String line_in_wargear) throws java.sql.SQLException {
+	public static Datasheets_wargear getDatasheets_wargearByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_wargear WHERE datasheet_id = ? AND line = ? AND line_in_wargear = ?",
+			"SELECT * FROM Datasheets_wargear WHERE auto_id = ?",
 			rs -> new Datasheets_wargear(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("line_in_wargear"),
@@ -49,7 +51,7 @@ public class Datasheets_wargearRepository {
 				rs.getString("AP"),
 				rs.getString("D")
 			),
-			datasheet_id, line, line_in_wargear
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -57,6 +59,7 @@ public class Datasheets_wargearRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_wargear",
 			rs -> new Datasheets_wargear(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("line_in_wargear"),
@@ -76,7 +79,10 @@ public class Datasheets_wargearRepository {
 
 	public static void updateDatasheets_wargear(Datasheets_wargear datasheets_wargear) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Datasheets_wargear SET dice = ?, name = ?, description = ?, range = ?, type = ?, A = ?, BS_WS = ?, S = ?, AP = ?, D = ? WHERE datasheet_id = ? AND line = ? AND line_in_wargear = ?",
+			"UPDATE Datasheets_wargear SET datasheet_id = ?, line = ?, line_in_wargear = ?, dice = ?, name = ?, description = ?, range = ?, type = ?, A = ?, BS_WS = ?, S = ?, AP = ?, D = ? WHERE auto_id = ?",
+			datasheets_wargear.datasheet_id(),
+			datasheets_wargear.line(),
+			datasheets_wargear.line_in_wargear(),
 			datasheets_wargear.dice(),
 			datasheets_wargear.name(),
 			datasheets_wargear.description(),
@@ -87,18 +93,14 @@ public class Datasheets_wargearRepository {
 			datasheets_wargear.S(),
 			datasheets_wargear.AP(),
 			datasheets_wargear.D(),
-			datasheets_wargear.datasheet_id(),
-			datasheets_wargear.line(),
-			datasheets_wargear.line_in_wargear()
+			datasheets_wargear.auto_id()
 		);
 	}
 
 	public static void deleteDatasheets_wargear(Datasheets_wargear datasheets_wargear) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_wargear WHERE datasheet_id = ? AND line = ? AND line_in_wargear = ?",
-			datasheets_wargear.datasheet_id(),
-			datasheets_wargear.line(),
-			datasheets_wargear.line_in_wargear()
+			"DELETE FROM Datasheets_wargear WHERE auto_id = ?",
+			datasheets_wargear.auto_id()
 		);
 	}
 

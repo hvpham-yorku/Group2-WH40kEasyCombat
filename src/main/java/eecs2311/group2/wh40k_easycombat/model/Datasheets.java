@@ -4,7 +4,8 @@ import eecs2311.group2.wh40k_easycombat.annotation.*;
 
 @Table("Datasheets")
 public record Datasheets(
-        @PK String id,
+		@PK @AutoIncrement int auto_id,
+        @NotNull String id,
         String name,
         String faction_id,
         String source_id,

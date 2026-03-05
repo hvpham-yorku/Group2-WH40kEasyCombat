@@ -14,7 +14,8 @@ public class Datasheets_optionsRepository {
 
 	public static int addNewDatasheets_options(Datasheets_options datasheets_options) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Datasheets_options (datasheet_id, line, button, description) VALUES (?, ?, ?, ?)",
+			"INSERT INTO Datasheets_options (auto_id, datasheet_id, line, button, description) VALUES (?, ?, ?, ?, ?)",
+			datasheets_options.auto_id(),
 			datasheets_options.datasheet_id(),
 			datasheets_options.line(),
 			datasheets_options.button(),
@@ -22,16 +23,17 @@ public class Datasheets_optionsRepository {
 		);
 	}
 
-	public static Datasheets_options getDatasheets_optionsByPk(String datasheet_id, String line) throws java.sql.SQLException {
+	public static Datasheets_options getDatasheets_optionsByPk(int auto_id) throws java.sql.SQLException {
 		return Dao.query(
-			"SELECT * FROM Datasheets_options WHERE datasheet_id = ? AND line = ?",
+			"SELECT * FROM Datasheets_options WHERE auto_id = ?",
 			rs -> new Datasheets_options(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("button"),
 				rs.getString("description")
 			),
-			datasheet_id, line
+			auto_id
 		).stream().findFirst().orElse(null);
 	}
 
@@ -39,6 +41,7 @@ public class Datasheets_optionsRepository {
 		return Dao.query(
 			"SELECT * FROM Datasheets_options",
 			rs -> new Datasheets_options(
+				rs.getInt("auto_id"),
 				rs.getString("datasheet_id"),
 				rs.getString("line"),
 				rs.getString("button"),
@@ -49,19 +52,19 @@ public class Datasheets_optionsRepository {
 
 	public static void updateDatasheets_options(Datasheets_options datasheets_options) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Datasheets_options SET button = ?, description = ? WHERE datasheet_id = ? AND line = ?",
+			"UPDATE Datasheets_options SET datasheet_id = ?, line = ?, button = ?, description = ? WHERE auto_id = ?",
+			datasheets_options.datasheet_id(),
+			datasheets_options.line(),
 			datasheets_options.button(),
 			datasheets_options.description(),
-			datasheets_options.datasheet_id(),
-			datasheets_options.line()
+			datasheets_options.auto_id()
 		);
 	}
 
 	public static void deleteDatasheets_options(Datasheets_options datasheets_options) throws java.sql.SQLException {
 		Dao.update(
-			"DELETE FROM Datasheets_options WHERE datasheet_id = ? AND line = ?",
-			datasheets_options.datasheet_id(),
-			datasheets_options.line()
+			"DELETE FROM Datasheets_options WHERE auto_id = ?",
+			datasheets_options.auto_id()
 		);
 	}
 
