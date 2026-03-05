@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.db.Database;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.sql.*;
@@ -17,13 +18,25 @@ import java.util.*;
  * - UTF-8 (may contain BOM)
  * - '||' means empty field (must be preserved)
  * - quoted fields may contain delimiter and even newlines (multiline text)
- * - header row provides column names
+ * - IMPORTANT: treat quotes as CSV quoting ONLY when the quote is the FIRST char of a field.
+ *   This prevents normal values like 6" from breaking parsing.
  *
+ * Schema note:
+ * - Tables may contain auto-increment PK (e.g., auto_id INTEGER PRIMARY KEY AUTOINCREMENT).
+ *   CSV usually doesn't have this column. Importer must NOT insert auto_id; let SQLite generate it.
+ *
+ * Import policy:
+ * - Always INSERT (keep ALL rows, including duplicates) to satisfy "read all content".
+ *   If your table still has extra UNIQUE constraints besides auto_id, those rows would still fail.
+ *   So for "keep all", make sure schema PK is auto_id only (or remove other UNIQUE constraints).
  */
 public final class CsvToSqliteImporter {
 
     private static final String DEFAULT_CSV_FOLDER = "src/main/resources/csv";
     private static final char DELIMITER = '|';
+
+    // If your auto id column is not named this, add more names here.
+    private static final Set<String> AUTO_ID_COLS = Set.of("auto_id", "id_auto", "pk", "rowid");
 
     private CsvToSqliteImporter() {}
 
@@ -70,7 +83,6 @@ public final class CsvToSqliteImporter {
                 List<String> headers = normalizeHeaders(rows.get(0));
                 headers = trimTrailingEmptyHeaders(headers);
 
-                // ✅ special header normalization for Datasheets_leader
                 if ("Datasheets_leader".equalsIgnoreCase(table)) {
                     headers = normalizeLeaderHeaders(headers);
                 }
@@ -86,19 +98,48 @@ public final class CsvToSqliteImporter {
                     }
                 }
 
-                String insertSql = buildInsertSql(table, headers);
+                // DB columns
+                LinkedHashSet<String> dbCols = getTableColumns(conn, table);
+
+                // Columns we will insert:
+                // 1) present in CSV headers
+                // 2) present in DB table
+                // 3) NOT auto_id (let SQLite generate it)
+                List<Integer> headerIndexes = new ArrayList<>();
+                List<String> insertCols = new ArrayList<>();
+
+                for (int i = 0; i < headers.size(); i++) {
+                    String h = headers.get(i);
+                    if (h == null || h.isBlank()) continue;
+
+                    if (!dbCols.contains(h)) continue;
+
+                    if (isAutoIdColumn(h)) continue;
+
+                    insertCols.add(h);
+                    headerIndexes.add(i);
+                }
+
+                if (insertCols.isEmpty()) {
+                    System.out.println("[SKIP] " + table + ": no matching columns between CSV and DB (after skipping auto_id)");
+                    continue;
+                }
+
+                String insertSql = buildInsertSql(table, insertCols);
 
                 int inserted = 0;
                 try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+
                     for (int r = 1; r < rows.size(); r++) {
                         List<String> row = rows.get(r);
                         if (isAllEmpty(row)) continue;
 
-                        bindRow(table, ps, headers, row);
+                        bindRow(ps, headerIndexes, row);
                         ps.addBatch();
 
                         if (++inserted % 2000 == 0) ps.executeBatch();
                     }
+
                     ps.executeBatch();
                 }
 
@@ -110,34 +151,17 @@ public final class CsvToSqliteImporter {
         }
     }
 
-    // -------------------- SQL --------------------
+    // -------------------- SQL helpers --------------------
 
-    private static final Set<String> OR_IGNORE_TABLES = Set.of(
-            "Datasheets_keywords",
-            "Datasheets_abilities",
-            "Datasheets_stratagems",
-            "Datasheets_enhancements",
-            "Datasheets_detachment_abilities",
-            "Detachment_abilities",
-            "Datasheets_leader",
-            "Datasheets_wargear"
-    );
-
-    private static String buildInsertSql(String table, List<String> headers) {
-        boolean insertOrIgnore = OR_IGNORE_TABLES.contains(table);
-
+    private static String buildInsertSql(String table, List<String> cols) {
         StringBuilder sb = new StringBuilder();
-        sb.append(insertOrIgnore ? "INSERT OR IGNORE INTO \"" : "INSERT INTO \"")
-          .append(table)
-          .append("\" (");
-
-        for (int i = 0; i < headers.size(); i++) {
+        sb.append("INSERT INTO \"").append(table).append("\" (");
+        for (int i = 0; i < cols.size(); i++) {
             if (i > 0) sb.append(", ");
-            sb.append("\"").append(headers.get(i)).append("\"");
+            sb.append("\"").append(cols.get(i)).append("\"");
         }
-
         sb.append(") VALUES (");
-        for (int i = 0; i < headers.size(); i++) {
+        for (int i = 0; i < cols.size(); i++) {
             if (i > 0) sb.append(", ");
             sb.append("?");
         }
@@ -145,18 +169,11 @@ public final class CsvToSqliteImporter {
         return sb.toString();
     }
 
-    private static void bindRow(String table, PreparedStatement ps, List<String> headers, List<String> row) throws SQLException {
-        // ✅ Datasheets_models packed profile fix
-        if ("Datasheets_models".equalsIgnoreCase(table)) {
-            row = fixPackedModelsRow(headers, row);
-        }
-
-        // (If in future you discover other "packed" columns in other tables,
-        // add similar fix methods here.)
-
-        for (int i = 0; i < headers.size(); i++) {
-            String raw = (i < row.size()) ? row.get(i) : "";
-            bindValue(ps, i + 1, raw);
+    private static void bindRow(PreparedStatement ps, List<Integer> headerIndexes, List<String> row) throws SQLException {
+        for (int p = 0; p < headerIndexes.size(); p++) {
+            int hIdx = headerIndexes.get(p);
+            String raw = (hIdx < row.size()) ? row.get(hIdx) : "";
+            bindValue(ps, p + 1, raw);
         }
     }
 
@@ -166,9 +183,8 @@ public final class CsvToSqliteImporter {
             return;
         }
 
-        // remove BOM and trim BEFORE writing to DB (prevents ids with '\r' / trailing spaces)
         String s = stripBom(raw);
-        String t = s.trim();
+        String t = s.trim(); // IMPORTANT: trim before writing
 
         if (t.isEmpty()) {
             ps.setString(idx, "");
@@ -209,128 +225,125 @@ public final class CsvToSqliteImporter {
         }
     }
 
-    // -------------------- CSV parsing (pipe-delimited, quoted fields, multiline) --------------------
+    private static LinkedHashSet<String> getTableColumns(Connection conn, String table) throws SQLException {
+        LinkedHashSet<String> cols = new LinkedHashSet<>();
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("PRAGMA table_info(\"" + table + "\");")) {
+            while (rs.next()) {
+                String name = rs.getString("name");
+                if (name != null) cols.add(name.trim());
+            }
+        }
+        return cols;
+    }
 
+    private static boolean isAutoIdColumn(String col) {
+        if (col == null) return false;
+        String x = col.trim().toLowerCase();
+        if (AUTO_ID_COLS.contains(x)) return true;
+        // common pattern
+        return x.endsWith("_auto_id") || x.endsWith("_pk") || x.equals("autoid");
+    }
+
+    // -------------------- CSV parsing (robust pipe CSV) --------------------
+
+    /**
+     * Robust CSV reader:
+     * - delimiter '|'
+     * - keeps empty fields (||)
+     * - supports quoted fields with escaped quotes ("")
+     * - supports multiline quoted fields
+     * - IMPORTANT: quote starts ONLY if it's the first character of the field.
+     *   So values like 6" won't break parsing.
+     */
     private static List<List<String>> readPipeDelimitedCsv(Path file) throws IOException {
-        List<List<String>> out = new ArrayList<>();
-        try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            String line;
-            StringBuilder pending = null;
+        List<List<String>> rows = new ArrayList<>();
+
+        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(reader)) {
+
+            List<String> row = new ArrayList<>();
+            StringBuilder field = new StringBuilder();
+
             boolean inQuotes = false;
+            boolean atFieldStart = true;
 
-            while ((line = br.readLine()) != null) {
-                if (pending == null) pending = new StringBuilder();
-                if (pending.length() > 0) pending.append("\n");
-                pending.append(line);
+            int ch;
+            while ((ch = br.read()) != -1) {
+                char c = (char) ch;
 
-                // odd number of quotes toggles quoting state
-                int quotes = countQuotes(line);
-                if (quotes % 2 != 0) inQuotes = !inQuotes;
+                // normalize Windows CRLF
+                if (c == '\r') continue;
 
-                if (!inQuotes) {
-                    out.add(parseDelimitedRecord(pending.toString(), DELIMITER));
-                    pending = null;
-                }
-            }
-
-            if (pending != null && pending.length() > 0) {
-                out.add(parseDelimitedRecord(pending.toString(), DELIMITER));
-            }
-        }
-        return out;
-    }
-
-    /** Supports quoted fields and escaped quotes (""). Keeps empty fields (||) correctly. */
-    private static List<String> parseDelimitedRecord(String record, char delimiter) {
-        List<String> fields = new ArrayList<>();
-        StringBuilder cur = new StringBuilder();
-
-        boolean quoted = false;
-        for (int i = 0; i < record.length(); i++) {
-            char c = record.charAt(i);
-
-            if (quoted) {
-                if (c == '"') {
-                    if (i + 1 < record.length() && record.charAt(i + 1) == '"') {
-                        cur.append('"');
-                        i++;
+                if (inQuotes) {
+                    if (c == '"') {
+                        br.mark(1);
+                        int next = br.read();
+                        if (next == '"') {
+                            field.append('"'); // escaped quote
+                        } else {
+                            inQuotes = false; // end quoted field
+                            if (next != -1) br.reset();
+                        }
                     } else {
-                        quoted = false;
+                        field.append(c);
                     }
-                } else {
-                    cur.append(c);
+                    atFieldStart = false;
+                    continue;
                 }
-            } else {
-                if (c == delimiter) {
-                    fields.add(cur.toString());
-                    cur.setLength(0);
-                } else if (c == '"') {
-                    quoted = true;
-                } else {
-                    cur.append(c);
+
+                // not in quotes
+                if (atFieldStart && c == '"') {
+                    // quote is only special at field start
+                    inQuotes = true;
+                    atFieldStart = false;
+                    continue;
+                }
+
+                if (c == DELIMITER) {
+                    row.add(field.toString());
+                    field.setLength(0);
+                    atFieldStart = true;
+                    continue;
+                }
+
+                if (c == '\n') {
+                    row.add(field.toString());
+                    field.setLength(0);
+                    atFieldStart = true;
+
+                    // avoid adding a single empty row produced by trailing newline
+                    if (!(row.size() == 1 && row.get(0).isEmpty())) {
+                        rows.add(row);
+                    }
+                    row = new ArrayList<>();
+                    continue;
+                }
+
+                field.append(c);
+                atFieldStart = false;
+            }
+
+            // flush last record if no newline at EOF
+            if (field.length() > 0 || !row.isEmpty()) {
+                row.add(field.toString());
+                if (!(row.size() == 1 && row.get(0).isEmpty())) {
+                    rows.add(row);
                 }
             }
         }
 
-        fields.add(cur.toString());
-        return fields;
+        return rows;
     }
 
-    private static int countQuotes(String s) {
-        int cnt = 0;
-        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '"') cnt++;
-        return cnt;
-    }
+    // -------------------- header normalization --------------------
 
-    // -------------------- Special fixes --------------------
-    private static List<String> fixPackedModelsRow(List<String> headers, List<String> row) {
-        int idxM = headers.indexOf("M");
-        if (idxM < 0 || idxM >= row.size()) return row;
-
-        String mCell = row.get(idxM);
-        if (mCell == null || !mCell.contains("|")) return row;
-
-        // IMPORTANT: keep empty tokens for "||"
-        String[] packed = mCell.split("\\|", -1);
-
-        // If it doesn't have at least the early fields, don't touch it
-        if (packed.length < 3) return row;
-
-        List<String> out = new ArrayList<>(row);
-
-        // ✅ include inv_sv_descr (your “SV 描述”列)
-        setIfPresent(headers, out, "M",               packed, 0);
-        setIfPresent(headers, out, "T",               packed, 1);
-        setIfPresent(headers, out, "Sv",              packed, 2);
-        setIfPresent(headers, out, "inv_sv",          packed, 3);
-        setIfPresent(headers, out, "inv_sv_descr",    packed, 4);
-        setIfPresent(headers, out, "W",               packed, 5);
-        setIfPresent(headers, out, "Ld",              packed, 6);
-        setIfPresent(headers, out, "OC",              packed, 7);
-        setIfPresent(headers, out, "base_size",       packed, 8);
-        setIfPresent(headers, out, "base_size_descr", packed, 9);
-
-        return out;
-    }
-
-    private static void setIfPresent(List<String> headers, List<String> row, String col, String[] packed, int packedIndex) {
-        int idx = headers.indexOf(col);
-        if (idx < 0) return;
-        if (packedIndex < 0 || packedIndex >= packed.length) return;
-
-        while (row.size() <= idx) row.add("");
-        row.set(idx, packed[packedIndex]);
-    }
-
-    /** Accept both naming conventions and normalize to DB columns: leader_id, attached_id. */
     private static List<String> normalizeLeaderHeaders(List<String> headers) {
         List<String> out = new ArrayList<>(headers.size());
         for (String h : headers) {
             String x = (h == null) ? "" : h.trim();
 
-            // Some specs/export versions use these names:
-            // datasheet_id -> leader_id
-            // attached_datasheet_id -> attached_id
+            // export/spec variants -> your DB columns
             if ("datasheet_id".equalsIgnoreCase(x)) x = "leader_id";
             if ("attached_datasheet_id".equalsIgnoreCase(x)) x = "attached_id";
 
