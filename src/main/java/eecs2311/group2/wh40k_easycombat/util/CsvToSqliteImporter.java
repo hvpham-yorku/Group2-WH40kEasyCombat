@@ -12,21 +12,13 @@ import java.util.*;
 /**
  * Wahapedia export CSV -> SQLite importer.
  *
- * CSV format (based on your Factions.csv):
- * - UTF-8 (may contain BOM)
+ * Requirements:
  * - delimiter: '|'
- * - each line ends with a trailing '|' (so there is an extra empty column at the end)
+ * - UTF-8 (may contain BOM)
+ * - '||' means empty field (must be preserved)
+ * - quoted fields may contain delimiter and even newlines (multiline text)
  * - header row provides column names
  *
- * Seed-like behavior:
- * - Only import into a table if the table is empty, unless forceReimport=true.
- *
- * Conventions:
- * - table name = CSV filename without ".csv"
- * - columns = header tokens (after trimming trailing empty header)
- * - empty field -> "" (empty string)
- * - literal "NULL" -> SQL NULL
- * - true/false -> 1/0
  */
 public final class CsvToSqliteImporter {
 
@@ -35,12 +27,10 @@ public final class CsvToSqliteImporter {
 
     private CsvToSqliteImporter() {}
 
-    /** One-liner: import from DEFAULT_CSV_FOLDER, seed-like. */
     public static void importDefaultCsvSeedLike(boolean forceReimport) throws IOException, SQLException {
         importCsvFolderSeedLike(DEFAULT_CSV_FOLDER, forceReimport);
     }
 
-    /** Like Database.executeSqlFolder: provide a folder path. */
     public static void importCsvFolderSeedLike(String folderPath, boolean forceReimport) throws IOException, SQLException {
         Path folder = Path.of(folderPath);
         if (!Files.exists(folder) || !Files.isDirectory(folder)) {
@@ -80,6 +70,11 @@ public final class CsvToSqliteImporter {
                 List<String> headers = normalizeHeaders(rows.get(0));
                 headers = trimTrailingEmptyHeaders(headers);
 
+                // ✅ special header normalization for Datasheets_leader
+                if ("Datasheets_leader".equalsIgnoreCase(table)) {
+                    headers = normalizeLeaderHeaders(headers);
+                }
+
                 if (headers.isEmpty()) {
                     System.out.println("[SKIP] " + table + ": missing headers in " + csv.getFileName());
                     continue;
@@ -99,7 +94,7 @@ public final class CsvToSqliteImporter {
                         List<String> row = rows.get(r);
                         if (isAllEmpty(row)) continue;
 
-                        bindRow(ps, headers.size(), row); // trims extra trailing empty col automatically
+                        bindRow(table, ps, headers, row);
                         ps.addBatch();
 
                         if (++inserted % 2000 == 0) ps.executeBatch();
@@ -129,7 +124,6 @@ public final class CsvToSqliteImporter {
     );
 
     private static String buildInsertSql(String table, List<String> headers) {
-
         boolean insertOrIgnore = OR_IGNORE_TABLES.contains(table);
 
         StringBuilder sb = new StringBuilder();
@@ -143,18 +137,24 @@ public final class CsvToSqliteImporter {
         }
 
         sb.append(") VALUES (");
-
         for (int i = 0; i < headers.size(); i++) {
             if (i > 0) sb.append(", ");
             sb.append("?");
         }
-
         sb.append(");");
         return sb.toString();
     }
 
-    private static void bindRow(PreparedStatement ps, int colCount, List<String> row) throws SQLException {
-        for (int i = 0; i < colCount; i++) {
+    private static void bindRow(String table, PreparedStatement ps, List<String> headers, List<String> row) throws SQLException {
+        // ✅ Datasheets_models packed profile fix
+        if ("Datasheets_models".equalsIgnoreCase(table)) {
+            row = fixPackedModelsRow(headers, row);
+        }
+
+        // (If in future you discover other "packed" columns in other tables,
+        // add similar fix methods here.)
+
+        for (int i = 0; i < headers.size(); i++) {
             String raw = (i < row.size()) ? row.get(i) : "";
             bindValue(ps, i + 1, raw);
         }
@@ -166,6 +166,7 @@ public final class CsvToSqliteImporter {
             return;
         }
 
+        // remove BOM and trim BEFORE writing to DB (prevents ids with '\r' / trailing spaces)
         String s = stripBom(raw);
         String t = s.trim();
 
@@ -188,7 +189,7 @@ public final class CsvToSqliteImporter {
             return;
         }
 
-        ps.setString(idx, s);
+        ps.setString(idx, t);
     }
 
     private static boolean tableExists(Connection conn, String table) throws SQLException {
@@ -222,6 +223,7 @@ public final class CsvToSqliteImporter {
                 if (pending.length() > 0) pending.append("\n");
                 pending.append(line);
 
+                // odd number of quotes toggles quoting state
                 int quotes = countQuotes(line);
                 if (quotes % 2 != 0) inQuotes = !inQuotes;
 
@@ -238,7 +240,7 @@ public final class CsvToSqliteImporter {
         return out;
     }
 
-    /** Supports quoted fields and escaped quotes (""). */
+    /** Supports quoted fields and escaped quotes (""). Keeps empty fields (||) correctly. */
     private static List<String> parseDelimitedRecord(String record, char delimiter) {
         List<String> fields = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -269,6 +271,7 @@ public final class CsvToSqliteImporter {
                 }
             }
         }
+
         fields.add(cur.toString());
         return fields;
     }
@@ -277,6 +280,63 @@ public final class CsvToSqliteImporter {
         int cnt = 0;
         for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '"') cnt++;
         return cnt;
+    }
+
+    // -------------------- Special fixes --------------------
+    private static List<String> fixPackedModelsRow(List<String> headers, List<String> row) {
+        int idxM = headers.indexOf("M");
+        if (idxM < 0 || idxM >= row.size()) return row;
+
+        String mCell = row.get(idxM);
+        if (mCell == null || !mCell.contains("|")) return row;
+
+        // IMPORTANT: keep empty tokens for "||"
+        String[] packed = mCell.split("\\|", -1);
+
+        // If it doesn't have at least the early fields, don't touch it
+        if (packed.length < 3) return row;
+
+        List<String> out = new ArrayList<>(row);
+
+        // ✅ include inv_sv_descr (your “SV 描述”列)
+        setIfPresent(headers, out, "M",               packed, 0);
+        setIfPresent(headers, out, "T",               packed, 1);
+        setIfPresent(headers, out, "Sv",              packed, 2);
+        setIfPresent(headers, out, "inv_sv",          packed, 3);
+        setIfPresent(headers, out, "inv_sv_descr",    packed, 4);
+        setIfPresent(headers, out, "W",               packed, 5);
+        setIfPresent(headers, out, "Ld",              packed, 6);
+        setIfPresent(headers, out, "OC",              packed, 7);
+        setIfPresent(headers, out, "base_size",       packed, 8);
+        setIfPresent(headers, out, "base_size_descr", packed, 9);
+
+        return out;
+    }
+
+    private static void setIfPresent(List<String> headers, List<String> row, String col, String[] packed, int packedIndex) {
+        int idx = headers.indexOf(col);
+        if (idx < 0) return;
+        if (packedIndex < 0 || packedIndex >= packed.length) return;
+
+        while (row.size() <= idx) row.add("");
+        row.set(idx, packed[packedIndex]);
+    }
+
+    /** Accept both naming conventions and normalize to DB columns: leader_id, attached_id. */
+    private static List<String> normalizeLeaderHeaders(List<String> headers) {
+        List<String> out = new ArrayList<>(headers.size());
+        for (String h : headers) {
+            String x = (h == null) ? "" : h.trim();
+
+            // Some specs/export versions use these names:
+            // datasheet_id -> leader_id
+            // attached_datasheet_id -> attached_id
+            if ("datasheet_id".equalsIgnoreCase(x)) x = "leader_id";
+            if ("attached_datasheet_id".equalsIgnoreCase(x)) x = "attached_id";
+
+            out.add(x);
+        }
+        return out;
     }
 
     // -------------------- utils --------------------

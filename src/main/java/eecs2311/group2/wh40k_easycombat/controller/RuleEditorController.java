@@ -14,6 +14,7 @@ public class RuleEditorController {
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
     @FXML private Button unitKeywordAddButton;
+    @FXML private Button unitKeywordDeleteButton;
     @FXML private Button weaponAddButton;
 
     // ======================= ComboBox ===================================
@@ -117,6 +118,12 @@ public class RuleEditorController {
         // TEMP DISABLED (depends on old UnitKeywords model & DB cache)
         showWarning("Temporarily Disabled",
                 "Keyword selection is disabled until controller is rewired to new CSV-based tables.");
+    }
+    
+
+    @FXML
+    void keywordDelete(MouseEvent event) {
+
     }
 
     // ======================= Save =======================
