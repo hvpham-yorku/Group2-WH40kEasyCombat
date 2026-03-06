@@ -52,6 +52,8 @@ public class DatasheetsController implements Initializable {
     @FXML private Label unit1WLabel;
     @FXML private Label unit1OcLabel;
     @FXML private Label unit1LdLabel;
+    @FXML private Label InvsvLabel;
+    @FXML private Label insvTxtLabel;
 
     // ======================= Unit 2 - Properties ==============
     @FXML private HBox unit2PropertyHBox;
@@ -95,9 +97,14 @@ public class DatasheetsController implements Initializable {
     // Optional mapping if datasheets store faction_id but UI shows faction name
     private final Map<String, String> factionNameToId = new HashMap<>();
 
+    // Optional master abilities lookup if datasheets_abilities only stores ability_id
+    private final Map<String, Object> abilitiesById = new HashMap<>();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTables();
+        ensurePropertyLabelsWhiteBackground();
+        loadAbilitiesMaster();
         loadDatasheetsAndFactions();
         wireEvents();
     }
@@ -136,6 +143,7 @@ public class DatasheetsController implements Initializable {
                 label.setWrapText(true);
                 label.setMaxWidth(Double.MAX_VALUE);
             }
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -149,35 +157,90 @@ public class DatasheetsController implements Initializable {
         });
     }
 
+    private void ensurePropertyLabelsWhiteBackground() {
+        applyWhiteBackground(unit1MLabel);
+        applyWhiteBackground(unit1TLabel);
+        applyWhiteBackground(unit1SvLabel);
+        applyWhiteBackground(unit1WLabel);
+        applyWhiteBackground(unit1OcLabel);
+        applyWhiteBackground(unit1LdLabel);
+        applyWhiteBackground(InvsvLabel);
+
+        applyWhiteBackground(unit2MLabel);
+        applyWhiteBackground(unit2TLabel);
+        applyWhiteBackground(unit2SvLabel);
+        applyWhiteBackground(unit2WLabel);
+        applyWhiteBackground(unit2OcLabel);
+        applyWhiteBackground(unit2LdLabel);
+
+        applyWhiteBackground(insvTxtLabel);
+    }
+
+    private void applyWhiteBackground(Label label) {
+        if (label == null) return;
+
+        String style = label.getStyle();
+        if (style == null) style = "";
+
+        style = style.replaceAll("-fx-background-color\\s*:[^;]*;?", "").trim();
+
+        if (!style.isBlank() && !style.endsWith(";")) {
+            style += ";";
+        }
+        style += "-fx-background-color: white;";
+
+        label.setStyle(style);
+    }
+
     // -------------------- Data loading --------------------
+
+    private void loadAbilitiesMaster() {
+        abilitiesById.clear();
+
+        try {
+            Class<?> repo = Class.forName("eecs2311.group2.wh40k_easycombat.repository.AbilitiesRepository");
+            Method m = repo.getMethod("getAllAbilities");
+            Object result = m.invoke(null);
+
+            if (result instanceof List<?> list) {
+                for (Object a : list) {
+                    String id = s(getAny(a, "id"));
+                    if (!id.isBlank()) {
+                        abilitiesById.put(id, a);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private void loadDatasheetsAndFactions() {
         try {
-            // Load caches
             StaticDataService.loadAllFromSqlite();
 
-            // Load datasheets list
             List<?> list = eecs2311.group2.wh40k_easycombat.repository.DatasheetsRepository.getAllDatasheets();
             allDatasheets.setAll((Collection<? extends Object>) list);
             filteredDatasheets.setAll(allDatasheets);
 
-            datasheetsList.setItems(filteredDatasheets);
-            datasheetsList.setCellFactory(lv -> new ListCell<>() {
-                @Override
-                protected void updateItem(Object item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        return;
+            if (datasheetsList != null) {
+                datasheetsList.setItems(filteredDatasheets);
+                datasheetsList.setCellFactory(lv -> new ListCell<>() {
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(null);
+                            return;
+                        }
+                        String name = s(getAny(item, "name", "datasheet_name", "title"));
+                        if (name.isBlank()) name = s(getAny(item, "id", "datasheet_id"));
+                        setText(name);
                     }
-                    String name = s(getAny(item, "name", "datasheet_name", "title"));
-                    if (name.isBlank()) name = s(getAny(item, "id", "datasheet_id"));
-                    setText(name);
-                }
-            });
+                });
+            }
 
             loadFactionsIntoComboBox();
 
-            // Default selection
             if (!filteredDatasheets.isEmpty()) {
                 datasheetsList.getSelectionModel().select(0);
                 showSelectedDatasheet();
@@ -196,7 +259,6 @@ public class DatasheetsController implements Initializable {
         factionComboBox.getItems().add("ALL");
         factionNameToId.clear();
 
-        // Preferred: read factions from FactionsRepository if it exists
         boolean loadedFromFactionRepo = false;
         try {
             Class<?> repo = Class.forName("eecs2311.group2.wh40k_easycombat.repository.FactionsRepository");
@@ -213,7 +275,6 @@ public class DatasheetsController implements Initializable {
                 loadedFromFactionRepo = !factionNameToId.isEmpty();
             }
         } catch (Exception ignored) {
-            // Fall back below
         }
 
         if (loadedFromFactionRepo) {
@@ -224,7 +285,6 @@ public class DatasheetsController implements Initializable {
             return;
         }
 
-        // Fallback: derive from datasheets object fields (may already be faction_name)
         Set<String> factions = allDatasheets.stream()
                 .map(d -> s(getAny(d, "faction_name", "faction", "army")))
                 .filter(x -> !x.isBlank())
@@ -242,28 +302,23 @@ public class DatasheetsController implements Initializable {
                     .addListener((obs, oldV, newV) -> showSelectedDatasheet());
         }
 
-        // Faction selection should refresh list immediately
         if (factionComboBox != null) {
             factionComboBox.getSelectionModel().selectedItemProperty()
                     .addListener((obs, oldV, newV) -> applyFilters());
         }
 
-        // Search button triggers filters
         if (searchButton != null) {
             searchButton.setOnMouseClicked(e -> applyFilters());
         }
     }
 
-    // FXML may have onAction bound to this
     @FXML
     private void selectFaction(ActionEvent event) {
         applyFilters();
     }
 
-    // FXML legacy handler (if still wired somewhere)
     @FXML
     void changeFaction(InputMethodEvent event) {
-        // InputMethodEvent is NOT ideal for ComboBox, but keep it so FXML won't crash if still wired.
         applyFilters();
     }
 
@@ -300,7 +355,6 @@ public class DatasheetsController implements Initializable {
                 ? "ALL"
                 : factionComboBox.getValue();
 
-        // If mapping exists (name -> id), use id too
         String selectedFactionId = factionNameToId.getOrDefault(selectedFaction, selectedFaction);
 
         filteredDatasheets.setAll(allDatasheets.stream()
@@ -321,6 +375,7 @@ public class DatasheetsController implements Initializable {
                         String id = s(getAny(d, "id", "datasheet_id")).toLowerCase();
                         return name.contains(keyword) || id.contains(keyword);
                     }
+
                     return true;
                 })
                 .toList());
@@ -361,49 +416,51 @@ public class DatasheetsController implements Initializable {
     }
 
     private void renderBundle(DatasheetBundle bundle) {
-        // Datasheet Name
         if (datasheetName != null) {
             datasheetName.setText(s(getAny(bundle.datasheet, "name", "datasheet_name", "title")));
         }
 
-        // Models & stats
         Object model1 = (bundle.models != null && bundle.models.size() > 0) ? bundle.models.get(0) : null;
         Object model2 = (bundle.models != null && bundle.models.size() > 1) ? bundle.models.get(1) : null;
 
         boolean hasModel2 = (model2 != null);
 
-        if (unitName1 != null) unitName1.setText(model1 == null ? "" : s(getAny(model1, "name", "model", "unit_name")));
-        fillStats(model1, unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
+        if (unitName1 != null) {
+            String model1Name = model1 == null ? "" : s(getAny(model1, "name", "model", "unit_name"));
+            unitName1.setText(hasModel2 ? model1Name : "");
+            setVisibleManaged(unitName1, hasModel2);
+        }
 
-        if (unitName2 != null) unitName2.setText(hasModel2 ? s(getAny(model2, "name", "model", "unit_name")) : "");
+        fillStats(model1, unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
+        updateInvSv(model1);
+
+        if (unitName2 != null) {
+            unitName2.setText(hasModel2 ? s(getAny(model2, "name", "model", "unit_name")) : "");
+        }
         fillStats(model2, unit2MLabel, unit2TLabel, unit2SvLabel, unit2WLabel, unit2LdLabel, unit2OcLabel);
 
-        // Hide Unit2 panel if only one unit
         setVisibleManaged(unit2PropertyHBox, hasModel2);
         setVisibleManaged(unitName2, hasModel2);
 
-        // Text sections
         setFlow(unitCompositionTextFlow, joinLines(bundle.compositions,
                 "text", "composition", "rule", "description", "line_text"));
 
-        // Model cost: description + cost
         setFlow(costTextFlow, buildModelCost(bundle.costs));
 
-        // Keywords: comma-separated
         setFlow(keywordsTextFlow, joinKeywordsComma(bundle.keywords));
 
-        // Abilities: show name + description
-        setFlow(abilityTextFlow, formatAbilities(bundle.abilities));
+        String normalAbilities = formatNonFactionAbilities(bundle.abilities);
+        setFlow(abilityTextFlow, normalAbilities);
+        setVisibleManaged(abilityTextFlow, !normalAbilities.isBlank());
 
-        // Faction abilities (detachment abilities): show name + description
-        setFlow(factionAbilityTextFlow, formatAbilities(bundle.detachmentAbilities));
+        String factionAbilities = formatFactionAbilityNames(bundle.abilities, bundle.detachmentAbilities);
+        setFlow(factionAbilityTextFlow, factionAbilities);
+        setVisibleManaged(factionAbilityTextFlow, !factionAbilities.isBlank());
 
-        // Other: only show existing parts; if empty, hide TextFlow
         String other = buildOtherSection(bundle);
         setFlow(otherTextFlow, other);
         setVisibleManaged(otherTextFlow, !other.isBlank());
 
-        // Weapons: split melee/ranged, melee range forced to "Melee", name includes description
         List<WeaponRow> ranged = new ArrayList<>();
         List<WeaponRow> melee = new ArrayList<>();
 
@@ -425,7 +482,7 @@ public class DatasheetsController implements Initializable {
         if (unitName1 != null) unitName1.setText("");
         if (unitName2 != null) unitName2.setText("");
 
-        clearLabels(unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel);
+        clearLabels(unit1MLabel, unit1TLabel, unit1SvLabel, unit1WLabel, unit1LdLabel, unit1OcLabel, InvsvLabel);
         clearLabels(unit2MLabel, unit2TLabel, unit2SvLabel, unit2WLabel, unit2LdLabel, unit2OcLabel);
 
         setFlow(unitCompositionTextFlow, "");
@@ -434,19 +491,26 @@ public class DatasheetsController implements Initializable {
         setFlow(abilityTextFlow, "");
         setFlow(factionAbilityTextFlow, "");
         setFlow(otherTextFlow, "");
+
+        setVisibleManaged(abilityTextFlow, false);
+        setVisibleManaged(factionAbilityTextFlow, false);
         setVisibleManaged(otherTextFlow, false);
 
         if (rangedWeaponTable != null) rangedWeaponTable.getItems().clear();
         if (meleeWeaponTable != null) meleeWeaponTable.getItems().clear();
 
         setVisibleManaged(unit2PropertyHBox, false);
+        setVisibleManaged(unitName1, true);
         setVisibleManaged(unitName2, false);
+        setVisibleManaged(InvsvLabel, false);
+        setVisibleManaged(insvTxtLabel, false);
     }
 
     // -------------------- Formatting helpers --------------------
 
     private String joinKeywordsComma(List<?> keywords) {
         if (keywords == null || keywords.isEmpty()) return "";
+
         List<String> ks = new ArrayList<>();
         for (Object k : keywords) {
             String kw = s(getAny(k, "keyword", "name", "text"));
@@ -455,19 +519,134 @@ public class DatasheetsController implements Initializable {
         return String.join(", ", ks);
     }
 
-    private String formatAbilities(List<?> list) {
+    private String formatNonFactionAbilities(List<?> list) {
         if (list == null || list.isEmpty()) return "";
 
-        List<String> out = new ArrayList<>();
-        for (Object a : list) {
-            String name = s(getAny(a, "name", "ability"));
-            String text = s(getAny(a, "text", "description", "line_text"));
+        List<String> coreNames = new ArrayList<>();
+        List<String> otherAbilities = new ArrayList<>();
 
-            if (!name.isBlank() && !text.isBlank()) out.add(name + ": " + text);
-            else if (!name.isBlank()) out.add(name);
-            else if (!text.isBlank()) out.add(text);
+        Set<String> seenCore = new LinkedHashSet<>();
+        Set<String> seenOther = new LinkedHashSet<>();
+
+        for (Object a : list) {
+            String type = s(getAny(a, "type")).trim().toLowerCase();
+
+            if (type.contains("faction")) continue;
+
+            // core: same line, comma separated
+            if (type.contains("core")) {
+                String name = resolveAbilityName(a);
+                if (!name.isBlank() && seenCore.add(name)) {
+                    coreNames.add(name);
+                }
+                continue;
+            }
+
+            String line = resolveAbilityFullTextForDisplay(a);
+            if (!line.isBlank() && seenOther.add(line)) {
+                otherAbilities.add(line);
+            }
         }
+
+        List<String> blocks = new ArrayList<>();
+
+        if (!coreNames.isEmpty()) {
+            blocks.add("<b>Core:</b> " + String.join(", ", coreNames));
+        }
+
+        blocks.addAll(otherAbilities);
+
+        return String.join("\n", blocks);
+    }
+
+    private String formatFactionAbilityNames(List<?> abilities, List<?> detachmentAbilities) {
+        List<String> out = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+
+        if (abilities != null) {
+            for (Object a : abilities) {
+                String type = s(getAny(a, "type")).trim().toLowerCase();
+                if (!type.contains("faction")) continue;
+
+                String name = resolveAbilityName(a);
+                if (!name.isBlank() && seen.add(name)) {
+                    out.add("<b>" + name + "</b>");
+                }
+            }
+        }
+
+        if (detachmentAbilities != null) {
+            for (Object a : detachmentAbilities) {
+                String name = s(getAny(a,
+                        "name",
+                        "ability",
+                        "detachment_ability",
+                        "title",
+                        "rule"));
+
+                if (!name.isBlank() && seen.add(name)) {
+                    out.add("<b>" + name + "</b>");
+                }
+            }
+        }
+
         return String.join("\n", out);
+    }
+
+    private String resolveAbilityFullTextForDisplay(Object datasheetAbility) {
+        if (datasheetAbility == null) return "";
+
+        String localName = s(getAny(datasheetAbility, "name"));
+        String localDesc = s(getAny(datasheetAbility, "description"));
+        String abilityId = s(getAny(datasheetAbility, "ability_id"));
+
+        Object master = abilityId.isBlank() ? null : abilitiesById.get(abilityId);
+        String masterName = s(getAny(master, "name"));
+        String masterDesc = s(getAny(master, "description"));
+
+        String name = !localName.isBlank() ? localName : masterName;
+        String desc = !localDesc.isBlank() ? localDesc : masterDesc;
+
+        if (!name.isBlank() && !desc.isBlank()) return "<b>" + name + ":</b> " + desc;
+        if (!name.isBlank()) return "<b>" + name + "</b>";
+        if (!desc.isBlank()) return desc;
+
+        return "";
+    }
+    
+    @SuppressWarnings("unused")
+	private String resolveAbilityFullText(Object datasheetAbility) {
+        if (datasheetAbility == null) return "";
+
+        String localName = s(getAny(datasheetAbility, "name"));
+        String localDesc = s(getAny(datasheetAbility, "description"));
+        String abilityId = s(getAny(datasheetAbility, "ability_id"));
+
+        Object master = abilityId.isBlank() ? null : abilitiesById.get(abilityId);
+        String masterName = s(getAny(master, "name"));
+        String masterDesc = s(getAny(master, "description"));
+
+        String name = !localName.isBlank() ? localName : masterName;
+        String desc = !localDesc.isBlank() ? localDesc : masterDesc;
+
+        if (!name.isBlank() && !desc.isBlank()) return name + ": " + desc;
+        if (!name.isBlank()) return name;
+        if (!desc.isBlank()) return desc;
+
+        return "";
+    }
+
+    private String resolveAbilityName(Object datasheetAbility) {
+        if (datasheetAbility == null) return "";
+
+        String localName = s(getAny(datasheetAbility, "name"));
+        if (!localName.isBlank()) return localName;
+
+        String abilityId = s(getAny(datasheetAbility, "ability_id"));
+        if (abilityId.isBlank()) return "";
+
+        Object master = abilitiesById.get(abilityId);
+        return s(getAny(master, "name"));
     }
 
     private String buildModelCost(List<?> costs) {
@@ -507,11 +686,12 @@ public class DatasheetsController implements Initializable {
 
     private String joinLines(List<?> items, String... fields) {
         if (items == null || items.isEmpty()) return "";
+
         List<String> out = new ArrayList<>();
         for (Object x : items) {
-            // Prefer combining name + text if both exist
             String name = s(getAny(x, "name", "ability", "title"));
             String text = s(getAny(x, "text", "description", "line_text"));
+
             if (!name.isBlank() && !text.isBlank()) {
                 out.add(name + ": " + text);
                 continue;
@@ -520,17 +700,114 @@ public class DatasheetsController implements Initializable {
             String line = "";
             for (String f : fields) {
                 String v = s(getAny(x, f));
-                if (!v.isBlank()) { line = v; break; }
+                if (!v.isBlank()) {
+                    line = v;
+                    break;
+                }
             }
+
             if (!line.isBlank()) out.add(line);
         }
+
         return String.join("\n", out);
     }
 
     private void setFlow(TextFlow flow, String text) {
         if (flow == null) return;
+
         flow.getChildren().clear();
-        flow.getChildren().add(new Text(text == null ? "" : text));
+
+        if (text == null || text.isBlank()) return;
+
+        String[] lines = text.split("\\n", -1);
+
+        for (int i = 0; i < lines.length; i++) {
+            addFormattedLine(flow, lines[i]);
+            if (i < lines.length - 1) {
+                flow.getChildren().add(new Text("\n"));
+            }
+        }
+    }
+
+    private void addFormattedLine(TextFlow flow, String line) {
+        if (line == null) return;
+
+        String working = line;
+
+        while (!working.isEmpty()) {
+            int bStart = working.toLowerCase().indexOf("<b>");
+            if (bStart < 0) {
+                String plain = htmlToPlainText(working);
+                if (!plain.isEmpty()) {
+                    Text text = new Text(plain);
+                    text.setStyle("-fx-font-size: 14px;");
+                    flow.getChildren().add(text);
+                }
+                break;
+            }
+
+            if (bStart > 0) {
+                String plainBefore = htmlToPlainText(working.substring(0, bStart));
+                if (!plainBefore.isEmpty()) {
+                    Text text = new Text(plainBefore);
+                    text.setStyle("-fx-font-size: 14px;");
+                    flow.getChildren().add(text);
+                }
+            }
+
+            int bEnd = working.toLowerCase().indexOf("</b>", bStart);
+            if (bEnd < 0) {
+                String plain = htmlToPlainText(working);
+                if (!plain.isEmpty()) {
+                    Text text = new Text(plain);
+                    text.setStyle("-fx-font-size: 14px;");
+                    flow.getChildren().add(text);
+                }
+                break;
+            }
+
+            String boldContent = working.substring(bStart + 3, bEnd);
+            String cleanedBold = htmlToPlainText(boldContent);
+
+            if (!cleanedBold.isEmpty()) {
+                Text boldText = new Text(cleanedBold);
+                boldText.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+                flow.getChildren().add(boldText);
+            }
+
+            working = working.substring(bEnd + 4);
+        }
+    }
+
+    private String htmlToPlainText(String html) {
+        if (html == null || html.isBlank()) return "";
+
+        String s = html;
+
+        // remove list markers
+        s = s.replaceAll("(?i)<li[^>]*>", "• ");
+        s = s.replaceAll("(?i)</li>", " ");
+
+        // remove links but keep link text
+        s = s.replaceAll("(?i)<a[^>]*>", "");
+        s = s.replaceAll("(?i)</a>", "");
+
+        // keep <b> but remove other tags
+        s = s.replaceAll("(?is)<(?!/?b\\b)[^>]+>", "");
+
+        // decode html entities
+        s = s.replace("&nbsp;", " ");
+        s = s.replace("&lt;", "<");
+        s = s.replace("&gt;", ">");
+        s = s.replace("&amp;", "&");
+        s = s.replace("&quot;", "\"");
+        s = s.replace("&#39;", "'");
+
+        // normalize whitespace
+        s = s.replace("\r", "");
+        s = s.replaceAll("\\s+", " ");
+
+        return s.trim();
     }
 
     private void setVisibleManaged(Node node, boolean visible) {
@@ -540,7 +817,9 @@ public class DatasheetsController implements Initializable {
     }
 
     private void clearLabels(Label... labels) {
-        for (Label l : labels) if (l != null) l.setText("");
+        for (Label l : labels) {
+            if (l != null) l.setText("");
+        }
     }
 
     private void fillStats(Object model, Label m, Label t, Label sv, Label w, Label ld, Label oc) {
@@ -548,12 +827,26 @@ public class DatasheetsController implements Initializable {
             clearLabels(m, t, sv, w, ld, oc);
             return;
         }
+
         if (m != null) m.setText(s(getAny(model, "m", "move", "movement", "M")));
         if (t != null) t.setText(s(getAny(model, "t", "toughness", "T")));
         if (sv != null) sv.setText(s(getAny(model, "sv", "save", "Sv")));
         if (w != null) w.setText(s(getAny(model, "w", "wounds", "W")));
         if (ld != null) ld.setText(s(getAny(model, "ld", "leadership", "Ld")));
         if (oc != null) oc.setText(s(getAny(model, "oc", "objective_control", "OC")));
+    }
+
+    private void updateInvSv(Object model) {
+        String inv = model == null ? "" : s(getAny(model, "inv_sv", "inv", "invSave", "invulnerable_save"));
+
+        boolean visible = !inv.isBlank() && !"-".equals(inv);
+
+        if (InvsvLabel != null) {
+            InvsvLabel.setText(visible ? inv : "");
+        }
+
+        setVisibleManaged(InvsvLabel, visible);
+        setVisibleManaged(insvTxtLabel, visible);
     }
 
     private void showError(String title, Exception e) {
@@ -574,6 +867,7 @@ public class DatasheetsController implements Initializable {
      */
     private static Object getAny(Object obj, String... methodNames) {
         if (obj == null) return null;
+
         for (String name : methodNames) {
             try {
                 Method m = obj.getClass().getMethod(name);
@@ -581,6 +875,7 @@ public class DatasheetsController implements Initializable {
             } catch (Exception ignored) {
             }
         }
+
         return null;
     }
 
@@ -620,12 +915,10 @@ public class DatasheetsController implements Initializable {
 
             WeaponRow row = new WeaponRow(melee);
 
-            // Weapon name + description
             String combined = name;
             if (!desc.isBlank()) combined = name + "\n[" + desc + "]";
             row.displayName.set(combined);
 
-            // Melee range always "Melee"
             row.range.set(melee ? "Melee" : range);
 
             row.a.set(attacks);
