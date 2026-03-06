@@ -14,6 +14,26 @@ CREATE TABLE IF NOT EXISTS Abilities (
     description TEXT
 );
 
+CREATE TABLE IF NOT EXISTS Army (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    total_points INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS Army_units (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    army_id INTEGER,
+    datasheet_id TEXT,
+    model_count INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS Army_wargear (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    wargear_id INTEGER NOT NULL,
+    units_id INTEGER,
+    wargear_count INTEGER
+);
+
 CREATE TABLE IF NOT EXISTS Datasheets (
     auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     id TEXT NOT NULL,

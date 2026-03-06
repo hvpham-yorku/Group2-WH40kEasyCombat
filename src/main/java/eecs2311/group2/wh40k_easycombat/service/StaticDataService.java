@@ -11,6 +11,9 @@ public final class StaticDataService {
 
     private StaticDataService() {}
 
+    // =========================
+    // Datasheet Bundle (existing)
+    // =========================
     public static final class DatasheetBundle {
         public final Datasheets datasheet;
 
@@ -58,8 +61,30 @@ public final class StaticDataService {
         }
     }
 
+    // =========================
+    // Army Bundle (NEW)
+    // =========================
+    public static final class ArmyBundle {
+        public final Army army;
+        public final List<Army_units> units;
+        /**
+         * All wargear rows for all units in this army (flattened).
+         * If you prefer grouping by units_id, see getArmyWargearByUnitId().
+         */
+        public final List<Army_wargear> wargear;
+
+        private ArmyBundle(Army army, List<Army_units> units, List<Army_wargear> wargear) {
+            this.army = army;
+            this.units = units;
+            this.wargear = wargear;
+        }
+    }
+
     private static volatile boolean loaded = false;
 
+    // =========================
+    // Datasheet caches (existing)
+    // =========================
     private static final Map<String, Datasheets> datasheetsById = new ConcurrentHashMap<>();
 
     private static final Map<String, List<Datasheets_models>> modelsByDatasheetId = new ConcurrentHashMap<>();
@@ -75,10 +100,18 @@ public final class StaticDataService {
     private static final Map<String, List<Datasheets_enhancements>> enhancementsByDatasheetId = new ConcurrentHashMap<>();
     private static final Map<String, List<Datasheets_detachment_abilities>> detachmentAbilitiesByDatasheetId = new ConcurrentHashMap<>();
 
+    // =========================
+    // Army caches (NEW)
+    // =========================
+    private static final Map<Integer, Army> armyById = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_units>> unitsByArmyId = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_wargear>> wargearByUnitsId = new ConcurrentHashMap<>();
+
     /**
      * Clear in-memory caches. Must be called under synchronization.
      */
     private static void clearCache() {
+        // datasheet caches
         datasheetsById.clear();
 
         modelsByDatasheetId.clear();
@@ -93,10 +126,15 @@ public final class StaticDataService {
         stratagemsByDatasheetId.clear();
         enhancementsByDatasheetId.clear();
         detachmentAbilitiesByDatasheetId.clear();
+
+        // army caches
+        armyById.clear();
+        unitsByArmyId.clear();
+        wargearByUnitsId.clear();
     }
 
     /**
-     * Force reload all static data from DB, used after CRUD write.
+     * Force reload all data from DB, used after CRUD write.
      */
     public static synchronized void reloadFromSqlite() throws SQLException {
         loaded = false;
@@ -106,6 +144,10 @@ public final class StaticDataService {
 
     public static synchronized void loadAllFromSqlite() throws SQLException {
         if (loaded) return;
+
+        // =========================
+        // Datasheets (existing)
+        // =========================
 
         // 1) Datasheets
         for (Datasheets d : DatasheetsRepository.getAllDatasheets()) {
@@ -258,8 +300,52 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
+        // =========================
+        // Army tables (NEW)
+        // =========================
+
+        // 13) Army
+        try {
+            for (Army a : ArmyRepository.getAllArmy()) {
+                // Army model uses int auto_id :contentReference[oaicite:3]{index=3}
+                if (a != null) armyById.put(a.auto_id(), a);
+            }
+        } catch (Exception ignored) {}
+
+        // 14) Army_units (group by army_id)
+        try {
+            Map<Integer, List<Army_units>> tmp = new HashMap<>();
+            for (Army_units u : Army_unitsRepository.getAllArmy_units()) {
+                if (u == null) continue;
+                tmp.computeIfAbsent(u.army_id(), k -> new ArrayList<>()).add(u);
+            }
+            for (var e : tmp.entrySet()) {
+                // stable order for UI: by auto_id
+                e.getValue().sort(Comparator.comparingInt(Army_units::auto_id));
+                unitsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        // 15) Army_wargear (group by units_id)
+        try {
+            Map<Integer, List<Army_wargear>> tmp = new HashMap<>();
+            for (Army_wargear w : Army_wargearRepository.getAllArmy_wargear()) {
+                if (w == null) continue;
+                tmp.computeIfAbsent(w.units_id(), k -> new ArrayList<>()).add(w);
+            }
+            for (var e : tmp.entrySet()) {
+                // stable order for UI: by auto_id
+                e.getValue().sort(Comparator.comparingInt(Army_wargear::auto_id));
+                wargearByUnitsId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
         loaded = true;
     }
+
+    // =========================
+    // Public APIs (Datasheets)
+    // =========================
 
     public static DatasheetBundle getDatasheetBundle(String datasheetId) throws SQLException {
         if (!loaded) loadAllFromSqlite();
@@ -282,6 +368,59 @@ public final class StaticDataService {
                 detachmentAbilitiesByDatasheetId.getOrDefault(datasheetId, List.of())
         );
     }
+
+    // =========================
+    // Public APIs (Army) (NEW)
+    // =========================
+
+    /** Get Army row by auto_id. */
+    public static Army getArmy(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return armyById.get(armyId);
+    }
+
+    /** Get all armies (cached). */
+    public static List<Army> getAllArmies() throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        List<Army> list = new ArrayList<>(armyById.values());
+        list.sort(Comparator.comparingInt(Army::auto_id));
+        return Collections.unmodifiableList(list);
+    }
+
+    /** Get units for an army (cached). */
+    public static List<Army_units> getArmyUnits(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return unitsByArmyId.getOrDefault(armyId, List.of());
+    }
+
+    /** Get wargear rows for a specific units_id (cached). */
+    public static List<Army_wargear> getArmyWargearByUnitId(int unitsId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return wargearByUnitsId.getOrDefault(unitsId, List.of());
+    }
+
+    /** Convenience: build an ArmyBundle (army + units + all wargear for those units). */
+    public static ArmyBundle getArmyBundle(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+
+        Army a = armyById.get(armyId);
+        if (a == null) return null;
+
+        List<Army_units> units = unitsByArmyId.getOrDefault(armyId, List.of());
+        List<Army_wargear> flat = new ArrayList<>();
+        for (Army_units u : units) {
+            flat.addAll(wargearByUnitsId.getOrDefault(u.auto_id(), List.of()));
+        }
+
+        // stable order
+        flat.sort(Comparator.comparingInt(Army_wargear::auto_id));
+
+        return new ArmyBundle(a, units, Collections.unmodifiableList(flat));
+    }
+
+    // =========================
+    // utils
+    // =========================
 
     private static int safeLineInt(String s) {
         if (s == null) return Integer.MAX_VALUE;

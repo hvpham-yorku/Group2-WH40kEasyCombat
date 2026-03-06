@@ -1,0 +1,63 @@
+//-- Auto Generated Java File --
+
+package eecs2311.group2.wh40k_easycombat.repository;
+
+import eecs2311.group2.wh40k_easycombat.db.Dao;
+import eecs2311.group2.wh40k_easycombat.model.Army;
+import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
+
+import java.util.List;
+import java.sql.SQLException;
+
+@SuppressWarnings("unused")
+public class ArmyRepository {
+
+	public static int addNewArmy(Army army) throws java.sql.SQLException {
+		return Dao.update(
+			"INSERT INTO Army (auto_id, name, total_points) VALUES (?, ?, ?)",
+			army.auto_id(),
+			army.name(),
+			army.total_points()
+		);
+	}
+
+	public static Army getArmyByPk(int auto_id) throws java.sql.SQLException {
+		return Dao.query(
+			"SELECT * FROM Army WHERE auto_id = ?",
+			rs -> new Army(
+				rs.getInt("auto_id"),
+				rs.getString("name"),
+				rs.getInt("total_points")
+			),
+			auto_id
+		).stream().findFirst().orElse(null);
+	}
+
+	public static java.util.List<Army> getAllArmy() throws java.sql.SQLException {
+		return Dao.query(
+			"SELECT * FROM Army",
+			rs -> new Army(
+				rs.getInt("auto_id"),
+				rs.getString("name"),
+				rs.getInt("total_points")
+			)
+		);
+	}
+
+	public static void updateArmy(Army army) throws java.sql.SQLException {
+		Dao.update(
+			"UPDATE Army SET name = ?, total_points = ? WHERE auto_id = ?",
+			army.name(),
+			army.total_points(),
+			army.auto_id()
+		);
+	}
+
+	public static void deleteArmy(Army army) throws java.sql.SQLException {
+		Dao.update(
+			"DELETE FROM Army WHERE auto_id = ?",
+			army.auto_id()
+		);
+	}
+
+}
