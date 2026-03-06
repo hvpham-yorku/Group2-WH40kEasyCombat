@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS units (
     invulnerableSave INTEGER NOT NULL,
     category INTEGER NOT NULL,
     composition TEXT NOT NULL,
+    coreAbilityIdList TEXT NOT NULL,
+    otherAbilityIdList TEXT NOT NULL,
     keywordIdList TEXT NOT NULL,
     rangedWeaponIdList TEXT NOT NULL,
     meleeWeaponIdList TEXT NOT NULL,

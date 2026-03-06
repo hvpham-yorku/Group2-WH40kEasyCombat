@@ -1,0 +1,25 @@
+package eecs2311.group2.wh40k_easycombat.service;
+
+import eecs2311.group2.wh40k_easycombat.model.instance.BattleState;
+
+public class CombatService {
+    private BattleState currentState;
+
+    public CombatService(String missionName) {
+        this.currentState = new BattleState();
+        this.currentState.setMissionName(missionName);
+    }
+
+    public BattleState getCurrentState() {
+        return currentState;
+    }
+
+    public void createNewBattle(String missionName) {
+        this.currentState = new BattleState();
+        this.currentState.setMissionName(missionName);
+    }
+
+    public void setCurrentBattle(BattleState battleState){
+        this.currentState = battleState;
+    }
+}

@@ -174,7 +174,7 @@ public class SqlGenerator {
 
         if (resource == null) return classes;
 
-        File directory = new File(resource.getFile());
+        File directory = new File(resource.toURI());
         if (directory.exists()) {
             for (File file : directory.listFiles()) {
                 if (file.getName().endsWith(".class")) {
