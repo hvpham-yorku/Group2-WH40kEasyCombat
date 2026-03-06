@@ -14,10 +14,13 @@ public class ArmyRepository {
 
 	public static int addNewArmy(Army army) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Army (auto_id, name, total_points) VALUES (?, ?, ?)",
+			"INSERT INTO Army (auto_id, name, faction_id, warlord_id, total_points, isMarked) VALUES (?, ?, ?, ?, ?, ?)",
 			army.auto_id(),
 			army.name(),
-			army.total_points()
+			army.faction_id(),
+			army.warlord_id(),
+			army.total_points(),
+			army.isMarked()
 		);
 	}
 
@@ -27,7 +30,10 @@ public class ArmyRepository {
 			rs -> new Army(
 				rs.getInt("auto_id"),
 				rs.getString("name"),
-				rs.getInt("total_points")
+				rs.getString("faction_id"),
+				rs.getString("warlord_id"),
+				rs.getInt("total_points"),
+				rs.getBoolean("isMarked")
 			),
 			auto_id
 		).stream().findFirst().orElse(null);
@@ -39,16 +45,22 @@ public class ArmyRepository {
 			rs -> new Army(
 				rs.getInt("auto_id"),
 				rs.getString("name"),
-				rs.getInt("total_points")
+				rs.getString("faction_id"),
+				rs.getString("warlord_id"),
+				rs.getInt("total_points"),
+				rs.getBoolean("isMarked")
 			)
 		);
 	}
 
 	public static void updateArmy(Army army) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Army SET name = ?, total_points = ? WHERE auto_id = ?",
+			"UPDATE Army SET name = ?, faction_id = ?, warlord_id = ?, total_points = ?, isMarked = ? WHERE auto_id = ?",
 			army.name(),
+			army.faction_id(),
+			army.warlord_id(),
 			army.total_points(),
+			army.isMarked(),
 			army.auto_id()
 		);
 	}

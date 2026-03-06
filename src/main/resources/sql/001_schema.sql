@@ -17,14 +17,26 @@ CREATE TABLE IF NOT EXISTS Abilities (
 CREATE TABLE IF NOT EXISTS Army (
     auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    total_points INTEGER
+    faction_id TEXT NOT NULL,
+    warlord_id TEXT NOT NULL,
+    total_points INTEGER,
+    isMarked INTEGER CHECK(isMarked IN (0,1))
+);
+
+CREATE TABLE IF NOT EXISTS Army_detachment (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    army_id INTEGER,
+    datasheet_id TEXT,
+    detachment_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Army_units (
     auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     army_id INTEGER,
     datasheet_id TEXT,
-    model_count INTEGER
+    enhancements_id TEXT,
+    model_count INTEGER,
+    unit_cost INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS Army_wargear (

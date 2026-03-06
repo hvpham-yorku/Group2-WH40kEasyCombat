@@ -14,11 +14,13 @@ public class Army_unitsRepository {
 
 	public static int addNewArmy_units(Army_units army_units) throws java.sql.SQLException {
 		return Dao.update(
-			"INSERT INTO Army_units (auto_id, army_id, datasheet_id, model_count) VALUES (?, ?, ?, ?)",
+			"INSERT INTO Army_units (auto_id, army_id, datasheet_id, enhancements_id, model_count, unit_cost) VALUES (?, ?, ?, ?, ?, ?)",
 			army_units.auto_id(),
 			army_units.army_id(),
 			army_units.datasheet_id(),
-			army_units.model_count()
+			army_units.enhancements_id(),
+			army_units.model_count(),
+			army_units.unit_cost()
 		);
 	}
 
@@ -29,7 +31,9 @@ public class Army_unitsRepository {
 				rs.getInt("auto_id"),
 				rs.getInt("army_id"),
 				rs.getString("datasheet_id"),
-				rs.getInt("model_count")
+				rs.getString("enhancements_id"),
+				rs.getInt("model_count"),
+				rs.getInt("unit_cost")
 			),
 			auto_id
 		).stream().findFirst().orElse(null);
@@ -42,17 +46,21 @@ public class Army_unitsRepository {
 				rs.getInt("auto_id"),
 				rs.getInt("army_id"),
 				rs.getString("datasheet_id"),
-				rs.getInt("model_count")
+				rs.getString("enhancements_id"),
+				rs.getInt("model_count"),
+				rs.getInt("unit_cost")
 			)
 		);
 	}
 
 	public static void updateArmy_units(Army_units army_units) throws java.sql.SQLException {
 		Dao.update(
-			"UPDATE Army_units SET army_id = ?, datasheet_id = ?, model_count = ? WHERE auto_id = ?",
+			"UPDATE Army_units SET army_id = ?, datasheet_id = ?, enhancements_id = ?, model_count = ?, unit_cost = ? WHERE auto_id = ?",
 			army_units.army_id(),
 			army_units.datasheet_id(),
+			army_units.enhancements_id(),
 			army_units.model_count(),
+			army_units.unit_cost(),
 			army_units.auto_id()
 		);
 	}

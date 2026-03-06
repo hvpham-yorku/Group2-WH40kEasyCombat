@@ -6,5 +6,8 @@ import eecs2311.group2.wh40k_easycombat.annotation.*;
 public record Army(
 		@PK @AutoIncrement int auto_id,
         @NotNull String name,
-        int total_points
+        @NotNull String faction_id,
+        @NotNull String warlord_id,
+        int total_points,
+        boolean isMarked
 ) {}

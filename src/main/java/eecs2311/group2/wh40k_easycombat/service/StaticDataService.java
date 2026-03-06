@@ -12,7 +12,7 @@ public final class StaticDataService {
     private StaticDataService() {}
 
     // =========================
-    // Datasheet Bundle (existing)
+    // Datasheet Bundle
     // =========================
     public static final class DatasheetBundle {
         public final Datasheets datasheet;
@@ -45,14 +45,12 @@ public final class StaticDataService {
                 List<Datasheets_detachment_abilities> detachmentAbilities
         ) {
             this.datasheet = datasheet;
-
             this.models = models;
             this.wargear = wargear;
             this.abilities = abilities;
             this.compositions = compositions;
             this.costs = costs;
             this.keywords = keywords;
-
             this.options = options;
             this.leaders = leaders;
             this.stratagems = stratagems;
@@ -62,19 +60,22 @@ public final class StaticDataService {
     }
 
     // =========================
-    // Army Bundle (NEW)
+    // Army Bundle
     // =========================
     public static final class ArmyBundle {
         public final Army army;
+        public final List<Army_detachment> detachments;
         public final List<Army_units> units;
-        /**
-         * All wargear rows for all units in this army (flattened).
-         * If you prefer grouping by units_id, see getArmyWargearByUnitId().
-         */
         public final List<Army_wargear> wargear;
 
-        private ArmyBundle(Army army, List<Army_units> units, List<Army_wargear> wargear) {
+        private ArmyBundle(
+                Army army,
+                List<Army_detachment> detachments,
+                List<Army_units> units,
+                List<Army_wargear> wargear
+        ) {
             this.army = army;
+            this.detachments = detachments;
             this.units = units;
             this.wargear = wargear;
         }
@@ -83,7 +84,7 @@ public final class StaticDataService {
     private static volatile boolean loaded = false;
 
     // =========================
-    // Datasheet caches (existing)
+    // Datasheet caches
     // =========================
     private static final Map<String, Datasheets> datasheetsById = new ConcurrentHashMap<>();
 
@@ -101,17 +102,15 @@ public final class StaticDataService {
     private static final Map<String, List<Datasheets_detachment_abilities>> detachmentAbilitiesByDatasheetId = new ConcurrentHashMap<>();
 
     // =========================
-    // Army caches (NEW)
+    // Army caches
     // =========================
     private static final Map<Integer, Army> armyById = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_detachment>> detachmentsByArmyId = new ConcurrentHashMap<>();
     private static final Map<Integer, List<Army_units>> unitsByArmyId = new ConcurrentHashMap<>();
     private static final Map<Integer, List<Army_wargear>> wargearByUnitsId = new ConcurrentHashMap<>();
 
-    /**
-     * Clear in-memory caches. Must be called under synchronization.
-     */
     private static void clearCache() {
-        // datasheet caches
+        // datasheets
         datasheetsById.clear();
 
         modelsByDatasheetId.clear();
@@ -127,15 +126,13 @@ public final class StaticDataService {
         enhancementsByDatasheetId.clear();
         detachmentAbilitiesByDatasheetId.clear();
 
-        // army caches
+        // armies
         armyById.clear();
+        detachmentsByArmyId.clear();
         unitsByArmyId.clear();
         wargearByUnitsId.clear();
     }
 
-    /**
-     * Force reload all data from DB, used after CRUD write.
-     */
     public static synchronized void reloadFromSqlite() throws SQLException {
         loaded = false;
         clearCache();
@@ -146,15 +143,13 @@ public final class StaticDataService {
         if (loaded) return;
 
         // =========================
-        // Datasheets (existing)
+        // Datasheets
         // =========================
 
-        // 1) Datasheets
         for (Datasheets d : DatasheetsRepository.getAllDatasheets()) {
             if (d != null && d.id() != null) datasheetsById.put(d.id(), d);
         }
 
-        // 2) Models
         {
             Map<String, List<Datasheets_models>> tmp = new HashMap<>();
             for (Datasheets_models m : Datasheets_modelsRepository.getAllDatasheets_models()) {
@@ -167,7 +162,6 @@ public final class StaticDataService {
             }
         }
 
-        // 3) Wargear
         {
             Map<String, List<Datasheets_wargear>> tmp = new HashMap<>();
             for (Datasheets_wargear w : Datasheets_wargearRepository.getAllDatasheets_wargear()) {
@@ -183,7 +177,6 @@ public final class StaticDataService {
             }
         }
 
-        // 4) Datasheets_abilities
         {
             Map<String, List<Datasheets_abilities>> tmp = new HashMap<>();
             for (Datasheets_abilities a : Datasheets_abilitiesRepository.getAllDatasheets_abilities()) {
@@ -196,7 +189,6 @@ public final class StaticDataService {
             }
         }
 
-        // 5) Unit composition
         {
             Map<String, List<Datasheets_unit_composition>> tmp = new HashMap<>();
             for (Datasheets_unit_composition c : Datasheets_unit_compositionRepository.getAllDatasheets_unit_composition()) {
@@ -209,7 +201,6 @@ public final class StaticDataService {
             }
         }
 
-        // 6) Costs
         {
             Map<String, List<Datasheets_models_cost>> tmp = new HashMap<>();
             for (Datasheets_models_cost c : Datasheets_models_costRepository.getAllDatasheets_models_cost()) {
@@ -222,7 +213,6 @@ public final class StaticDataService {
             }
         }
 
-        // 7) Keywords
         try {
             Map<String, List<Datasheets_keywords>> tmp = new HashMap<>();
             for (Datasheets_keywords k : Datasheets_keywordsRepository.getAllDatasheets_keywords()) {
@@ -238,7 +228,6 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
-        // 8) Options
         try {
             Map<String, List<Datasheets_options>> tmp = new HashMap<>();
             for (Datasheets_options o : Datasheets_optionsRepository.getAllDatasheets_options()) {
@@ -251,11 +240,9 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
-        // 9) Leaders
         try {
             Map<String, List<Datasheets_leader>> tmp = new HashMap<>();
             for (Datasheets_leader l : Datasheets_leaderRepository.getAllDatasheets_leader()) {
-                // group by attached_id as the "datasheet" being viewed
                 if (l == null || l.attached_id() == null) continue;
                 tmp.computeIfAbsent(l.attached_id(), k -> new ArrayList<>()).add(l);
             }
@@ -264,7 +251,6 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
-        // 10) Datasheets_stratagems
         try {
             Map<String, List<Datasheets_stratagems>> tmp = new HashMap<>();
             for (Datasheets_stratagems s : Datasheets_stratagemsRepository.getAllDatasheets_stratagems()) {
@@ -276,7 +262,6 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
-        // 11) Datasheets_enhancements
         try {
             Map<String, List<Datasheets_enhancements>> tmp = new HashMap<>();
             for (Datasheets_enhancements x : Datasheets_enhancementsRepository.getAllDatasheets_enhancements()) {
@@ -288,7 +273,6 @@ public final class StaticDataService {
             }
         } catch (Exception ignored) {}
 
-        // 12) Datasheets_detachment_abilities
         try {
             Map<String, List<Datasheets_detachment_abilities>> tmp = new HashMap<>();
             for (Datasheets_detachment_abilities x : Datasheets_detachment_abilitiesRepository.getAllDatasheets_detachment_abilities()) {
@@ -301,18 +285,27 @@ public final class StaticDataService {
         } catch (Exception ignored) {}
 
         // =========================
-        // Army tables (NEW)
+        // Army
         // =========================
 
-        // 13) Army
         try {
             for (Army a : ArmyRepository.getAllArmy()) {
-                // Army model uses int auto_id :contentReference[oaicite:3]{index=3}
                 if (a != null) armyById.put(a.auto_id(), a);
             }
         } catch (Exception ignored) {}
 
-        // 14) Army_units (group by army_id)
+        try {
+            Map<Integer, List<Army_detachment>> tmp = new HashMap<>();
+            for (Army_detachment d : Army_detachmentRepository.getAllArmy_detachment()) {
+                if (d == null) continue;
+                tmp.computeIfAbsent(d.army_id(), k -> new ArrayList<>()).add(d);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(Army_detachment::auto_id));
+                detachmentsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
         try {
             Map<Integer, List<Army_units>> tmp = new HashMap<>();
             for (Army_units u : Army_unitsRepository.getAllArmy_units()) {
@@ -320,13 +313,11 @@ public final class StaticDataService {
                 tmp.computeIfAbsent(u.army_id(), k -> new ArrayList<>()).add(u);
             }
             for (var e : tmp.entrySet()) {
-                // stable order for UI: by auto_id
                 e.getValue().sort(Comparator.comparingInt(Army_units::auto_id));
                 unitsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
             }
         } catch (Exception ignored) {}
 
-        // 15) Army_wargear (group by units_id)
         try {
             Map<Integer, List<Army_wargear>> tmp = new HashMap<>();
             for (Army_wargear w : Army_wargearRepository.getAllArmy_wargear()) {
@@ -334,7 +325,6 @@ public final class StaticDataService {
                 tmp.computeIfAbsent(w.units_id(), k -> new ArrayList<>()).add(w);
             }
             for (var e : tmp.entrySet()) {
-                // stable order for UI: by auto_id
                 e.getValue().sort(Comparator.comparingInt(Army_wargear::auto_id));
                 wargearByUnitsId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
             }
@@ -344,7 +334,7 @@ public final class StaticDataService {
     }
 
     // =========================
-    // Public APIs (Datasheets)
+    // Datasheet APIs
     // =========================
 
     public static DatasheetBundle getDatasheetBundle(String datasheetId) throws SQLException {
@@ -370,16 +360,14 @@ public final class StaticDataService {
     }
 
     // =========================
-    // Public APIs (Army) (NEW)
+    // Army APIs
     // =========================
 
-    /** Get Army row by auto_id. */
     public static Army getArmy(int armyId) throws SQLException {
         if (!loaded) loadAllFromSqlite();
         return armyById.get(armyId);
     }
 
-    /** Get all armies (cached). */
     public static List<Army> getAllArmies() throws SQLException {
         if (!loaded) loadAllFromSqlite();
         List<Army> list = new ArrayList<>(armyById.values());
@@ -387,35 +375,42 @@ public final class StaticDataService {
         return Collections.unmodifiableList(list);
     }
 
-    /** Get units for an army (cached). */
+    public static List<Army_detachment> getArmyDetachments(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return detachmentsByArmyId.getOrDefault(armyId, List.of());
+    }
+
     public static List<Army_units> getArmyUnits(int armyId) throws SQLException {
         if (!loaded) loadAllFromSqlite();
         return unitsByArmyId.getOrDefault(armyId, List.of());
     }
 
-    /** Get wargear rows for a specific units_id (cached). */
     public static List<Army_wargear> getArmyWargearByUnitId(int unitsId) throws SQLException {
         if (!loaded) loadAllFromSqlite();
         return wargearByUnitsId.getOrDefault(unitsId, List.of());
     }
 
-    /** Convenience: build an ArmyBundle (army + units + all wargear for those units). */
     public static ArmyBundle getArmyBundle(int armyId) throws SQLException {
         if (!loaded) loadAllFromSqlite();
 
-        Army a = armyById.get(armyId);
-        if (a == null) return null;
+        Army army = armyById.get(armyId);
+        if (army == null) return null;
 
+        List<Army_detachment> detachments = detachmentsByArmyId.getOrDefault(armyId, List.of());
         List<Army_units> units = unitsByArmyId.getOrDefault(armyId, List.of());
-        List<Army_wargear> flat = new ArrayList<>();
+
+        List<Army_wargear> flatWargear = new ArrayList<>();
         for (Army_units u : units) {
-            flat.addAll(wargearByUnitsId.getOrDefault(u.auto_id(), List.of()));
+            flatWargear.addAll(wargearByUnitsId.getOrDefault(u.auto_id(), List.of()));
         }
+        flatWargear.sort(Comparator.comparingInt(Army_wargear::auto_id));
 
-        // stable order
-        flat.sort(Comparator.comparingInt(Army_wargear::auto_id));
-
-        return new ArmyBundle(a, units, Collections.unmodifiableList(flat));
+        return new ArmyBundle(
+                army,
+                detachments,
+                units,
+                Collections.unmodifiableList(flatWargear)
+        );
     }
 
     // =========================
@@ -424,7 +419,10 @@ public final class StaticDataService {
 
     private static int safeLineInt(String s) {
         if (s == null) return Integer.MAX_VALUE;
-        try { return Integer.parseInt(s.trim()); }
-        catch (Exception e) { return Integer.MAX_VALUE; }
+        try {
+            return Integer.parseInt(s.trim());
+        } catch (Exception e) {
+            return Integer.MAX_VALUE;
+        }
     }
 }

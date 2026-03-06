@@ -72,13 +72,13 @@ public class ArmyController {
 	// When click "ADD" button, add the unit to army
     @FXML
     void add(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Confirm" button, change the faction to user selected
     @FXML
     void confirm(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Load" button, load the army from army list that user selected
@@ -90,36 +90,36 @@ public class ArmyController {
     // When click "Favorite" button, mark the army as favorite
     @FXML
     void favorite(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Delete" button, delete the army from army list that user selected
     @FXML
     void delete(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Import" button, import the army table from user's Clipboard
     @FXML
     void importData(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Remove" button, remove the unit from army
     @FXML
     void removeUnit(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Save" button, save the army table to database
     @FXML
     void save(MouseEvent event) {
-        // not required for demo
+        
     }
 
     // When click "Set Warlord" button, set the unit to be warlord
     @FXML
     void setWarlord(MouseEvent event) {
-        // not required for demo
+        
     }
 }
