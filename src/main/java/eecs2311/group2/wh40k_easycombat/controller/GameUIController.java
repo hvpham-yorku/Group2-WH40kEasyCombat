@@ -160,7 +160,9 @@ public class GameUIController {
         openImportWindow(ArmySide.BLUE, blueImportButton);
     }
 
-    @FXML void blueSelect(MouseEvent event) { }
+    @FXML void blueSelect(MouseEvent event) { 
+    	useSelectedStrategy(ArmySide.BLUE);
+    }
 
     // ======================= Red Actions ======================
     @FXML void redAbandonClicked(MouseEvent event) { }
@@ -176,7 +178,9 @@ public class GameUIController {
         openImportWindow(ArmySide.RED, redImportButton);
     }
 
-    @FXML void redSelect(MouseEvent event) { }
+    @FXML void redSelect(MouseEvent event) { 
+    	useSelectedStrategy(ArmySide.RED);
+    }
 
     // ======================= General Actions ==================
     @FXML void clickExit(MouseEvent event) { }
@@ -186,4 +190,112 @@ public class GameUIController {
     @FXML void openLog(MouseEvent event) { }
 
     @FXML void rollDice(MouseEvent event) { }
+    
+ // ======================= Helper ==================
+    private void useSelectedStrategy(ArmySide side) {
+        GameStrategyVM selected;
+
+        if (side == ArmySide.BLUE) {
+            selected = blueStrategyList.getSelectionModel().getSelectedItem();
+        } else {
+            selected = redStrategyList.getSelectionModel().getSelectedItem();
+        }
+
+        if (selected == null) {
+            showWarning("No Stratagem Selected", "Please select one stratagem first.");
+            return;
+        }
+
+        Alert confirm = new Alert(
+                Alert.AlertType.CONFIRMATION,
+                "Use stratagem \"" + selected.getName() + "\"?",
+                ButtonType.YES,
+                ButtonType.NO
+        );
+        confirm.setHeaderText("Confirm Stratagem");
+
+        if (confirm.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
+            return;
+        }
+
+        String content = buildStrategyUseText(side, selected);
+
+        Alert result = new Alert(Alert.AlertType.INFORMATION, content, ButtonType.OK);
+        result.setHeaderText(selected.getName());
+        result.setTitle("Stratagem Used");
+        result.showAndWait();
+
+        appendToBattleBox(content);
+    }
+
+    private String buildStrategyUseText(ArmySide side, GameStrategyVM s) {
+        String sideName = side == ArmySide.BLUE ? "Blue" : "Red";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(sideName)
+          .append(" used ")
+          .append(s.getName());
+
+        if (s.getCpCost() != null && !s.getCpCost().isBlank()) {
+            sb.append(" (").append(s.getCpCost()).append(" CP)");
+        }
+
+        sb.append("\n");
+
+        if (s.getTurn() != null && !s.getTurn().isBlank()) {
+            sb.append("Turn: ").append(s.getTurn()).append("\n");
+        }
+
+        if (s.getPhase() != null && !s.getPhase().isBlank()) {
+            sb.append("Phase: ").append(s.getPhase()).append("\n");
+        }
+
+        String description = htmlToPlainText(s.getDescriptionHtml());
+        if (!description.isBlank()) {
+            sb.append("\n").append(description);
+        }
+
+        return sb.toString().trim();
+    }
+
+    private void appendToBattleBox(String text) {
+        if (virtuaDiceBox == null) return;
+
+        String old = virtuaDiceBox.getText();
+        if (old == null || old.isBlank()) {
+            virtuaDiceBox.setText(text);
+        } else {
+            virtuaDiceBox.appendText("\n\n" + text);
+        }
+    }
+
+    private String htmlToPlainText(String html) {
+        if (html == null || html.isBlank()) return "";
+
+        String s = html;
+        s = s.replace("<br><br>", "\n\n");
+        s = s.replace("<br/>", "\n");
+        s = s.replace("<br />", "\n");
+        s = s.replace("<br>", "\n");
+
+        s = s.replaceAll("(?i)</b>", "");
+        s = s.replaceAll("(?i)<b>", "");
+
+        s = s.replace("&nbsp;", " ");
+        s = s.replace("&lt;", "<");
+        s = s.replace("&gt;", ">");
+        s = s.replace("&amp;", "&");
+        s = s.replace("&quot;", "\"");
+        s = s.replace("&#39;", "'");
+
+        s = s.replaceAll("(?is)<[^>]+>", "");
+        return s.trim();
+    }
+
+    private void showWarning(String title, String text) {
+        Alert a = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
+        a.setHeaderText(title);
+        a.showAndWait();
+    }
 }
