@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -59,7 +60,7 @@
                            <right>
                               <Pane prefWidth="400.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <VBox layoutX="10.0" layoutY="14.0" prefHeight="210.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                    <VBox layoutX="10.0" prefHeight="260.0" prefWidth="380.0" style="-fx-border-color: #000000;">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Abilities">
                                              <font>
@@ -71,39 +72,59 @@
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <TextFlow fx:id="factionAbilityTextFlow" prefHeight="50.0" prefWidth="200.0" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="factionAbilityTextFlow" prefHeight="100.0" prefWidth="350.0" />
+                                             </content>
+                                          </ScrollPane>
                                           <Label prefHeight="16.0" prefWidth="380.0" text="-----------------------------------------------------------------------" />
-                                          <TextFlow fx:id="abilityTextFlow" prefHeight="100.0" prefWidth="200.0" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="abilityTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
                                        </children>
                                     </VBox>
-                                    <VBox layoutX="10.0" layoutY="224.0" prefHeight="160.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                    <VBox layoutX="10.0" layoutY="265.0" prefHeight="130.0" prefWidth="380.0" style="-fx-border-color: #000000;">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Unit Composition">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <TextFlow fx:id="unitCompositionTextFlow" prefHeight="200.0" prefWidth="200.0" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="unitCompositionTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
                                        </children>
                                     </VBox>
-                                    <VBox layoutX="10.0" layoutY="384.0" prefHeight="140.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                    <VBox layoutX="10.0" layoutY="400.0" prefHeight="120.0" prefWidth="380.0" style="-fx-border-color: #000000;">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Cost">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <TextFlow fx:id="costTextFlow" prefHeight="200.0" prefWidth="200.0" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="costTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
                                        </children>
                                     </VBox>
-                                    <VBox layoutX="10.0" layoutY="524.0" prefHeight="140.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                    <VBox layoutX="10.0" layoutY="524.0" prefHeight="180.0" prefWidth="380.0" style="-fx-border-color: #000000;">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Other">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <TextFlow fx:id="otherTextFlow" prefHeight="200.0" prefWidth="200.0" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="otherTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
                                        </children>
                                     </VBox>
                                  </children>
@@ -112,7 +133,7 @@
                            <center>
                               <Pane BorderPane.alignment="CENTER">
                                  <children>
-                                    <HBox prefHeight="40.0" prefWidth="600.0">
+                                    <HBox prefHeight="40.0" prefWidth="519.0">
                                        <children>
                                           <Label fx:id="datasheetName" text="Datasheet Name">
                                              <font>
@@ -241,16 +262,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <Label fx:id="unitName1" layoutX="548.0" layoutY="93.0" text="UnitName1">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="unitName2" layoutX="548.0" layoutY="156.0" text="UnitName2">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
+                                    <Label fx:id="unitName1" alignment="TOP_LEFT" layoutX="535.0" layoutY="70.0" prefHeight="60.0" prefWidth="100.0" text="UnitName1" wrapText="true" />
+                                    <Label fx:id="unitName2" alignment="TOP_LEFT" layoutX="535.0" layoutY="135.0" prefHeight="60.0" prefWidth="100.0" text="UnitName2" wrapText="true" />
                                     <Pane layoutX="10.0" layoutY="208.0" prefHeight="410.0" prefWidth="650.0">
                                        <children>
                                           <TableView fx:id="rangedWeaponTable" prefHeight="200.0" prefWidth="650.0">
@@ -279,6 +292,16 @@
                                     <Label layoutX="10.0" layoutY="646.0" text="Keywords">
                                        <font>
                                           <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="InvsvLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="600.0" layoutY="-5.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="insvTxtLabel" alignment="CENTER" layoutX="514.0" layoutY="4.0" prefHeight="32.0" prefWidth="86.0" text="INVSV">
+                                       <font>
+                                          <Font size="24.0" />
                                        </font>
                                     </Label>
                                  </children></Pane>
