@@ -8,6 +8,7 @@ import eecs2311.group2.wh40k_easycombat.service.ArmyControllerPersistence;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.service.UnitFactory;
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
 
 import java.io.IOException;
@@ -18,16 +19,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -41,7 +40,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 public class ArmyController {
 
@@ -170,14 +168,17 @@ public class ArmyController {
 
     @FXML
     void cancelTheChange(MouseEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/MainUI.fxml")
-        );
-        Parent root = loader.load();
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Exit");
+		alert.setHeaderText("Are you sure you want to exit this page?");
+		alert.setContentText("Unsaved changes will be lost.");
 
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.show();
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.OK) {
+			FixedAspectView.switchTo((Node) event.getSource(),
+					"/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+					1200.0, 800.0);
+		}
     }
 
     // ======================= Main Actions =======================
