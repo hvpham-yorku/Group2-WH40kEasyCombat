@@ -35,4 +35,3 @@ replay_pid*
 
 # Auto-generated database schema and repository files
 src/main/resources/sql/001_schema.sql
-src/main/java/eecs2311/group2/wh40k_easycombat/repository/

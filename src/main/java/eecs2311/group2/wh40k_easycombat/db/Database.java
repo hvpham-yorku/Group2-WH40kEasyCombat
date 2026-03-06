@@ -72,7 +72,10 @@ public final class Database {
         }
         System.out.println("===== Starting Java CRUD File Generation ====");
         for (Class<?> clazz : tableClasses) {
-            Path schemaPath = Paths.get("src/main/java/eecs2311/group2/wh40k_easycombat/repository/" + JavaGenerator.pluralToSingular(clazz.getSimpleName()) + "Repository.java");
+        	Path schemaPath = Paths.get(
+        		    "src/main/java/eecs2311/group2/wh40k_easycombat/repository/"
+        		    + clazz.getSimpleName() + "Repository.java"
+        		);
 
             try {
                 String fullJava = JavaGenerator.generateCrudCode(clazz);
@@ -102,13 +105,11 @@ public final class Database {
         try (Connection conn = Database.getConnection();
              Statement st = conn.createStatement()) {
 
-            // IMPORTANT: run in filename order: 001_schema.sql -> 002_seed.sql -> ...
             List<Path> sqlFiles;
             try (var paths = Files.list(folder)) {
-                sqlFiles = paths
-                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".sql"))
-                        .sorted((a, b) -> a.getFileName().toString().compareToIgnoreCase(b.getFileName().toString()))
-                        .toList();
+            	sqlFiles = paths
+            	        .filter(p -> p.getFileName().toString().equalsIgnoreCase("001_schema.sql"))
+            	        .toList();
             }
 
             for (Path file : sqlFiles) {

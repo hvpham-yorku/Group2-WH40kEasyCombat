@@ -5,97 +5,233 @@ PRAGMA journal_mode = WAL;
 
 PRAGMA synchronous = NORMAL;
 
-CREATE TABLE IF NOT EXISTS armies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS Abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    faction_id TEXT NOT NULL,
+    name TEXT,
+    legend TEXT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Army (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    isFavorite INTEGER CHECK(isFavorite IN (0,1)),
-    totalPoints INTEGER,
-    warlordId INTEGER,
-    factionId INTEGER NOT NULL,
-    detachmentId INTEGER,
-    unitIdList TEXT,
-    equippedRangedWeaponIdList TEXT,
-    equippedMeleeWeaponIdList TEXT,
-    FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(detachmentId) REFERENCES detachments(id) ON DELETE CASCADE ON UPDATE CASCADE
+    faction_id TEXT NOT NULL,
+    warlord_id TEXT NOT NULL,
+    total_points INTEGER,
+    isMarked INTEGER CHECK(isMarked IN (0,1))
 );
 
-CREATE TABLE IF NOT EXISTS core_abilities (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ability TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Army_detachment (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    army_id INTEGER,
+    datasheet_id TEXT,
+    detachment_id TEXT
 );
 
-CREATE TABLE IF NOT EXISTS detachments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    factionId INTEGER NOT NULL,
-    strategyId INTEGER,
-    detachmentRule TEXT,
-    FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE IF NOT EXISTS Army_units (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    army_id INTEGER,
+    datasheet_id TEXT,
+    enhancements_id TEXT,
+    model_count INTEGER,
+    unit_cost INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS factions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Army_wargear (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    wargear_id INTEGER NOT NULL,
+    units_id INTEGER,
+    wargear_count INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS melee_weapons (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    A TEXT NOT NULL,
-    WS INTEGER NOT NULL,
-    S INTEGER NOT NULL,
-    AP INTEGER NOT NULL,
-    D TEXT NOT NULL,
-    keywordIdList TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Datasheets (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    name TEXT,
+    faction_id TEXT,
+    source_id TEXT,
+    legend TEXT,
+    role TEXT,
+    loadout TEXT,
+    transport TEXT,
+    virtual INTEGER CHECK(virtual IN (0,1)),
+    leader_head TEXT,
+    leader_footer TEXT,
+    damaged_w TEXT,
+    damaged_description TEXT,
+    link TEXT
 );
 
-CREATE TABLE IF NOT EXISTS other_abilities (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ability TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Datasheets_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    ability_id TEXT,
+    model TEXT,
+    name TEXT,
+    description TEXT,
+    type TEXT,
+    parameter TEXT
 );
 
-CREATE TABLE IF NOT EXISTS ranged_weapons (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    range INTEGER NOT NULL,
-    A TEXT NOT NULL,
-    BS INTEGER NOT NULL,
-    S INTEGER NOT NULL,
-    AP INTEGER NOT NULL,
-    D TEXT NOT NULL,
-    keywordIdList TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Datasheets_detachment_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    detachment_ability_id TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS unit_keywords (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    keyword TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Datasheets_enhancements (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    enhancement_id TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS units (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    factionId INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    points INTEGER NOT NULL CHECK(points >= 0),
-    M INTEGER NOT NULL,
-    T INTEGER NOT NULL,
-    SV INTEGER NOT NULL,
-    W INTEGER NOT NULL,
-    LD INTEGER NOT NULL,
-    OC INTEGER NOT NULL,
-    invulnerableSave INTEGER NOT NULL,
-    category INTEGER NOT NULL,
-    composition TEXT NOT NULL,
-    coreAbilityIdList TEXT NOT NULL,
-    otherAbilityIdList TEXT NOT NULL,
-    keywordIdList TEXT NOT NULL,
-    rangedWeaponIdList TEXT NOT NULL,
-    meleeWeaponIdList TEXT NOT NULL,
-    FOREIGN KEY(factionId) REFERENCES factions(id) ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE IF NOT EXISTS Datasheets_keywords (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    keyword TEXT NOT NULL,
+    model TEXT NOT NULL,
+    is_faction_keyword TEXT
 );
 
-CREATE TABLE IF NOT EXISTS weapon_keywords (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    keyword TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS Datasheets_leader (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    leader_id TEXT NOT NULL,
+    attached_id TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_models (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    name TEXT,
+    M TEXT,
+    T TEXT,
+    Sv TEXT,
+    inv_sv TEXT,
+    inv_sv_descr TEXT,
+    W TEXT,
+    Ld TEXT,
+    OC TEXT,
+    base_size TEXT,
+    base_size_descr TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_models_cost (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    description TEXT,
+    cost TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_options (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    button TEXT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_stratagems (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    stratagem_id TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_unit_composition (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Datasheets_wargear (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datasheet_id TEXT NOT NULL,
+    line TEXT NOT NULL,
+    line_in_wargear TEXT NOT NULL,
+    dice TEXT,
+    name TEXT,
+    description TEXT,
+    range TEXT,
+    type TEXT,
+    A TEXT,
+    BS_WS TEXT,
+    S TEXT,
+    AP TEXT,
+    D TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Detachments (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    faction_id TEXT NOT NULL,
+    name TEXT,
+    legend TEXT,
+    type TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Detachment_abilities (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    detachment_id TEXT NOT NULL,
+    faction_id TEXT,
+    name TEXT,
+    legend TEXT,
+    description TEXT,
+    detachment TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Enhancements (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    faction_id TEXT,
+    name TEXT,
+    legend TEXT,
+    description TEXT,
+    cost TEXT,
+    detachment TEXT,
+    detachment_id TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Factions (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    name TEXT,
+    link TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Last_update (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    last_update TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Source (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    name TEXT,
+    type TEXT,
+    edition TEXT,
+    version TEXT,
+    errata_date TEXT,
+    errata_link TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Stratagems (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    faction_id TEXT NOT NULL,
+    name TEXT,
+    type TEXT,
+    cp_cost TEXT,
+    legend TEXT,
+    turn TEXT,
+    phase TEXT,
+    description TEXT,
+    detachment TEXT,
+    detachment_id TEXT
 );
 

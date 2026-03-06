@@ -29,6 +29,8 @@
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
             <Button fx:id="unitKeywordAddButton" mnemonicParsing="false" onMouseClicked="#keywordAdd" prefHeight="40.0" prefWidth="264.0" text="ADD" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
+            <Button fx:id="unitKeywordDeleteButton" mnemonicParsing="false" onMouseClicked="#keywordDelete" prefHeight="40.0" prefWidth="264.0" text="Delete" />
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Edit or Add Weapon" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
