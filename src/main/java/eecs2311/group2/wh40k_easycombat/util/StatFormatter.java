@@ -4,7 +4,7 @@ import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 
 import java.util.List;
 
-public class StatUtil {
+public class StatFormatter {
 
     public static String buildStatLine(List<Datasheets_models> models) {
 
@@ -24,7 +24,6 @@ public class StatUtil {
     }
 
     private static String nz(String s) {
-        if (s == null || s.isBlank()) return "-";
-        return s;
+        return (s == null || s.isBlank()) ? "-" : s;
     }
 }

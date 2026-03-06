@@ -121,10 +121,12 @@ public final class ArmyCrudService {
 
                     // 1) update army row
                     execUpdate(conn,
-                            "UPDATE Army SET name=?, faction_id=?, total_points=? WHERE auto_id=?",
+                            "UPDATE Army SET name=?, faction_id=?, warlord_id=?, total_points=?, isMarked=? WHERE auto_id=?",
                             b.army.name(),
                             b.army.faction_id(),
+                            b.army.warlord_id(),
                             b.army.total_points(),
+                            b.army.isMarked(),
                             armyId
                     );
 
@@ -223,12 +225,14 @@ public final class ArmyCrudService {
 
     private static int insertArmy(Connection conn, Army a) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO Army (name, faction_id, total_points) VALUES (?, ?, ?)",
+        		"INSERT INTO Army (name, faction_id, warlord_id, total_points, isMarked) VALUES (?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
         )) {
-            ps.setObject(1, a.name());
-            ps.setObject(2, a.faction_id());
-            ps.setObject(3, a.total_points());
+        	ps.setObject(1, a.name());
+        	ps.setObject(2, a.faction_id());
+        	ps.setObject(3, a.warlord_id());
+        	ps.setObject(4, a.total_points());
+        	ps.setObject(5, a.isMarked());
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
