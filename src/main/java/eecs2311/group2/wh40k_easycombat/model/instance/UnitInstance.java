@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class UnitInstance {
-    private final String instanceId;
-    private final Units template;
+    private String instanceId;
+    private Units template;
 
     private int currentWounds;
     private int currentOC;
@@ -17,7 +17,10 @@ public class UnitInstance {
     private List<Integer> rangedWeaponIds;
 
     private boolean isBattleShocked = false;
-    
+
+    public UnitInstance() {
+    }
+
     public UnitInstance(Units template) {
         this.template = template;
         this.instanceId = UUID.randomUUID().toString();
@@ -108,8 +111,33 @@ public class UnitInstance {
         return template.keywordIdList();
     }
 
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public void setTemplate(Units template) {
+        this.template = template;
+    }
+
+    public void setCurrentWounds(int currentWounds) {
+        this.currentWounds = currentWounds;
+    }
+
+    public void setCurrentOC(int currentOC) {
+        this.currentOC = currentOC;
+    }
+
+    public void setMeleeWeaponIds(List<Integer> ids) {
+        this.meleeWeaponIds = ids;
+    }
+
+    public void setRangedWeaponIds(List<Integer> ids) {
+        this.rangedWeaponIds = ids;
+    }
+
     public UnitInstance copy() {
         UnitInstance copy = new UnitInstance(this.template);
+        copy.instanceId = this.instanceId;
         copy.currentWounds = this.currentWounds;
         copy.currentOC = this.currentOC;
         copy.isBattleShocked = this.isBattleShocked;

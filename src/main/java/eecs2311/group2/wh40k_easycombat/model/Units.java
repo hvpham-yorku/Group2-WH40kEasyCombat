@@ -1,9 +1,15 @@
 package eecs2311.group2.wh40k_easycombat.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import eecs2311.group2.wh40k_easycombat.annotation.*;
 
 import java.util.List;
 
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 @Table("units")
 public record Units(
     @PK @AutoIncrement int id,
