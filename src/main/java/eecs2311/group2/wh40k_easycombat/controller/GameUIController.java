@@ -1,10 +1,14 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import eecs2311.group2.wh40k_easycombat.cell.GameArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.cell.GameStrategyCell;
 import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
 import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.ImportedArmyData;
+import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.manager.GameStateManager;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
@@ -13,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -225,8 +230,18 @@ public class GameUIController {
 
     // ======================= General Actions ==================
     @FXML
-    void clickExit(MouseEvent event) {
+    void clickExit(MouseEvent event) throws IOException {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exit");
+        alert.setHeaderText("Are you sure you want to exit this game?");
+        alert.setContentText("Unsaved changes will be lost.");
 
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            FixedAspectView.switchTo((Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+                    1200.0, 800.0);
+        }
     }
 
     @FXML
