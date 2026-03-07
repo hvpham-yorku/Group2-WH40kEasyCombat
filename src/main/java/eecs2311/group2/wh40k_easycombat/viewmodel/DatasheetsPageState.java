@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

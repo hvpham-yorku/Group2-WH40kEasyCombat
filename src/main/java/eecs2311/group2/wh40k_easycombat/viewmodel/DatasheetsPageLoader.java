@@ -1,6 +1,7 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.repository.DatasheetsRepository;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;

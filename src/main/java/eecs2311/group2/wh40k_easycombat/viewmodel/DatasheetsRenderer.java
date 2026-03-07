@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
@@ -13,9 +13,9 @@ import javafx.scene.text.TextFlow;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eecs2311.group2.wh40k_easycombat.service.DatasheetsTextFormatter.*;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.getAny;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.s;
+import static eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsTextFormatter.*;
 
 public final class DatasheetsRenderer {
 
