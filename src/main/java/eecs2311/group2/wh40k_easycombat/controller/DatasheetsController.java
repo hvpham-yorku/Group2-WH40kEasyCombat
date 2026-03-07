@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.model.WeaponRow;
+import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
 import eecs2311.group2.wh40k_easycombat.service.*;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
