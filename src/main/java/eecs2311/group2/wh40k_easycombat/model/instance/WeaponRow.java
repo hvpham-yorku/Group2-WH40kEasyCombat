@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.model;
+package eecs2311.group2.wh40k_easycombat.model.instance;
 
 import javafx.beans.property.SimpleStringProperty;
 
