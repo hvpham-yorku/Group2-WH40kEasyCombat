@@ -1,18 +1,20 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
-import eecs2311.group2.wh40k_easycombat.model.Army;
-import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
+import eecs2311.group2.wh40k_easycombat.service.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyControllerDataLoader;
 import eecs2311.group2.wh40k_easycombat.service.ArmyControllerPersistence;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyEditorStateService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyPointService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyValidationService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.service.UnitFactory;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -155,7 +157,7 @@ public class ArmyController {
 
             editingArmyId = null;
             editingArmyMarked = false;
-            currentArmy.clear();
+            ArmyBuilderManager.clearArmy(currentArmy);
             armyNametxt.clear();
 
             refreshDetachmentOptions();
@@ -168,17 +170,17 @@ public class ArmyController {
 
     @FXML
     void cancelTheChange(MouseEvent event) throws IOException {
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("Exit");
-		alert.setHeaderText("Are you sure you want to exit this page?");
-		alert.setContentText("Unsaved changes will be lost.");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exit");
+        alert.setHeaderText("Are you sure you want to exit this page?");
+        alert.setContentText("Unsaved changes will be lost.");
 
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.isPresent() && result.get() == ButtonType.OK) {
-			FixedAspectView.switchTo((Node) event.getSource(),
-					"/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-					1200.0, 800.0);
-		}
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            FixedAspectView.switchTo((Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+                    1200.0, 800.0);
+        }
     }
 
     // ======================= Main Actions =======================
@@ -193,7 +195,7 @@ public class ArmyController {
 
         editingArmyId = null;
         editingArmyMarked = false;
-        currentArmy.clear();
+        ArmyBuilderManager.clearArmy(currentArmy);
         armyNametxt.clear();
 
         refreshDetachmentOptions();
@@ -219,7 +221,7 @@ public class ArmyController {
             }
 
             ArmyUnitVM vm = UnitFactory.create(bundle, enhancementInfoById);
-            currentArmy.add(vm);
+            ArmyBuilderManager.addUnit(currentArmy, vm);
             refreshPoints();
         } catch (Exception e) {
             showError("Add Unit Error", e.getMessage());
@@ -254,15 +256,6 @@ public class ArmyController {
             String validation = validateBeforeSave();
             if (validation != null) {
                 showWarning("Cannot Save", validation);
-                return;
-            }
-
-            int totalPoints = getCurrentTotalPoints();
-            int limit = sizeCBbox.getValue() == null ? 2000 : sizeCBbox.getValue();
-
-            if (totalPoints > limit) {
-                showWarning("Point Limit Exceeded",
-                        "Current army is " + totalPoints + " pts, but the selected limit is " + limit + " pts.");
                 return;
             }
 
@@ -306,21 +299,21 @@ public class ArmyController {
                 return;
             }
 
-            editingArmyId = loaded.army().auto_id();
-            editingArmyMarked = loaded.army().isMarked();
+            ArmyEditorStateService.LoadedEditorState state =
+                    ArmyEditorStateService.applyLoadedArmy(
+                            loaded,
+                            currentArmy,
+                            this::setSelectedFactionById,
+                            this::refreshDetachmentOptions,
+                            this::setSelectedDetachmentById,
+                            sizeCBbox,
+                            armyNametxt,
+                            this::rebuildUnitTree
+                    );
 
-            armyNametxt.setText(loaded.army().name());
-            setSelectedFactionById(loaded.army().faction_id());
+            editingArmyId = state.editingArmyId();
+            editingArmyMarked = state.editingArmyMarked();
 
-            refreshDetachmentOptions();
-            setSelectedDetachmentById(loaded.detachmentId());
-
-            sizeCBbox.setValue(loaded.sizeLimit());
-
-            currentArmy.clear();
-            currentArmy.addAll(loaded.units());
-
-            rebuildUnitTree();
             refreshPoints();
         } catch (Exception e) {
             showError("Load Error", e.getMessage());
@@ -366,26 +359,10 @@ public class ArmyController {
         }
 
         try {
-            StaticDataService.ArmyBundle bundle = StaticDataService.getArmyBundle(row.armyId());
-            if (bundle == null || bundle.army == null) return;
-
-            List<Army_detachment> detachments = StaticDataService.getArmyDetachments(row.armyId());
-
-            Army updated = new Army(
-                    bundle.army.auto_id(),
-                    bundle.army.name(),
-                    bundle.army.faction_id(),
-                    bundle.army.warlord_id(),
-                    bundle.army.total_points(),
-                    !bundle.army.isMarked()
-            );
-
-            ArmyCrudService.updateArmyBundle(
-                    new ArmyCrudService.ArmyWriteBundle(updated, detachments, bundle.units, bundle.wargear)
-            );
+            boolean newMarked = ArmyFavoriteService.toggleFavorite(row.armyId());
 
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
-                editingArmyMarked = !editingArmyMarked;
+                editingArmyMarked = newMarked;
             }
 
             loadSavedArmies();
@@ -400,18 +377,14 @@ public class ArmyController {
     }
 
     // ======================= Cell Callbacks =======================
-
     private void refreshPoints() {
-        FXCollections.sort(currentArmy,
-                Comparator.comparing(ArmyUnitVM::getRole, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(ArmyUnitVM::getUnitName, String.CASE_INSENSITIVE_ORDER));
-
-        pointNumber.setText(String.valueOf(getCurrentTotalPoints()));
+        ArmyBuilderManager.sortArmy(currentArmy);
+        pointNumber.setText(String.valueOf(ArmyPointService.calculateArmyPoints(currentArmy)));
         armyList.refresh();
     }
 
     private void removeArmyUnit(ArmyUnitVM vm) {
-        currentArmy.remove(vm);
+        ArmyBuilderManager.removeUnit(currentArmy, vm);
         refreshPoints();
     }
 
@@ -421,66 +394,35 @@ public class ArmyController {
             return;
         }
 
-        boolean wasWarlord = vm.warlordProperty().get();
-
-        for (ArmyUnitVM unit : currentArmy) {
-            unit.warlordProperty().set(false);
-        }
-
-        if (!wasWarlord) {
-            vm.warlordProperty().set(true);
-        }
-
+        ArmyBuilderManager.toggleWarlord(currentArmy, vm);
         armyList.refresh();
     }
 
     private List<ArmyUnitVM.EnhancementEntry> buildAvailableEnhancements(ArmyUnitVM vm) {
-        ObservableList<ArmyUnitVM.EnhancementEntry> list = FXCollections.observableArrayList();
-        list.add(new ArmyUnitVM.EnhancementEntry("", "No Enhancement", 0));
-
-        String selectedFactionId = getSelectedFactionId();
-        String selectedDetachmentId = getSelectedDetachmentId();
-
-        for (ArmyUnitVM.EnhancementEntry e : vm.getEnhancements()) {
-            boolean sameAsCurrent = e.getId().equals(vm.getEnhancementId());
-
-            boolean uniqueOk = sameAsCurrent || currentArmy.stream()
-                    .noneMatch(x -> x != vm && e.getId().equals(x.getEnhancementId()));
-
-            boolean factionOk = e.getFactionId().isBlank()
-                    || selectedFactionId == null
-                    || selectedFactionId.isBlank()
-                    || e.getFactionId().equalsIgnoreCase(selectedFactionId);
-
-            boolean detachmentOk = e.getDetachmentId().isBlank()
-                    || selectedDetachmentId == null
-                    || selectedDetachmentId.isBlank()
-                    || e.getDetachmentId().equalsIgnoreCase(selectedDetachmentId);
-
-            if (uniqueOk && factionOk && detachmentOk) {
-                list.add(e);
-            }
-        }
-
-        return list;
+        return ArmyBuilderManager.buildAvailableEnhancements(
+                currentArmy,
+                vm,
+                getSelectedFactionId(),
+                getSelectedDetachmentId()
+        );
     }
 
     // ======================= Editor State =======================
-
     private void resetEditor() {
-        editingArmyId = null;
-        editingArmyMarked = false;
-        currentArmy.clear();
+        ArmyEditorStateService.EditorResetResult state =
+                ArmyEditorStateService.resetEditor(
+                        currentArmy,
+                        armyNametxt,
+                        factionCBbox,
+                        sizeCBbox,
+                        () -> defaultFactionDisplay(factionCBbox.getItems()),
+                        this::refreshDetachmentOptions,
+                        this::rebuildUnitTree
+                );
+
+        editingArmyId = state.editingArmyId();
+        editingArmyMarked = state.editingArmyMarked();
         pointNumber.setText("0");
-        armyNametxt.clear();
-        sizeCBbox.setValue(2000);
-
-        if (factionCBbox.getValue() == null && !factionCBbox.getItems().isEmpty()) {
-            factionCBbox.setValue(defaultFactionDisplay(factionCBbox.getItems()));
-        }
-
-        refreshDetachmentOptions();
-        rebuildUnitTree();
     }
 
     private void loadSavedArmies() {
@@ -523,48 +465,17 @@ public class ArmyController {
     }
 
     // ======================= Validation =======================
-
     private String validateBeforeSave() {
-        if (getSelectedFactionId() == null || getSelectedFactionId().isBlank()
-                || "all".equalsIgnoreCase(getSelectedFactionId())) {
-            return "Please choose one specific faction. \"All\" is not allowed.";
-        }
-
-        if (getSelectedDetachmentId() == null || getSelectedDetachmentId().isBlank()) {
-            return "Please choose one detachment.";
-        }
-
-        if (armyNametxt.getText() == null || armyNametxt.getText().trim().isEmpty()) {
-            return "Please enter an army name.";
-        }
-
-        if (currentArmy.isEmpty()) {
-            return "Your army is empty.";
-        }
-
-        long warlordCount = currentArmy.stream().filter(x -> x.warlordProperty().get()).count();
-        if (warlordCount > 1) {
-            return "Only one CHARACTER unit can be set as warlord.";
-        }
-
-        LinkedHashSet<String> usedEnhancements = new LinkedHashSet<>();
-        for (ArmyUnitVM unit : currentArmy) {
-            String id = unit.getEnhancementId();
-            if (id == null || id.isBlank()) continue;
-            if (!usedEnhancements.add(id)) {
-                return "Each enhancement can only be taken once.";
-            }
-        }
-
-        return null;
+        return ArmyValidationService.validateBeforeSave(
+                getSelectedFactionId(),
+                getSelectedDetachmentId(),
+                armyNametxt.getText(),
+                currentArmy,
+                sizeCBbox.getValue()
+        );
     }
 
     // ======================= Helpers =======================
-
-    private int getCurrentTotalPoints() {
-        return currentArmy.stream().mapToInt(x -> x.pointsProperty().get()).sum();
-    }
-
     private String getSelectedFactionId() {
         String display = factionCBbox.getValue();
         if (display == null) return null;
@@ -619,7 +530,6 @@ public class ArmyController {
     }
 
     // ======================= Rows =======================
-
     public record UnitTreeRow(String displayName, String datasheetId, String role, int points, boolean group) {
         static UnitTreeRow group(String name) {
             return new UnitTreeRow(name, null, null, 0, true);
