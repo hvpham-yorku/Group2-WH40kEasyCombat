@@ -4,12 +4,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TreeTableColumn?>
-<?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -22,12 +21,22 @@
          <children>
             <Pane prefHeight="160.0" prefWidth="650.0" style="-fx-background-color: #ADD8E6;">
                <children>
-                  <Label fx:id="blueVPLabel" alignment="CENTER" disable="true" layoutX="437.0" layoutY="59.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
+                  <Label fx:id="blueVPLabel" alignment="CENTER" layoutX="437.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
                   </Label>
-                  <Label disable="true" layoutX="398.0" layoutY="27.0" text="Victory Points">
+                  <Label layoutX="398.0" layoutY="34.0" text="Victory Points">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="blueFactionLabel" layoutX="145.0" layoutY="34.0" text="FactionName">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="bluePhaseLabel" layoutX="191.0" layoutY="80.0" text="Phase">
                      <font>
                         <Font size="24.0" />
                      </font>
@@ -48,12 +57,22 @@
                </children></AnchorPane>
             <Pane prefHeight="160.0" prefWidth="650.0" style="-fx-background-color: #FFB6C1;">
                <children>
-                  <Label fx:id="redVPLabel" alignment="CENTER" disable="true" layoutX="93.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
+                  <Label fx:id="redVPLabel" alignment="CENTER" layoutX="93.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
                   </Label>
-                  <Label disable="true" layoutX="54.0" layoutY="34.0" text="Victory Points">
+                  <Label layoutX="54.0" layoutY="34.0" text="Victory Points">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="redFactionLabel" contentDisplay="RIGHT" layoutX="325.0" layoutY="34.0" text="FactionName">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="redPhaseLabel" layoutX="371.0" layoutY="80.0" text="Phase">
                      <font>
                         <Font size="24.0" />
                      </font>
@@ -65,115 +84,101 @@
    <left>
       <Pane prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="blueUnitTable" layoutX="336.0" layoutY="14.0" prefHeight="600.0" prefWidth="300.0">
-              <columns>
-                <TableColumn fx:id="blueUnits" prefWidth="210.0" text="Units" />
-                <TableColumn fx:id="blueState" minWidth="0.0" prefWidth="88.0" text="State" />
-              </columns>
-            </TableView>
-            <TreeTableView fx:id="blueCPTable" disable="true" layoutX="14.0" layoutY="114.0" prefHeight="450.0" prefWidth="280.0">
-              <columns>
-                <TreeTableColumn fx:id="blueStratagem" prefWidth="210.0" text="Stratagems" />
-                <TreeTableColumn fx:id="blueCPcost" prefWidth="68.0" text="CP" />
-              </columns>
-            </TreeTableView>
-            <Button fx:id="blueSelectButton" disable="true" layoutX="114.0" layoutY="578.0" mnemonicParsing="false" onMouseClicked="#blueSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
-            <Label layoutX="61.0" layoutY="14.0" text="Command Point">
+            <Button fx:id="blueSelectButton" layoutX="100.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#blueSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Label layoutX="47.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Label fx:id="blueCPLabel" alignment="CENTER" layoutX="114.0" layoutY="46.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
+            <Label fx:id="blueCPLabel" alignment="CENTER" layoutX="100.0" layoutY="46.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="bluePlusButton" layoutX="208.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="bluePlusButton" layoutX="194.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="blueSubButton" layoutX="61.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="blueSubButton" layoutX="47.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Label disable="true" layoutX="378.0" layoutY="629.0" text="Secondary Mission">
+            <Label layoutX="47.0" layoutY="604.0" text="Secondary Mission">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <TableView fx:id="blueMissionTable" disable="true" layoutX="336.0" layoutY="686.0" prefHeight="200.0" prefWidth="300.0">
+            <Button fx:id="blueImportButton" layoutX="402.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#blueImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <ListView fx:id="blueArmyList" layoutX="287.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
+            <ListView fx:id="blueStrategyList" layoutX="5.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
+            <TableView fx:id="blueMissionTable" layoutX="5.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
               <columns>
-                <TableColumn fx:id="blueMission" prefWidth="298.0" text="Missions" />
+                <TableColumn fx:id="blueMissionName" prefWidth="245.0" text="Mission" />
+                <TableColumn fx:id="blueMissionState" prefWidth="84.0" text="State" />
               </columns>
             </TableView>
-            <Button fx:id="blueImportButton" layoutX="95.0" layoutY="768.0" mnemonicParsing="false" onMouseClicked="#blueImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <Button fx:id="blueCheckMissionButton" layoutX="339.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#blueCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
+            <Button fx:id="blueAbandonMissionButton" layoutX="339.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#blueAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
          </children></Pane>
    </left>
    <right>
       <Pane prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="redUnitTable" layoutX="14.0" layoutY="14.0" prefHeight="600.0" prefWidth="300.0">
-              <columns>
-                <TableColumn fx:id="redState" prefWidth="88.0" text="State" />
-                <TableColumn fx:id="redUnits" prefWidth="210.0" text="Units" />
-              </columns>
-            </TableView>
-            <TreeTableView fx:id="redCPTable" disable="true" layoutX="356.0" layoutY="114.0" prefHeight="450.0" prefWidth="280.0">
-              <columns>
-                <TreeTableColumn fx:id="redStratagem" prefWidth="210.0" text="Stratagems" />
-                <TreeTableColumn fx:id="redCPcost" prefWidth="68.0" text="CP" />
-              </columns>
-            </TreeTableView>
-            <Button fx:id="redSelectButton" disable="true" layoutX="456.0" layoutY="578.0" mnemonicParsing="false" onMouseClicked="#redSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
-            <Label layoutX="403.0" layoutY="14.0" text="Command Point">
+            <Button fx:id="redSelectButton" layoutX="476.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#redSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Label layoutX="423.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Label fx:id="redCPLabel" alignment="CENTER" layoutX="456.0" layoutY="46.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
+            <Label fx:id="redCPLabel" alignment="CENTER" layoutX="476.0" layoutY="46.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="redPlusButton" layoutX="550.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="redPlusButton" layoutX="570.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="redSubButton" layoutX="403.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="redSubButton" layoutX="423.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Label disable="true" layoutX="56.0" layoutY="629.0" text="Secondary Mission">
+            <Label layoutX="372.0" layoutY="604.0" text="Secondary Mission">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <TableView fx:id="redMissionTable" disable="true" layoutX="14.0" layoutY="686.0" prefHeight="200.0" prefWidth="300.0">
+            <Button fx:id="redImportButton" layoutX="129.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#redImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <ListView fx:id="redArmyList" layoutX="13.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
+            <ListView fx:id="redStrategyList" layoutX="375.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
+            <TableView fx:id="redMissionTable" layoutX="316.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
               <columns>
-                <TableColumn fx:id="redMission" prefWidth="298.0" text="Missions" />
+                <TableColumn fx:id="redMissionName" prefWidth="245.0" text="Mission" />
+                <TableColumn fx:id="redState" prefWidth="84.0" text="State" />
               </columns>
             </TableView>
-            <Button fx:id="redImportButton" layoutX="443.0" layoutY="768.0" mnemonicParsing="false" onMouseClicked="#redImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <Button fx:id="redCheckMissionButton" layoutX="186.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#redCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
+            <Button fx:id="redAbandonMissionButton" layoutX="186.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#redAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
          </children></Pane>
    </right>
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #000000;" BorderPane.alignment="CENTER">
          <children>
-            <CheckBox fx:id="autoBattleCheckBox" disable="true" layoutX="252.0" layoutY="654.0" mnemonicParsing="false" text="Auto Battle">
+            <CheckBox fx:id="autoBattleCheckBox" layoutX="252.0" layoutY="654.0" mnemonicParsing="false" text="Auto Battle">
                <font>
                   <Font size="16.0" />
                </font>
             </CheckBox>
-            <Label disable="true" layoutX="218.0" layoutY="34.0" text="Primary Mission">
+            <Label layoutX="218.0" layoutY="34.0" text="Primary Mission">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Label fx:id="missionNameLabel" alignment="CENTER" disable="true" layoutX="130.0" layoutY="66.0" prefHeight="36.0" prefWidth="360.0" text="MissionName" textAlignment="CENTER">
+            <Label fx:id="missionNameLabel" alignment="CENTER" layoutX="130.0" layoutY="66.0" prefHeight="36.0" prefWidth="360.0" text="MissionName" textAlignment="CENTER">
                <font>
                   <Font name="System Bold Italic" size="24.0" />
                </font>
@@ -200,7 +205,7 @@
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="battleLogButton" disable="true" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" onMouseClicked="#openLog" text="Battle Log">
+            <Button fx:id="battleLogButton" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" onMouseClicked="#openLog" text="Battle Log">
                <font>
                   <Font size="18.0" />
                </font>

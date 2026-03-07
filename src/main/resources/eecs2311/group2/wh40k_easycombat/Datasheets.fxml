@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
+
+<TabPane prefHeight="800.0" prefWidth="1400.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.DatasheetsController">
+  <tabs>
+    <Tab text="Datasheets">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <BorderPane prefHeight="800.0" prefWidth="1400.0">
+                     <left>
+                        <Pane prefWidth="330.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <ListView fx:id="datasheetsList" layoutX="15.0" layoutY="164.0" prefHeight="530.0" prefWidth="300.0" />
+                              <Button fx:id="backToMainButton" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#clickBackButton" prefHeight="40.0" prefWidth="120.0" text="Back to Main">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Button>
+                              <TextField fx:id="searchTextField" layoutX="15.0" layoutY="118.0" prefHeight="30.0" prefWidth="220.0">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </TextField>
+                              <Button fx:id="searchButton" layoutX="251.0" layoutY="118.0" mnemonicParsing="false" onMouseClicked="#clickSearchButton" prefHeight="30.0" prefWidth="65.0" text="Search">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Button>
+                              <Label layoutX="15.0" layoutY="71.0" text="Faction:">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="editButton" layoutX="15.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickEditButton" prefHeight="30.0" prefWidth="65.0" text="Edit" />
+                              <Button fx:id="addButton" layoutX="102.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickAddButton" prefHeight="30.0" prefWidth="65.0" text="Add" />
+                              <ComboBox fx:id="factionComboBox" layoutX="102.0" layoutY="63.0" onAction="#selectFaction" prefHeight="40.0" prefWidth="210.0" />
+                           </children>
+                        </Pane>
+                     </left>
+                     <center>
+                        <BorderPane prefWidth="200.0" BorderPane.alignment="CENTER">
+                           <right>
+                              <Pane prefWidth="400.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <VBox layoutX="10.0" prefHeight="260.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Abilities">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label contentDisplay="CENTER" text=" Faction:">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="factionAbilityTextFlow" prefHeight="100.0" prefWidth="350.0" />
+                                             </content>
+                                          </ScrollPane>
+                                          <Label prefHeight="16.0" prefWidth="380.0" text="-----------------------------------------------------------------------" />
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="abilityTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
+                                       </children>
+                                    </VBox>
+                                    <VBox layoutX="10.0" layoutY="265.0" prefHeight="130.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Unit Composition">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="unitCompositionTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
+                                       </children>
+                                    </VBox>
+                                    <VBox layoutX="10.0" layoutY="400.0" prefHeight="120.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Cost">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="costTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
+                                       </children>
+                                    </VBox>
+                                    <VBox layoutX="10.0" layoutY="524.0" prefHeight="180.0" prefWidth="380.0" style="-fx-border-color: #000000;">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Other">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane>
+                                             <content>
+                                                <TextFlow fx:id="otherTextFlow" prefHeight="400.0" prefWidth="360.0" />
+                                             </content>
+                                          </ScrollPane>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </Pane>
+                           </right>
+                           <center>
+                              <Pane BorderPane.alignment="CENTER">
+                                 <children>
+                                    <HBox prefHeight="40.0" prefWidth="519.0">
+                                       <children>
+                                          <Label fx:id="datasheetName" text="Datasheet Name">
+                                             <font>
+                                                <Font name="System Bold" size="28.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox layoutY="40.0" prefHeight="35.0" prefWidth="540.0">
+                                       <children>
+                                          <Label prefHeight="27.0" prefWidth="20.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="M">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="50.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="T">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="50.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="Sv">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="50.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="W">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="50.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="LD">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="50.0" />
+                                          <Label alignment="CENTER" prefWidth="40.0" text="OC">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox fx:id="unit1PropertyHBox" layoutX="8.0" layoutY="75.0" prefHeight="50.0" prefWidth="540.0">
+                                       <children>
+                                          <Label prefHeight="27.0" prefWidth="8.0" />
+                                          <Label fx:id="unit1MLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit1TLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit1SvLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit1WLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit1LdLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit1OcLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <HBox fx:id="unit2PropertyHBox" layoutX="8.0" layoutY="140.0" prefHeight="50.0" prefWidth="540.0">
+                                       <children>
+                                          <Label prefHeight="27.0" prefWidth="8.0" />
+                                          <Label fx:id="unit2MLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit2TLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit2SvLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit2WLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit2LdLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="27.0" prefWidth="40.0" />
+                                          <Label fx:id="unit2OcLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <Label fx:id="unitName1" alignment="TOP_LEFT" layoutX="535.0" layoutY="70.0" prefHeight="60.0" prefWidth="100.0" text="UnitName1" wrapText="true" />
+                                    <Label fx:id="unitName2" alignment="TOP_LEFT" layoutX="535.0" layoutY="135.0" prefHeight="60.0" prefWidth="100.0" text="UnitName2" wrapText="true" />
+                                    <Pane layoutX="10.0" layoutY="208.0" prefHeight="410.0" prefWidth="650.0">
+                                       <children>
+                                          <TableView fx:id="rangedWeaponTable" prefHeight="200.0" prefWidth="650.0">
+                                            <columns>
+                                              <TableColumn fx:id="rangedWeaponName" prefWidth="320.0" text="Ranged Weapons" />
+                                              <TableColumn fx:id="rangedWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
+                                                <TableColumn fx:id="rangedWeaponA" prefWidth="65.0" text="A" />
+                                                <TableColumn fx:id="rangedWeaponBS" prefWidth="65.0" text="BS" />
+                                                <TableColumn fx:id="rangedWeaponAP" prefWidth="65.0" text="AP" />
+                                                <TableColumn fx:id="rangedWeaponD" prefWidth="65.0" text="D" />
+                                            </columns>
+                                          </TableView>
+                                          <TableView fx:id="meleeWeaponTable" layoutY="212.0" prefHeight="200.0" prefWidth="650.0">
+                                             <columns>
+                                                <TableColumn fx:id="meleeWeaponName" prefWidth="320.0" text="Melee Weapons" />
+                                                <TableColumn fx:id="meleeWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
+                                                <TableColumn fx:id="meleeWeaponA" prefWidth="65.0" text="A" />
+                                                <TableColumn fx:id="meleeWeaponWS" prefWidth="65.0" text="WS" />
+                                                <TableColumn fx:id="meleeWeaponAP" prefWidth="65.0" text="AP" />
+                                                <TableColumn fx:id="meleeWeaponD" prefWidth="65.0" text="D" />
+                                             </columns>
+                                          </TableView>
+                                       </children>
+                                    </Pane>
+                                    <TextFlow fx:id="keywordsTextFlow" layoutX="82.0" layoutY="625.0" prefHeight="79.0" prefWidth="578.0" style="-fx-border-color: #000000;" />
+                                    <Label layoutX="10.0" layoutY="646.0" text="Keywords">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="InvsvLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="600.0" layoutY="-5.0" prefHeight="50.0" prefWidth="50.0" style="-fx-background-color: #ffffff;" text="15">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="insvTxtLabel" alignment="CENTER" layoutX="514.0" layoutY="4.0" prefHeight="32.0" prefWidth="86.0" text="INVSV">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                 </children></Pane>
+                           </center>
+                           <top>
+                              <HBox prefHeight="60.0" prefWidth="1070.0" BorderPane.alignment="CENTER" />
+                           </top>
+                        </BorderPane>
+                     </center>
+                  </BorderPane>
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab text="Core rule">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+      </content>
+    </Tab>
+  </tabs>
+</TabPane>

@@ -1,5 +1,10 @@
 package eecs2311.group2.wh40k_easycombat;
 	
+import java.io.IOException;
+import java.sql.SQLException;
+
+import eecs2311.group2.wh40k_easycombat.db.Database;
+import eecs2311.group2.wh40k_easycombat.util.CsvToSqliteImporter;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -22,7 +27,15 @@ public class Main extends Application {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, SQLException {
+        Database.generateSchemaFile();
+        Database.executeSqlFolder("src/main/resources/sql/");
+        System.out.println("SQL scripts executed!");
+        
+        Database.generateJavaCrudFile();
+        
+        CsvToSqliteImporter.importDefaultCsvSeedLike(false);
+		
 		launch(args);
 	}
 }
