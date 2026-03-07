@@ -4,316 +4,425 @@ import eecs2311.group2.wh40k_easycombat.model.*;
 import eecs2311.group2.wh40k_easycombat.repository.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StaticDataService {
-    private static StaticDataService instance;
+public final class StaticDataService {
 
-    private final Map<Integer, Factions> factions = new ConcurrentHashMap<>();
-    private final Map<Integer, Units> units = new ConcurrentHashMap<>();
-    private final Map<Integer, Detachments> detachments = new ConcurrentHashMap<>();
+    private StaticDataService() {}
 
-    private final Map<Integer, RangeWeapons> rangedWeapons = new ConcurrentHashMap<>();
-    private final Map<Integer, MeleeWeapons> meleeWeapons = new ConcurrentHashMap<>();
+    // =========================
+    // Datasheet Bundle
+    // =========================
+    public static final class DatasheetBundle {
+        public final Datasheets datasheet;
 
-    private final Map<Integer, CoreAbilities> coreAbilities = new ConcurrentHashMap<>();
-    private final Map<Integer, OtherAbilities> otherAbilities = new ConcurrentHashMap<>();
-    private final Map<Integer, UnitKeywords> unitKeywords = new ConcurrentHashMap<>();
-    private final Map<Integer, WeaponKeywords> weaponKeywords = new ConcurrentHashMap<>();
+        public final List<Datasheets_models> models;
+        public final List<Datasheets_wargear> wargear;
+        public final List<Datasheets_abilities> abilities;
+        public final List<Datasheets_unit_composition> compositions;
+        public final List<Datasheets_models_cost> costs;
+        public final List<Datasheets_keywords> keywords;
 
-    public static synchronized StaticDataService getInstance() {
-        if (instance == null) instance = new StaticDataService();
-        return instance;
-    }
+        public final List<Datasheets_options> options;
+        public final List<Datasheets_leader> leaders;
+        public final List<Datasheets_stratagems> stratagems;
+        public final List<Datasheets_enhancements> enhancements;
+        public final List<Datasheets_detachment_abilities> detachmentAbilities;
 
-    private StaticDataService() {
-    }
-
-    public void loadAll() {
-        clearAllCaches();
-
-        try {
-            FactionRepository.getAllFactions().forEach(f -> factions.put(f.id(), f));
-            RangeWeaponRepository.getAllRangeWeapons().forEach(w -> rangedWeapons.put(w.id(), w));
-            MeleeWeaponRepository.getAllMeleeWeapons().forEach(w -> meleeWeapons.put(w.id(), w));
-            CoreAbilityRepository.getAllCoreAbilities().forEach(a -> coreAbilities.put(a.id(), a));
-            OtherAbilityRepository.getAllOtherAbilities().forEach(a -> otherAbilities.put(a.id(), a));
-            UnitKeywordRepository.getAllUnitKeywords().forEach(k -> unitKeywords.put(k.id(), k));
-            WeaponKeywordRepository.getAllWeaponKeywords().forEach(k -> weaponKeywords.put(k.id(), k));
-
-            DetachmentRepository.getAllDetachments().forEach(d -> detachments.put(d.id(), d));
-            UnitRepository.getAllUnits().forEach(u -> units.put(u.id(), u));
-
-            System.out.println("StaticDataService: All tables synchronized successfully.");
-        } catch (SQLException e) {
-            System.err.println("StaticDataService: Failed to load data from database!");
-            e.printStackTrace();
+        private DatasheetBundle(
+                Datasheets datasheet,
+                List<Datasheets_models> models,
+                List<Datasheets_wargear> wargear,
+                List<Datasheets_abilities> abilities,
+                List<Datasheets_unit_composition> compositions,
+                List<Datasheets_models_cost> costs,
+                List<Datasheets_keywords> keywords,
+                List<Datasheets_options> options,
+                List<Datasheets_leader> leaders,
+                List<Datasheets_stratagems> stratagems,
+                List<Datasheets_enhancements> enhancements,
+                List<Datasheets_detachment_abilities> detachmentAbilities
+        ) {
+            this.datasheet = datasheet;
+            this.models = models;
+            this.wargear = wargear;
+            this.abilities = abilities;
+            this.compositions = compositions;
+            this.costs = costs;
+            this.keywords = keywords;
+            this.options = options;
+            this.leaders = leaders;
+            this.stratagems = stratagems;
+            this.enhancements = enhancements;
+            this.detachmentAbilities = detachmentAbilities;
         }
     }
 
-    private void clearAllCaches() {
-        factions.clear();
-        units.clear();
-        detachments.clear();
-        rangedWeapons.clear();
-        meleeWeapons.clear();
-        coreAbilities.clear();
-        otherAbilities.clear();
-        unitKeywords.clear();
-        weaponKeywords.clear();
+    // =========================
+    // Army Bundle
+    // =========================
+    public static final class ArmyBundle {
+        public final Army army;
+        public final List<Army_detachment> detachments;
+        public final List<Army_units> units;
+        public final List<Army_wargear> wargear;
+
+        private ArmyBundle(
+                Army army,
+                List<Army_detachment> detachments,
+                List<Army_units> units,
+                List<Army_wargear> wargear
+        ) {
+            this.army = army;
+            this.detachments = detachments;
+            this.units = units;
+            this.wargear = wargear;
+        }
     }
 
-    // --- Factions ---
-    public List<Factions> getAllFactions() {
-        return new ArrayList<>(factions.values());
+    private static volatile boolean loaded = false;
+
+    // =========================
+    // Datasheet caches
+    // =========================
+    private static final Map<String, Datasheets> datasheetsById = new ConcurrentHashMap<>();
+
+    private static final Map<String, List<Datasheets_models>> modelsByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_wargear>> wargearByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_abilities>> abilitiesByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_unit_composition>> compositionByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_models_cost>> costsByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_keywords>> keywordsByDatasheetId = new ConcurrentHashMap<>();
+
+    private static final Map<String, List<Datasheets_options>> optionsByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_leader>> leadersByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_stratagems>> stratagemsByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_enhancements>> enhancementsByDatasheetId = new ConcurrentHashMap<>();
+    private static final Map<String, List<Datasheets_detachment_abilities>> detachmentAbilitiesByDatasheetId = new ConcurrentHashMap<>();
+
+    // =========================
+    // Army caches
+    // =========================
+    private static final Map<Integer, Army> armyById = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_detachment>> detachmentsByArmyId = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_units>> unitsByArmyId = new ConcurrentHashMap<>();
+    private static final Map<Integer, List<Army_wargear>> wargearByUnitsId = new ConcurrentHashMap<>();
+
+    private static void clearCache() {
+        // datasheets
+        datasheetsById.clear();
+
+        modelsByDatasheetId.clear();
+        wargearByDatasheetId.clear();
+        abilitiesByDatasheetId.clear();
+        compositionByDatasheetId.clear();
+        costsByDatasheetId.clear();
+        keywordsByDatasheetId.clear();
+
+        optionsByDatasheetId.clear();
+        leadersByDatasheetId.clear();
+        stratagemsByDatasheetId.clear();
+        enhancementsByDatasheetId.clear();
+        detachmentAbilitiesByDatasheetId.clear();
+
+        // armies
+        armyById.clear();
+        detachmentsByArmyId.clear();
+        unitsByArmyId.clear();
+        wargearByUnitsId.clear();
     }
 
-    public Optional<Factions> getFactionById(int id) {
-        return Optional.ofNullable(factions.get(id));
+    public static synchronized void reloadFromSqlite() throws SQLException {
+        loaded = false;
+        clearCache();
+        loadAllFromSqlite();
     }
 
-    public int addFaction(Factions f) throws SQLException {
-        int id = FactionRepository.addNewFaction(f);
-        factions.put(id, f);
-        return id;
+    public static synchronized void loadAllFromSqlite() throws SQLException {
+        if (loaded) return;
+
+        // =========================
+        // Datasheets
+        // =========================
+
+        for (Datasheets d : DatasheetsRepository.getAllDatasheets()) {
+            if (d != null && d.id() != null) datasheetsById.put(d.id(), d);
+        }
+
+        {
+            Map<String, List<Datasheets_models>> tmp = new HashMap<>();
+            for (Datasheets_models m : Datasheets_modelsRepository.getAllDatasheets_models()) {
+                if (m == null || m.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(m.datasheet_id(), k -> new ArrayList<>()).add(m);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
+                modelsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        }
+
+        {
+            Map<String, List<Datasheets_wargear>> tmp = new HashMap<>();
+            for (Datasheets_wargear w : Datasheets_wargearRepository.getAllDatasheets_wargear()) {
+                if (w == null || w.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(w.datasheet_id(), k -> new ArrayList<>()).add(w);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(
+                        Comparator.comparingInt((Datasheets_wargear x) -> safeLineInt(x.line()))
+                                .thenComparingInt(x -> safeLineInt(x.line_in_wargear()))
+                );
+                wargearByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        }
+
+        {
+            Map<String, List<Datasheets_abilities>> tmp = new HashMap<>();
+            for (Datasheets_abilities a : Datasheets_abilitiesRepository.getAllDatasheets_abilities()) {
+                if (a == null || a.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(a.datasheet_id(), k -> new ArrayList<>()).add(a);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
+                abilitiesByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        }
+
+        {
+            Map<String, List<Datasheets_unit_composition>> tmp = new HashMap<>();
+            for (Datasheets_unit_composition c : Datasheets_unit_compositionRepository.getAllDatasheets_unit_composition()) {
+                if (c == null || c.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(c.datasheet_id(), k -> new ArrayList<>()).add(c);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
+                compositionByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        }
+
+        {
+            Map<String, List<Datasheets_models_cost>> tmp = new HashMap<>();
+            for (Datasheets_models_cost c : Datasheets_models_costRepository.getAllDatasheets_models_cost()) {
+                if (c == null || c.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(c.datasheet_id(), k -> new ArrayList<>()).add(c);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
+                costsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        }
+
+        try {
+            Map<String, List<Datasheets_keywords>> tmp = new HashMap<>();
+            for (Datasheets_keywords k : Datasheets_keywordsRepository.getAllDatasheets_keywords()) {
+                if (k == null || k.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(k.datasheet_id(), x -> new ArrayList<>()).add(k);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(
+                        Comparator.comparing(Datasheets_keywords::keyword, Comparator.nullsLast(String::compareToIgnoreCase))
+                                .thenComparing(Datasheets_keywords::model, Comparator.nullsLast(String::compareToIgnoreCase))
+                );
+                keywordsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<String, List<Datasheets_options>> tmp = new HashMap<>();
+            for (Datasheets_options o : Datasheets_optionsRepository.getAllDatasheets_options()) {
+                if (o == null || o.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(o.datasheet_id(), k -> new ArrayList<>()).add(o);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
+                optionsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<String, List<Datasheets_leader>> tmp = new HashMap<>();
+            for (Datasheets_leader l : Datasheets_leaderRepository.getAllDatasheets_leader()) {
+                if (l == null || l.attached_id() == null) continue;
+                tmp.computeIfAbsent(l.attached_id(), k -> new ArrayList<>()).add(l);
+            }
+            for (var e : tmp.entrySet()) {
+                leadersByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<String, List<Datasheets_stratagems>> tmp = new HashMap<>();
+            for (Datasheets_stratagems s : Datasheets_stratagemsRepository.getAllDatasheets_stratagems()) {
+                if (s == null || s.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(s.datasheet_id(), k -> new ArrayList<>()).add(s);
+            }
+            for (var e : tmp.entrySet()) {
+                stratagemsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<String, List<Datasheets_enhancements>> tmp = new HashMap<>();
+            for (Datasheets_enhancements x : Datasheets_enhancementsRepository.getAllDatasheets_enhancements()) {
+                if (x == null || x.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(x.datasheet_id(), k -> new ArrayList<>()).add(x);
+            }
+            for (var e : tmp.entrySet()) {
+                enhancementsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<String, List<Datasheets_detachment_abilities>> tmp = new HashMap<>();
+            for (Datasheets_detachment_abilities x : Datasheets_detachment_abilitiesRepository.getAllDatasheets_detachment_abilities()) {
+                if (x == null || x.datasheet_id() == null) continue;
+                tmp.computeIfAbsent(x.datasheet_id(), k -> new ArrayList<>()).add(x);
+            }
+            for (var e : tmp.entrySet()) {
+                detachmentAbilitiesByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        // =========================
+        // Army
+        // =========================
+
+        try {
+            for (Army a : ArmyRepository.getAllArmy()) {
+                if (a != null) armyById.put(a.auto_id(), a);
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<Integer, List<Army_detachment>> tmp = new HashMap<>();
+            for (Army_detachment d : Army_detachmentRepository.getAllArmy_detachment()) {
+                if (d == null) continue;
+                tmp.computeIfAbsent(d.army_id(), k -> new ArrayList<>()).add(d);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(Army_detachment::auto_id));
+                detachmentsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<Integer, List<Army_units>> tmp = new HashMap<>();
+            for (Army_units u : Army_unitsRepository.getAllArmy_units()) {
+                if (u == null) continue;
+                tmp.computeIfAbsent(u.army_id(), k -> new ArrayList<>()).add(u);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(Army_units::auto_id));
+                unitsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Map<Integer, List<Army_wargear>> tmp = new HashMap<>();
+            for (Army_wargear w : Army_wargearRepository.getAllArmy_wargear()) {
+                if (w == null) continue;
+                tmp.computeIfAbsent(w.units_id(), k -> new ArrayList<>()).add(w);
+            }
+            for (var e : tmp.entrySet()) {
+                e.getValue().sort(Comparator.comparingInt(Army_wargear::auto_id));
+                wargearByUnitsId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+        } catch (Exception ignored) {}
+
+        loaded = true;
     }
 
-    public void updateFaction(Factions f) throws SQLException {
-        FactionRepository.updateFaction(f);
-        factions.put(f.id(), f);
-    }
+    // =========================
+    // Datasheet APIs
+    // =========================
 
-    public void deleteFaction(Factions f) throws SQLException {
-        FactionRepository.deleteFaction(f);
-        factions.remove(f.id());
-    }
+    public static DatasheetBundle getDatasheetBundle(String datasheetId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
 
-    // --- Units ---
-    public List<Units> getAllUnits() {
-        return new ArrayList<>(units.values());
-    }
+        Datasheets d = datasheetsById.get(datasheetId);
+        if (d == null) return null;
 
-    public Optional<Units> getUnitById(int id) {
-        return Optional.ofNullable(units.get(id));
-    }
-
-    public int addUnit(Units u) throws SQLException {
-        int id = UnitRepository.addNewUnit(u);
-
-        Units fixed = new Units(
-                id,
-                u.factionId(),
-                u.name(),
-                u.points(),
-                u.M(),
-                u.T(),
-                u.SV(),
-                u.W(),
-                u.LD(),
-                u.OC(),
-                u.invulnerableSave(),
-                u.category(),
-                u.composition(),
-                u.coreAbilityIdList(),
-                u.otherAbilityIdList(),
-                u.keywordIdList(),
-                u.rangedWeaponIdList(),
-                u.meleeWeaponIdList()
+        return new DatasheetBundle(
+                d,
+                modelsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                wargearByDatasheetId.getOrDefault(datasheetId, List.of()),
+                abilitiesByDatasheetId.getOrDefault(datasheetId, List.of()),
+                compositionByDatasheetId.getOrDefault(datasheetId, List.of()),
+                costsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                keywordsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                optionsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                leadersByDatasheetId.getOrDefault(datasheetId, List.of()),
+                stratagemsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                enhancementsByDatasheetId.getOrDefault(datasheetId, List.of()),
+                detachmentAbilitiesByDatasheetId.getOrDefault(datasheetId, List.of())
         );
-
-        units.put(id, fixed);
-        return id;
     }
 
-    public void updateUnit(Units u) throws SQLException {
-        UnitRepository.updateUnit(u);
-        units.put(u.id(), u);
+    // =========================
+    // Army APIs
+    // =========================
+
+    public static Army getArmy(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return armyById.get(armyId);
     }
 
-    public void deleteUnit(Units u) throws SQLException {
-        UnitRepository.deleteUnit(u);
-        units.remove(u.id());
+    public static List<Army> getAllArmies() throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        List<Army> list = new ArrayList<>(armyById.values());
+        list.sort(Comparator.comparingInt(Army::auto_id));
+        return Collections.unmodifiableList(list);
     }
 
-    // --- Detachments ---
-    public List<Detachments> getAllDetachments() {
-        return new ArrayList<>(detachments.values());
+    public static List<Army_detachment> getArmyDetachments(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return detachmentsByArmyId.getOrDefault(armyId, List.of());
     }
 
-    public Optional<Detachments> getDetachmentById(int id) {
-        return Optional.ofNullable(detachments.get(id));
+    public static List<Army_units> getArmyUnits(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return unitsByArmyId.getOrDefault(armyId, List.of());
     }
 
-    public int addDetachment(Detachments d) throws SQLException {
-        int id = DetachmentRepository.addNewDetachment(d);
-        detachments.put(id, d);
-        return id;
+    public static List<Army_wargear> getArmyWargearByUnitId(int unitsId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+        return wargearByUnitsId.getOrDefault(unitsId, List.of());
     }
 
-    public void updateDetachment(Detachments d) throws SQLException {
-        DetachmentRepository.updateDetachment(d);
-        detachments.put(d.id(), d);
+    public static ArmyBundle getArmyBundle(int armyId) throws SQLException {
+        if (!loaded) loadAllFromSqlite();
+
+        Army army = armyById.get(armyId);
+        if (army == null) return null;
+
+        List<Army_detachment> detachments = detachmentsByArmyId.getOrDefault(armyId, List.of());
+        List<Army_units> units = unitsByArmyId.getOrDefault(armyId, List.of());
+
+        List<Army_wargear> flatWargear = new ArrayList<>();
+        for (Army_units u : units) {
+            flatWargear.addAll(wargearByUnitsId.getOrDefault(u.auto_id(), List.of()));
+        }
+        flatWargear.sort(Comparator.comparingInt(Army_wargear::auto_id));
+
+        return new ArmyBundle(
+                army,
+                detachments,
+                units,
+                Collections.unmodifiableList(flatWargear)
+        );
     }
 
-    public void deleteDetachment(Detachments d) throws SQLException {
-        DetachmentRepository.deleteDetachment(d);
-        detachments.remove(d.id());
-    }
+    // =========================
+    // utils
+    // =========================
 
-    // --- RangeWeapons ---
-    public List<RangeWeapons> getAllRangeWeapons() {
-        return new ArrayList<>(rangedWeapons.values());
-    }
-
-    public Optional<RangeWeapons> getRangeWeaponById(int id) {
-        return Optional.ofNullable(rangedWeapons.get(id));
-    }
-
-    public int addRangeWeapon(RangeWeapons w) throws SQLException {
-        int id = RangeWeaponRepository.addNewRangeWeapon(w);
-        rangedWeapons.put(id, w);
-        return id;
-    }
-
-    public void updateRangeWeapon(RangeWeapons w) throws SQLException {
-        RangeWeaponRepository.updateRangeWeapon(w);
-        rangedWeapons.put(w.id(), w);
-    }
-
-    public void deleteRangeWeapon(RangeWeapons w) throws SQLException {
-        RangeWeaponRepository.deleteRangeWeapon(w);
-        rangedWeapons.remove(w.id());
-    }
-
-    // --- MeleeWeapons ---
-    public List<MeleeWeapons> getAllMeleeWeapons() {
-        return new ArrayList<>(meleeWeapons.values());
-    }
-
-    public Optional<MeleeWeapons> getMeleeWeaponById(int id) {
-        return Optional.ofNullable(meleeWeapons.get(id));
-    }
-
-    public int addMeleeWeapon(MeleeWeapons w) throws SQLException {
-        int id = MeleeWeaponRepository.addNewMeleeWeapon(w);
-        meleeWeapons.put(id, w);
-        return id;
-    }
-
-    public void updateMeleeWeapon(MeleeWeapons w) throws SQLException {
-        MeleeWeaponRepository.updateMeleeWeapon(w);
-        meleeWeapons.put(w.id(), w);
-    }
-
-    public void deleteMeleeWeapon(MeleeWeapons w) throws SQLException {
-        MeleeWeaponRepository.deleteMeleeWeapon(w);
-        meleeWeapons.remove(w.id());
-    }
-
-    // --- CoreAbilities ---
-    public List<CoreAbilities> getAllCoreAbilities() {
-        return new ArrayList<>(coreAbilities.values());
-    }
-
-    public Optional<CoreAbilities> getCoreAbilityById(int id) {
-        return Optional.ofNullable(coreAbilities.get(id));
-    }
-
-    public int addCoreAbility(CoreAbilities a) throws SQLException {
-        int id = CoreAbilityRepository.addNewCoreAbility(a);
-        coreAbilities.put(id, a);
-        return id;
-    }
-
-    public void updateCoreAbility(CoreAbilities a) throws SQLException {
-        CoreAbilityRepository.updateCoreAbility(a);
-        coreAbilities.put(a.id(), a);
-    }
-
-    public void deleteCoreAbility(CoreAbilities a) throws SQLException {
-        CoreAbilityRepository.deleteCoreAbility(a);
-        coreAbilities.remove(a.id());
-    }
-
-    // --- OtherAbilities ---
-    public List<OtherAbilities> getAllOtherAbilities() {
-        return new ArrayList<>(otherAbilities.values());
-    }
-
-    public Optional<OtherAbilities> getOtherAbilityById(int id) {
-        return Optional.ofNullable(otherAbilities.get(id));
-    }
-
-    public int addOtherAbility(OtherAbilities a) throws SQLException {
-        int id = OtherAbilityRepository.addNewOtherAbility(a);
-
-        OtherAbilities fixed = new OtherAbilities(id, a.ability());
-        otherAbilities.put(id, fixed);
-
-        return id;
-    }
-
-    public void updateOtherAbility(OtherAbilities a) throws SQLException {
-        OtherAbilityRepository.updateOtherAbility(a);
-        otherAbilities.put(a.id(), a);
-    }
-
-    public void deleteOtherAbility(OtherAbilities a) throws SQLException {
-        OtherAbilityRepository.deleteOtherAbility(a);
-        otherAbilities.remove(a.id());
-    }
-
-    // --- UnitKeywords ---
-    public List<UnitKeywords> getAllUnitKeywords() {
-        return new ArrayList<>(unitKeywords.values());
-    }
-
-    public Optional<UnitKeywords> getUnitKeywordById(int id) {
-        return Optional.ofNullable(unitKeywords.get(id));
-    }
-
-    public int addUnitKeyword(UnitKeywords k) throws SQLException {
-        int id = UnitKeywordRepository.addNewUnitKeyword(k);
-        unitKeywords.put(id, k);
-        return id;
-    }
-
-    public void updateUnitKeyword(UnitKeywords k) throws SQLException {
-        UnitKeywordRepository.updateUnitKeyword(k);
-        unitKeywords.put(k.id(), k);
-    }
-
-    public void deleteUnitKeyword(UnitKeywords k) throws SQLException {
-        UnitKeywordRepository.deleteUnitKeyword(k);
-        unitKeywords.remove(k.id());
-    }
-
-    // --- WeaponKeywords ---
-    public List<WeaponKeywords> getAllWeaponKeywords() {
-        return new ArrayList<>(weaponKeywords.values());
-    }
-
-    public Optional<WeaponKeywords> getWeaponKeywordById(int id) {
-        return Optional.ofNullable(weaponKeywords.get(id));
-    }
-
-    public int addWeaponKeyword(WeaponKeywords k) throws SQLException {
-        int id = WeaponKeywordRepository.addNewWeaponKeyword(k);
-        weaponKeywords.put(id, k);
-        return id;
-    }
-
-    public void updateWeaponKeyword(WeaponKeywords k) throws SQLException {
-        WeaponKeywordRepository.updateWeaponKeyword(k);
-        weaponKeywords.put(k.id(), k);
-    }
-
-    public void deleteWeaponKeyword(WeaponKeywords k) throws SQLException {
-        WeaponKeywordRepository.deleteWeaponKeyword(k);
-        weaponKeywords.remove(k.id());
+    private static int safeLineInt(String s) {
+        if (s == null) return Integer.MAX_VALUE;
+        try {
+            return Integer.parseInt(s.trim());
+        } catch (Exception e) {
+            return Integer.MAX_VALUE;
+        }
     }
 }

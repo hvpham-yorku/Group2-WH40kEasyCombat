@@ -3,7 +3,7 @@
 package eecs2311.group2.wh40k_easycombat.repository;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
-import eecs2311.group2.wh40k_easycombat.model.Armies;
+import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.util.IntListCodec;
 
 import java.util.List;
@@ -11,72 +11,65 @@ import java.sql.SQLException;
 
 @SuppressWarnings("unused")
 public class ArmyRepository {
-		public static int addNewArmy(Armies army) throws SQLException {
-				return Dao.update(
-						"INSERT INTO armies (name, isFavorite, totalPoints, warlordId, factionId, detachmentId, unitIdList, equippedRangedWeaponIdList, equippedMeleeWeaponIdList) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						army.name(),
-						army.isFavorite(),
-						army.totalPoints(),
-						army.warlordId(),
-						army.factionId(),
-						army.detachmentId(),
-						IntListCodec.encode(army.unitIdList()),
-						IntListCodec.encode(army.equippedRangedWeaponIdList()),
-						IntListCodec.encode(army.equippedMeleeWeaponIdList())
-				);
-		}
-		public static Armies getArmyById(int id) throws SQLException {
-				return Dao.query(
-						"SELECT * FROM armies WHERE id = ?",
-						rs -> new Armies(
-								rs.getInt("id"),
-								rs.getString("name"),
-								rs.getBoolean("isFavorite"),
-								rs.getInt("totalPoints"),
-								rs.getInt("warlordId"),
-								rs.getInt("factionId"),
-								rs.getInt("detachmentId"),
-								IntListCodec.decode(rs.getString("unitIdList")),
-								IntListCodec.decode(rs.getString("equippedRangedWeaponIdList")),
-								IntListCodec.decode(rs.getString("equippedMeleeWeaponIdList"))						),
-						id
-				).stream().findFirst().orElse(null);
-		}
-		public static List<Armies> getAllArmies() throws SQLException {
-				return Dao.query(
-						"SELECT * FROM armies",
-						rs -> new Armies(
-								rs.getInt("id"),
-								rs.getString("name"),
-								rs.getBoolean("isFavorite"),
-								rs.getInt("totalPoints"),
-								rs.getInt("warlordId"),
-								rs.getInt("factionId"),
-								rs.getInt("detachmentId"),
-								IntListCodec.decode(rs.getString("unitIdList")),
-								IntListCodec.decode(rs.getString("equippedRangedWeaponIdList")),
-								IntListCodec.decode(rs.getString("equippedMeleeWeaponIdList"))						)
-				);
-		}
-		public static void updateArmy(Armies army) throws SQLException {
-				Dao.update(
-						"UPDATE armies SET name = ?, isFavorite = ?, totalPoints = ?, warlordId = ?, factionId = ?, detachmentId = ?, unitIdList = ?, equippedRangedWeaponIdList = ?, equippedMeleeWeaponIdList = ? WHERE id = ?",
-						army.name(),
-						army.isFavorite(),
-						army.totalPoints(),
-						army.warlordId(),
-						army.factionId(),
-						army.detachmentId(),
-						IntListCodec.encode(army.unitIdList()),
-						IntListCodec.encode(army.equippedRangedWeaponIdList()),
-						IntListCodec.encode(army.equippedMeleeWeaponIdList()),
-						army.id()
-				);
-		}
-		public static void deleteArmy(Armies army) throws SQLException {
-				Dao.update(
-						"DELETE FROM armies WHERE id = ?",
-						army.id()
-				);
-		}
+
+	public static int addNewArmy(Army army) throws java.sql.SQLException {
+		return Dao.update(
+			"INSERT INTO Army (auto_id, name, faction_id, warlord_id, total_points, isMarked) VALUES (?, ?, ?, ?, ?, ?)",
+			army.auto_id(),
+			army.name(),
+			army.faction_id(),
+			army.warlord_id(),
+			army.total_points(),
+			army.isMarked()
+		);
+	}
+
+	public static Army getArmyByPk(int auto_id) throws java.sql.SQLException {
+		return Dao.query(
+			"SELECT * FROM Army WHERE auto_id = ?",
+			rs -> new Army(
+				rs.getInt("auto_id"),
+				rs.getString("name"),
+				rs.getString("faction_id"),
+				rs.getString("warlord_id"),
+				rs.getInt("total_points"),
+				rs.getBoolean("isMarked")
+			),
+			auto_id
+		).stream().findFirst().orElse(null);
+	}
+
+	public static java.util.List<Army> getAllArmy() throws java.sql.SQLException {
+		return Dao.query(
+			"SELECT * FROM Army",
+			rs -> new Army(
+				rs.getInt("auto_id"),
+				rs.getString("name"),
+				rs.getString("faction_id"),
+				rs.getString("warlord_id"),
+				rs.getInt("total_points"),
+				rs.getBoolean("isMarked")
+			)
+		);
+	}
+
+	public static void updateArmy(Army army) throws java.sql.SQLException {
+		Dao.update(
+			"UPDATE Army SET name = ?, faction_id = ?, warlord_id = ?, total_points = ?, isMarked = ? WHERE auto_id = ?",
+			army.name(),
+			army.faction_id(),
+			army.warlord_id(),
+			army.total_points(),
+			army.isMarked(),
+			army.auto_id()
+		);
+	}
+
+	public static void deleteArmy(Army army) throws java.sql.SQLException {
+		Dao.update(
+			"DELETE FROM Army WHERE auto_id = ?",
+			army.auto_id()
+		);
+	}
+
 }

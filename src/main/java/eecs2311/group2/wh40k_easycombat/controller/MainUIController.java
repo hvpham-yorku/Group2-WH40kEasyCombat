@@ -100,8 +100,8 @@ public class MainUIController {
     @FXML
     void ruleBtn(MouseEvent event) throws IOException {
         FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/RulesUI.fxml",
-                1200.0, 800.0);
+                "/eecs2311/group2/wh40k_easycombat/Datasheets.fxml",
+                1400.0, 800.0);
     }
 
     // When click "Army" button, go to army page

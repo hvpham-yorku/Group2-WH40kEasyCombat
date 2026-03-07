@@ -141,6 +141,10 @@ All tests can be run using Maven.
 
 ---
 
+### Before You Run
+If you have previously run an older version of this software, 
+please delete the app.db file in the project folder to ensure proper operation.
+
 ### Run Using Eclipse (JavaFX)
 
 1. Navigate to:
