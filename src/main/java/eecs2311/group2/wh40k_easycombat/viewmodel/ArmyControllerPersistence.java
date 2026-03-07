@@ -1,10 +1,11 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
 import eecs2311.group2.wh40k_easycombat.model.Army_wargear;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,17 +2,17 @@ package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.service.ArmyBuilderManager;
-import eecs2311.group2.wh40k_easycombat.service.ArmyControllerDataLoader;
-import eecs2311.group2.wh40k_easycombat.service.ArmyControllerPersistence;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyEditorStateService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyPointService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyValidationService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
-import eecs2311.group2.wh40k_easycombat.service.UnitFactory;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerDataLoader;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerPersistence;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.UnitFactory;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

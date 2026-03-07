@@ -1,13 +1,12 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.controller.ArmyController;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models_cost;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.CostParser;
 import eecs2311.group2.wh40k_easycombat.util.CostTier;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
-
 import javafx.scene.control.TreeItem;
 
 import java.lang.reflect.Method;
