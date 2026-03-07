@@ -23,13 +23,7 @@
             <Label prefHeight="15.0" prefWidth="307.0" />
             <Button fx:id="keywordAddButton" mnemonicParsing="false" onMouseClicked="#addKeyword" prefHeight="51.0" prefWidth="260.0" text="ADD" />
             <Label layoutX="10.0" layoutY="270.0" prefHeight="40.0" prefWidth="260.0" />
-            <TableView prefHeight="280.0" prefWidth="260.0">
-              <columns>
-                <TableColumn prefWidth="258.0" text="Select from Basic weapons" />
-              </columns>
-            </TableView>
             <Label layoutX="10.0" layoutY="270.0" prefHeight="15.0" prefWidth="307.0" />
-            <Button fx:id="basicWeaponAddButton" layoutX="10.0" layoutY="285.0" mnemonicParsing="false" onMouseClicked="#addBasicWeapon" prefHeight="51.0" prefWidth="260.0" text="ADD" />
          </children>
       </VBox>
    </right>

@@ -64,15 +64,26 @@ public class Dao {
      * @throws SQLException
      */
     public static int update(
-        String sql,
-        Object... params
+            String sql,
+            Object... params
     ) throws SQLException {
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             bind(ps, params);
-            return ps.executeUpdate();
+
+            int affected = ps.executeUpdate();
+
+            // For INSERT, SQLite will usually return generated keys.
+            // For UPDATE/DELETE, generated keys is usually empty -> return affected rows instead.
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs != null && rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+            return affected;
         }
     }
 
@@ -103,9 +114,16 @@ public class Dao {
         Object... params
     ) throws SQLException {
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             bind(ps, params);
-            return ps.executeUpdate();
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new SQLException("No ID returned.");
+                }
+            }
         }
     }
 
