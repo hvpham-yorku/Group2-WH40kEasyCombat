@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
-import eecs2311.group2.wh40k_easycombat.service.ArmyBuilderManager;
+import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyEditorStateService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
