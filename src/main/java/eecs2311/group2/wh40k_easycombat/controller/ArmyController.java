@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
 import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
-import eecs2311.group2.wh40k_easycombat.application.ArmyWriteCommand;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
@@ -261,7 +261,7 @@ public class ArmyController {
                 return;
             }
 
-            ArmyWriteCommand bundle = ArmyControllerPersistence.buildWriteBundle(
+            ArmyWriteAggregate bundle = ArmyControllerPersistence.buildWriteBundle(
                     editingArmyId,
                     editingArmyMarked,
                     armyNametxt.getText().trim(),

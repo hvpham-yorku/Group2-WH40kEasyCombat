@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
 import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
-import eecs2311.group2.wh40k_easycombat.application.ArmyWriteCommand;
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
 import eecs2311.group2.wh40k_easycombat.repository.ArmyBundleRepository;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public final class ArmyCrudService {
         return StaticDataService.getArmyBundle(armyId);
     }
 
-    public static int createArmyBundle(ArmyWriteCommand command) throws SQLException {
+    public static int createArmyBundle(ArmyWriteAggregate command) throws SQLException {
         validateForCreate(command);
 
         int newArmyId = ArmyBundleRepository.createBundle(toRepositoryBundle(command));
@@ -23,7 +23,7 @@ public final class ArmyCrudService {
         return newArmyId;
     }
 
-    public static void updateArmyBundle(ArmyWriteCommand command) throws SQLException {
+    public static void updateArmyBundle(ArmyWriteAggregate command) throws SQLException {
         validateForUpdate(command);
 
         ArmyBundleRepository.updateBundle(toRepositoryBundle(command));
@@ -35,7 +35,7 @@ public final class ArmyCrudService {
         StaticDataService.reloadFromSqlite();
     }
 
-    private static ArmyBundleRepository.ArmyWriteRecordBundle toRepositoryBundle(ArmyWriteCommand command) {
+    private static ArmyBundleRepository.ArmyWriteRecordBundle toRepositoryBundle(ArmyWriteAggregate command) {
         return new ArmyBundleRepository.ArmyWriteRecordBundle(
                 command.army,
                 command.detachments,
@@ -44,13 +44,13 @@ public final class ArmyCrudService {
         );
     }
 
-    private static void validateForCreate(ArmyWriteCommand command) {
+    private static void validateForCreate(ArmyWriteAggregate command) {
         if (command == null || command.army == null) {
             throw new IllegalArgumentException("army command must not be null");
         }
     }
 
-    private static void validateForUpdate(ArmyWriteCommand command) {
+    private static void validateForUpdate(ArmyWriteAggregate command) {
         if (command == null || command.army == null) {
             throw new IllegalArgumentException("army command must not be null");
         }
