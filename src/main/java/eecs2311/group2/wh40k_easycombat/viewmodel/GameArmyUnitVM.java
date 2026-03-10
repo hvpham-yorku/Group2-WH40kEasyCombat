@@ -1,36 +1,40 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
+import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
+import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
+import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+
+import java.util.List;
 
 public class GameArmyUnitVM {
 
-    private final String unitName;
-    private final ObservableList<GameSubUnitVM> subUnits = FXCollections.observableArrayList();
-    private final ObservableList<GameWeaponVM> rangedWeapons = FXCollections.observableArrayList();
-    private final ObservableList<GameWeaponVM> meleeWeapons = FXCollections.observableArrayList();
+    private final UnitInstance unit;
     private final BooleanProperty expanded = new SimpleBooleanProperty(false);
 
-    public GameArmyUnitVM(String unitName) {
-        this.unitName = unitName == null ? "" : unitName;
+    public GameArmyUnitVM(UnitInstance unit) {
+        this.unit = unit == null ? new UnitInstance("", "") : unit;
+    }
+
+    public UnitInstance getUnit() {
+        return unit;
     }
 
     public String getUnitName() {
-        return unitName;
+        return unit.getUnitName();
     }
 
-    public ObservableList<GameSubUnitVM> getSubUnits() {
-        return subUnits;
+    public List<UnitModelInstance> getSubUnits() {
+        return unit.getModels();
     }
 
-    public ObservableList<GameWeaponVM> getRangedWeapons() {
-        return rangedWeapons;
+    public List<WeaponProfile> getRangedWeapons() {
+        return unit.getRangedWeapons();
     }
 
-    public ObservableList<GameWeaponVM> getMeleeWeapons() {
-        return meleeWeapons;
+    public List<WeaponProfile> getMeleeWeapons() {
+        return unit.getMeleeWeapons();
     }
 
     public BooleanProperty expandedProperty() {

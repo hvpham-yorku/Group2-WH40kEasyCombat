@@ -1,30 +1,34 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
-import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
-import eecs2311.group2.wh40k_easycombat.service.*;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsPageControllerHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsRenderHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
+import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
-import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsFilterApplier;
-import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageLoader;
+import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
-import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsRenderer;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-
-import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.getAny;
-import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.s;
 
 public class DatasheetsController implements Initializable {
 
@@ -39,7 +43,7 @@ public class DatasheetsController implements Initializable {
     @FXML private ComboBox<String> factionComboBox;
 
     // ======================= Lists ============================
-    @FXML private ListView<Object> datasheetsList;
+    @FXML private ListView<DatasheetListItemVM> datasheetsList;
 
     // ======================= Labels - Datasheet / Unit Names ===
     @FXML private Label datasheetName;
@@ -47,7 +51,7 @@ public class DatasheetsController implements Initializable {
     @FXML private Label unitName2;
 
     // ======================= Unit 1 - Properties ==============
-    @FXML private HBox unit1PropertyHBox;
+    @FXML private javafx.scene.layout.HBox unit1PropertyHBox;
     @FXML private Label unit1MLabel;
     @FXML private Label unit1TLabel;
     @FXML private Label unit1SvLabel;
@@ -58,7 +62,7 @@ public class DatasheetsController implements Initializable {
     @FXML private Label insvTxtLabel;
 
     // ======================= Unit 2 - Properties ==============
-    @FXML private HBox unit2PropertyHBox;
+    @FXML private javafx.scene.layout.HBox unit2PropertyHBox;
     @FXML private Label unit2MLabel;
     @FXML private Label unit2TLabel;
     @FXML private Label unit2SvLabel;
@@ -75,22 +79,22 @@ public class DatasheetsController implements Initializable {
     @FXML private TextFlow otherTextFlow;
 
     // ======================= Tables - Melee Weapons ===========
-    @FXML private TableView<WeaponRow> meleeWeaponTable;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponName;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponRange;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponA;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponWS;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponAP;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponD;
+    @FXML private TableView<WeaponProfile> meleeWeaponTable;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponName;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponRange;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponA;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponWS;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponAP;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponD;
 
     // ======================= Tables - Ranged Weapons ==========
-    @FXML private TableView<WeaponRow> rangedWeaponTable;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponName;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponRange;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponA;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponBS;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponAP;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponD;
+    @FXML private TableView<WeaponProfile> rangedWeaponTable;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponName;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponRange;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponA;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponBS;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponAP;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponD;
 
     // ======================= In-memory ========================
     private final DatasheetsPageState state = new DatasheetsPageState();
@@ -107,37 +111,34 @@ public class DatasheetsController implements Initializable {
 
     private void setupTables() {
         if (rangedWeaponName != null) {
-            rangedWeaponName.setCellValueFactory(c -> c.getValue().nameProperty());
-            rangedWeaponRange.setCellValueFactory(c -> c.getValue().rangeProperty());
-            rangedWeaponA.setCellValueFactory(c -> c.getValue().aProperty());
-            rangedWeaponBS.setCellValueFactory(c -> c.getValue().skillProperty());
-            rangedWeaponAP.setCellValueFactory(c -> c.getValue().apProperty());
-            rangedWeaponD.setCellValueFactory(c -> c.getValue().dProperty());
+            rangedWeaponName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
+            rangedWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
+            rangedWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
+            rangedWeaponBS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            rangedWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
+            rangedWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(rangedWeaponName);
         }
 
         if (meleeWeaponName != null) {
-            meleeWeaponName.setCellValueFactory(c -> c.getValue().nameProperty());
-            meleeWeaponRange.setCellValueFactory(c -> c.getValue().rangeProperty());
-            meleeWeaponA.setCellValueFactory(c -> c.getValue().aProperty());
-            meleeWeaponWS.setCellValueFactory(c -> c.getValue().skillProperty());
-            meleeWeaponAP.setCellValueFactory(c -> c.getValue().apProperty());
-            meleeWeaponD.setCellValueFactory(c -> c.getValue().dProperty());
+            meleeWeaponName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
+            meleeWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
+            meleeWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
+            meleeWeaponWS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            meleeWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
+            meleeWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(meleeWeaponName);
         }
 
         if (rangedWeaponTable != null) {
-            rangedWeaponTable.setFixedCellSize(-1);
+            rangedWeaponTable.setFixedCellSize(40);
         }
         if (meleeWeaponTable != null) {
-            meleeWeaponTable.setFixedCellSize(-1);
+            meleeWeaponTable.setFixedCellSize(40);
         }
-        
-        rangedWeaponTable.setFixedCellSize(40);
-        meleeWeaponTable.setFixedCellSize(40);
     }
 
-    private void applyWeaponNameCellFactory(TableColumn<WeaponRow, String> col) {
+    private void applyWeaponNameCellFactory(TableColumn<WeaponProfile, String> col) {
         col.setCellFactory(tc -> new TableCell<>() {
 
             private final Label nameLabel = new Label();
@@ -163,11 +164,11 @@ public class DatasheetsController implements Initializable {
                     return;
                 }
 
-                WeaponRow row = (WeaponRow) getTableRow().getItem();
+                WeaponProfile row = (WeaponProfile) getTableRow().getItem();
 
-                nameLabel.setText(row.nameProperty().get());
+                nameLabel.setText(row.name());
 
-                String desc = row.descriptionProperty().get();
+                String desc = row.description();
                 boolean hasDesc = desc != null && !desc.isBlank();
 
                 descLabel.setText(desc);
@@ -178,7 +179,7 @@ public class DatasheetsController implements Initializable {
             }
         });
     }
-    
+
     private void ensurePropertyLabelsWhiteBackground() {
         applyWhiteBackground(unit1MLabel);
         applyWhiteBackground(unit1TLabel);
@@ -218,9 +219,7 @@ public class DatasheetsController implements Initializable {
 
     private void loadPageData() {
         try {
-            DatasheetsPageLoader.loadAbilitiesMaster(state);
-            DatasheetsPageLoader.loadDatasheets(state, datasheetsList);
-            DatasheetsPageLoader.loadFactionsIntoComboBox(state, factionComboBox);
+            DatasheetsPageControllerHelper.loadPageData(state, datasheetsList, factionComboBox);
 
             if (!state.getFilteredDatasheets().isEmpty()) {
                 datasheetsList.getSelectionModel().select(0);
@@ -229,7 +228,7 @@ public class DatasheetsController implements Initializable {
                 clearRightPanel();
             }
         } catch (Exception e) {
-            showError("Load data failed", e);
+            DialogHelper.showError("Load data failed", e);
         }
     }
 
@@ -286,14 +285,14 @@ public class DatasheetsController implements Initializable {
     // -------------------- Filtering --------------------
 
     private void applyFilters() {
-        DatasheetsFilterApplier.applyFilters(
+        boolean hasResult = DatasheetsPageControllerHelper.applyFilters(
                 state,
+                datasheetsList,
                 searchTextField == null ? "" : searchTextField.getText(),
                 factionComboBox == null ? "ALL" : factionComboBox.getValue()
         );
 
-        if (!state.getFilteredDatasheets().isEmpty()) {
-            datasheetsList.getSelectionModel().select(0);
+        if (hasResult) {
             showSelectedDatasheet();
         } else {
             clearRightPanel();
@@ -303,27 +302,18 @@ public class DatasheetsController implements Initializable {
     // -------------------- Selection rendering --------------------
 
     private void showSelectedDatasheet() {
-        Object selected = datasheetsList == null ? null : datasheetsList.getSelectionModel().getSelectedItem();
+        DatasheetListItemVM selected = datasheetsList == null
+                ? null
+                : datasheetsList.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
             clearRightPanel();
             return;
         }
 
-        String datasheetId = s(getAny(selected, "id", "datasheet_id"));
-        if (datasheetId.isBlank()) {
-            clearRightPanel();
-            return;
-        }
-
         try {
-        	DatasheetAggregate bundle = StaticDataService.getDatasheetBundle(datasheetId);
-            if (bundle == null) {
-                clearRightPanel();
-                return;
-            }
-
-            DatasheetsRenderer.renderBundle(
-                    bundle,
+            boolean rendered = DatasheetsRenderHelper.renderSelectedDatasheet(
+                    selected,
                     state,
                     datasheetName,
                     unitName1,
@@ -352,13 +342,17 @@ public class DatasheetsController implements Initializable {
                     rangedWeaponTable,
                     meleeWeaponTable
             );
+
+            if (!rendered) {
+                clearRightPanel();
+            }
         } catch (SQLException e) {
-            showError("Read datasheet failed: " + datasheetId, e);
+            DialogHelper.showError("Read datasheet failed", e);
         }
     }
 
     private void clearRightPanel() {
-        DatasheetsRenderer.clearRightPanel(
+        DatasheetsRenderHelper.clearRightPanel(
                 datasheetName,
                 unitName1,
                 unitName2,
@@ -386,14 +380,5 @@ public class DatasheetsController implements Initializable {
                 unit2PropertyHBox,
                 insvTxtLabel
         );
-    }
-
-    private void showError(String title, Exception e) {
-        e.printStackTrace();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(title);
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
     }
 }

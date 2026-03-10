@@ -1,6 +1,8 @@
-package eecs2311.group2.wh40k_easycombat.viewmodel;
+package eecs2311.group2.wh40k_easycombat.controller.helper;
 
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyEditorLoadVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -9,9 +11,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public final class ArmyEditorCoordinator {
+public final class ArmyEditorControllerHelper {
 
-    private ArmyEditorCoordinator() {
+    private ArmyEditorControllerHelper() {
     }
 
     public static EditorResetResult resetEditor(
@@ -51,7 +53,7 @@ public final class ArmyEditorCoordinator {
     }
 
     public static LoadedEditorState applyLoadedArmy(
-            ArmyControllerPersistence.LoadedArmyData loaded,
+            ArmyEditorLoadVM loaded,
             ObservableList<ArmyUnitVM> currentArmy,
             Consumer<String> setFactionByIdAction,
             Runnable refreshDetachmentOptionsAction,

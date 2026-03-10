@@ -1,95 +1,54 @@
 package eecs2311.group2.wh40k_easycombat.manager;
 
-import eecs2311.group2.wh40k_easycombat.controller.GameUIController.ArmySide;
-import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import eecs2311.group2.wh40k_easycombat.model.instance.StratagemInstance;
 
 public final class StratagemUseManager {
 
     private StratagemUseManager() {
     }
 
-    public static void useSelectedStrategy(
-            ArmySide side,
-            ListView<GameStrategyVM> blueStrategyList,
-            ListView<GameStrategyVM> redStrategyList,
-            Label blueCPLabel,
-            Label redCPLabel
+    public static UseResult useStrategy(
+            BattleSide side,
+            StratagemInstance selected,
+            String currentCpText
     ) {
-        GameStrategyVM selected = getSelectedStrategy(side, blueStrategyList, redStrategyList);
-
         if (selected == null) {
-            showWarning("No Stratagem Selected", "Please select one stratagem first.");
-            return;
+            return UseResult.failure("No Stratagem Selected", "Please select one stratagem first.");
         }
 
-        Label cpLabel = (side == ArmySide.BLUE) ? blueCPLabel : redCPLabel;
-
-        if (!CommandPointManager.hasEnoughCp(cpLabel.getText(), selected.getCpCost())) {
-            showWarning("Not Enough CP", "You do not have enough CP to use this stratagem.");
-            return;
+        if (!CommandPointManager.hasEnoughCp(currentCpText, selected.cpCost())) {
+            return UseResult.failure("Not Enough CP", "You do not have enough CP to use this stratagem.");
         }
 
-        Alert confirm = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Use stratagem \"" + selected.getName() + "\"?",
-                ButtonType.YES,
-                ButtonType.NO
-        );
-        confirm.setHeaderText("Confirm Stratagem");
-
-        if (confirm.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
-            return;
-        }
-
+        String nextCp = CommandPointManager.spendCp(currentCpText, selected.cpCost());
         String content = buildStrategyUseText(side, selected);
 
-        cpLabel.setText(CommandPointManager.spendCp(cpLabel.getText(), selected.getCpCost()));
-
-        Alert result = new Alert(Alert.AlertType.INFORMATION, content, ButtonType.OK);
-        result.setHeaderText(selected.getName());
-        result.setTitle("Stratagem Used");
-        result.showAndWait();
+        return UseResult.success(selected.name(), content, nextCp);
     }
 
-    private static GameStrategyVM getSelectedStrategy(
-            ArmySide side,
-            ListView<GameStrategyVM> blueStrategyList,
-            ListView<GameStrategyVM> redStrategyList
-    ) {
-        if (side == ArmySide.BLUE) {
-            return blueStrategyList.getSelectionModel().getSelectedItem();
-        }
-        return redStrategyList.getSelectionModel().getSelectedItem();
-    }
-
-    private static String buildStrategyUseText(ArmySide side, GameStrategyVM s) {
-        String sideName = side == ArmySide.BLUE ? "Blue" : "Red";
+    private static String buildStrategyUseText(BattleSide side, StratagemInstance strategy) {
+        String sideName = side == BattleSide.BLUE ? "Blue" : "Red";
 
         StringBuilder sb = new StringBuilder();
-
         sb.append(sideName)
-          .append(" used ")
-          .append(s.getName());
+                .append(" used ")
+                .append(strategy.name());
 
-        if (s.getCpCost() != null && !s.getCpCost().isBlank()) {
-            sb.append(" (").append(s.getCpCost()).append(" CP)");
+        if (strategy.cpCost() != null && !strategy.cpCost().isBlank()) {
+            sb.append(" (").append(strategy.cpCost()).append(" CP)");
         }
 
         sb.append("\n");
 
-        if (s.getTurn() != null && !s.getTurn().isBlank()) {
-            sb.append("Turn: ").append(s.getTurn()).append("\n");
+        if (strategy.turn() != null && !strategy.turn().isBlank()) {
+            sb.append("Turn: ").append(strategy.turn()).append("\n");
         }
 
-        if (s.getPhase() != null && !s.getPhase().isBlank()) {
-            sb.append("Phase: ").append(s.getPhase()).append("\n");
+        if (strategy.phase() != null && !strategy.phase().isBlank()) {
+            sb.append("Phase: ").append(strategy.phase()).append("\n");
         }
 
-        String description = htmlToPlainText(s.getDescriptionHtml());
+        String description = htmlToPlainText(strategy.descriptionHtml());
         if (!description.isBlank()) {
             sb.append("\n").append(description);
         }
@@ -120,9 +79,22 @@ public final class StratagemUseManager {
         return s.trim();
     }
 
-    private static void showWarning(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
+    public enum BattleSide {
+        BLUE, RED
+    }
+
+    public record UseResult(
+            boolean success,
+            String title,
+            String message,
+            String nextCpText
+    ) {
+        public static UseResult success(String title, String message, String nextCpText) {
+            return new UseResult(true, title, message, nextCpText);
+        }
+
+        public static UseResult failure(String title, String message) {
+            return new UseResult(false, title, message, null);
+        }
     }
 }
