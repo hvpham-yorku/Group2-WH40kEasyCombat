@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
 import eecs2311.group2.wh40k_easycombat.service.*;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
+import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsFilterApplier;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageLoader;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsRenderer;
@@ -285,7 +286,7 @@ public class DatasheetsController implements Initializable {
     // -------------------- Filtering --------------------
 
     private void applyFilters() {
-        DatasheetsFilterService.applyFilters(
+        DatasheetsFilterApplier.applyFilters(
                 state,
                 searchTextField == null ? "" : searchTextField.getText(),
                 factionComboBox == null ? "ALL" : factionComboBox.getValue()

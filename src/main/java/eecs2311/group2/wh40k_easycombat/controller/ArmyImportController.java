@@ -1,9 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.ImportedArmyData;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.SavedArmyOption;
-
+import assembler.SavedArmyGameAssembler;
+import assembler.SavedArmyGameAssembler.ImportedArmyData;
+import assembler.SavedArmyGameAssembler.SavedArmyOption;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -49,7 +48,7 @@ public class ArmyImportController {
 
     private void loadSavedArmies() {
         try {
-            armyTable.setItems(FXCollections.observableArrayList(GameArmyImportService.loadSavedArmies()));
+            armyTable.setItems(FXCollections.observableArrayList(SavedArmyGameAssembler.loadSavedArmies()));
         } catch (Exception e) {
             showError("Load Saved Armies Error", e.getMessage());
         }
@@ -69,7 +68,7 @@ public class ArmyImportController {
         }
 
         try {
-            ImportedArmyData data = GameArmyImportService.importArmy(selected.armyId());
+            ImportedArmyData data = SavedArmyGameAssembler.importArmy(selected.armyId());
             if (data == null) {
                 showWarning("Import Failed", "The selected army could not be imported.");
                 return;

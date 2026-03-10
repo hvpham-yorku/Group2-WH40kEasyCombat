@@ -1,8 +1,9 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package assembler;
 
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
 import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameSubUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameWeaponVM;
@@ -15,9 +16,9 @@ import java.util.Map;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.getAny;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.s;
 
-public final class GameArmyImportService {
+public final class SavedArmyGameAssembler {
 
-    private GameArmyImportService() {
+    private SavedArmyGameAssembler() {
     }
 
     public static List<SavedArmyOption> loadSavedArmies() throws Exception {

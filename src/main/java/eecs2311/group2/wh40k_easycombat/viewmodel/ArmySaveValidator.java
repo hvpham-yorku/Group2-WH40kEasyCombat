@@ -1,13 +1,11 @@
-package eecs2311.group2.wh40k_easycombat.service;
-
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public final class ArmyValidationService {
+public final class ArmySaveValidator {
 
-    private ArmyValidationService() {
+    private ArmySaveValidator() {
     }
 
     public static String validateBeforeSave(
@@ -51,8 +49,8 @@ public final class ArmyValidationService {
             }
         }
 
-        if (ArmyPointService.exceedsLimit(currentArmy, sizeLimit)) {
-            int total = ArmyPointService.calculateArmyPoints(currentArmy);
+        if (ArmyPointsCalculator.exceedsLimit(currentArmy, sizeLimit)) {
+            int total = ArmyPointsCalculator.calculateArmyPoints(currentArmy);
             int limit = sizeLimit == null ? 2000 : sizeLimit;
             return "Current army is " + total + " pts, but the selected limit is " + limit + " pts.";
         }

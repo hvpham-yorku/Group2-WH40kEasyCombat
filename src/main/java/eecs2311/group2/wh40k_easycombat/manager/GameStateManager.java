@@ -1,8 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.manager;
 
+import assembler.ArmyStrategyAssembler;
+import assembler.SavedArmyGameAssembler.ImportedArmyData;
 import eecs2311.group2.wh40k_easycombat.controller.GameUIController.ArmySide;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.ImportedArmyData;
-import eecs2311.group2.wh40k_easycombat.service.GameStrategyImportService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
 import javafx.collections.ObservableList;
@@ -24,7 +24,7 @@ public final class GameStateManager {
 
         ObservableList<GameStrategyVM> importedStrategies =
                 javafx.collections.FXCollections.observableArrayList(
-                        GameStrategyImportService.importStrategiesForArmy(data.armyId())
+                        ArmyStrategyAssembler.importStrategiesForArmy(data.armyId())
                 );
 
         if (side == ArmySide.BLUE) {
