@@ -1,6 +1,5 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
 import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
 import eecs2311.group2.wh40k_easycombat.repository.ArmyBundleRepository;
 
@@ -9,10 +8,6 @@ import java.sql.SQLException;
 public final class ArmyCrudService {
 
     private ArmyCrudService() {
-    }
-
-    public static ArmyAggregate getArmyBundle(int armyId) throws SQLException {
-        return StaticDataService.getArmyBundle(armyId);
     }
 
     public static int createArmyBundle(ArmyWriteAggregate command) throws SQLException {
