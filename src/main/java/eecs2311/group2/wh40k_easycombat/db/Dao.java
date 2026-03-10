@@ -109,23 +109,25 @@ public class Dao {
 
     // For Tx
     public static int update(
-        Connection conn,
-        String sql,
-        Object... params
-    ) throws SQLException {
+    	    Connection conn,
+    	    String sql,
+    	    Object... params
+    	) throws SQLException {
 
-        try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            bind(ps, params);
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    throw new SQLException("No ID returned.");
-                }
-            }
-        }
-    }
+    	    try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+    	        bind(ps, params);
+
+    	        int affected = ps.executeUpdate();
+
+    	        try (ResultSet rs = ps.getGeneratedKeys()) {
+    	            if (rs != null && rs.next()) {
+    	                return rs.getInt(1);
+    	            }
+    	        }
+
+    	        return affected;
+    	    }
+    	}
 
     private static void bind(
         PreparedStatement ps,

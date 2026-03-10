@@ -1,10 +1,8 @@
-package eecs2311.group2.wh40k_easycombat.repository;
+package eecs2311.group2.wh40k_easycombat.service;
 
 import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

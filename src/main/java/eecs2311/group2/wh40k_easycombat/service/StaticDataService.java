@@ -1,29 +1,45 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.model.*;
-import eecs2311.group2.wh40k_easycombat.repository.*;
+import eecs2311.group2.wh40k_easycombat.model.Army;
+import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
+import eecs2311.group2.wh40k_easycombat.model.Army_units;
+import eecs2311.group2.wh40k_easycombat.model.Army_wargear;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_abilities;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_detachment_abilities;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_enhancements;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_keywords;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_leader;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_models_cost;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_options;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_stratagems;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_unit_composition;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
+import eecs2311.group2.wh40k_easycombat.repository.ArmyBundleRepository;
+import eecs2311.group2.wh40k_easycombat.repository.DatasheetBundleRepository;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class StaticDataService {
 
-    private StaticDataService() {}
+    private StaticDataService() {
+    }
 
-    // =========================
-    // Datasheet Bundle
-    // =========================
     public static final class DatasheetBundle {
         public final Datasheets datasheet;
-
         public final List<Datasheets_models> models;
         public final List<Datasheets_wargear> wargear;
         public final List<Datasheets_abilities> abilities;
         public final List<Datasheets_unit_composition> compositions;
         public final List<Datasheets_models_cost> costs;
         public final List<Datasheets_keywords> keywords;
-
         public final List<Datasheets_options> options;
         public final List<Datasheets_leader> leaders;
         public final List<Datasheets_stratagems> stratagems;
@@ -45,23 +61,20 @@ public final class StaticDataService {
                 List<Datasheets_detachment_abilities> detachmentAbilities
         ) {
             this.datasheet = datasheet;
-            this.models = models;
-            this.wargear = wargear;
-            this.abilities = abilities;
-            this.compositions = compositions;
-            this.costs = costs;
-            this.keywords = keywords;
-            this.options = options;
-            this.leaders = leaders;
-            this.stratagems = stratagems;
-            this.enhancements = enhancements;
-            this.detachmentAbilities = detachmentAbilities;
+            this.models = listOrEmpty(models);
+            this.wargear = listOrEmpty(wargear);
+            this.abilities = listOrEmpty(abilities);
+            this.compositions = listOrEmpty(compositions);
+            this.costs = listOrEmpty(costs);
+            this.keywords = listOrEmpty(keywords);
+            this.options = listOrEmpty(options);
+            this.leaders = listOrEmpty(leaders);
+            this.stratagems = listOrEmpty(stratagems);
+            this.enhancements = listOrEmpty(enhancements);
+            this.detachmentAbilities = listOrEmpty(detachmentAbilities);
         }
     }
 
-    // =========================
-    // Army Bundle
-    // =========================
     public static final class ArmyBundle {
         public final Army army;
         public final List<Army_detachment> detachments;
@@ -75,354 +88,142 @@ public final class StaticDataService {
                 List<Army_wargear> wargear
         ) {
             this.army = army;
-            this.detachments = detachments;
-            this.units = units;
-            this.wargear = wargear;
+            this.detachments = listOrEmpty(detachments);
+            this.units = listOrEmpty(units);
+            this.wargear = listOrEmpty(wargear);
         }
     }
 
     private static volatile boolean loaded = false;
 
-    // =========================
-    // Datasheet caches
-    // =========================
-    private static final Map<String, Datasheets> datasheetsById = new ConcurrentHashMap<>();
-
-    private static final Map<String, List<Datasheets_models>> modelsByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_wargear>> wargearByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_abilities>> abilitiesByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_unit_composition>> compositionByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_models_cost>> costsByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_keywords>> keywordsByDatasheetId = new ConcurrentHashMap<>();
-
-    private static final Map<String, List<Datasheets_options>> optionsByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_leader>> leadersByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_stratagems>> stratagemsByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_enhancements>> enhancementsByDatasheetId = new ConcurrentHashMap<>();
-    private static final Map<String, List<Datasheets_detachment_abilities>> detachmentAbilitiesByDatasheetId = new ConcurrentHashMap<>();
-
-    // =========================
-    // Army caches
-    // =========================
-    private static final Map<Integer, Army> armyById = new ConcurrentHashMap<>();
-    private static final Map<Integer, List<Army_detachment>> detachmentsByArmyId = new ConcurrentHashMap<>();
-    private static final Map<Integer, List<Army_units>> unitsByArmyId = new ConcurrentHashMap<>();
+    private static final Map<String, DatasheetBundle> datasheetBundlesById = new ConcurrentHashMap<>();
+    private static final Map<Integer, ArmyBundle> armyBundlesById = new ConcurrentHashMap<>();
     private static final Map<Integer, List<Army_wargear>> wargearByUnitsId = new ConcurrentHashMap<>();
-
-    private static void clearCache() {
-        // datasheets
-        datasheetsById.clear();
-
-        modelsByDatasheetId.clear();
-        wargearByDatasheetId.clear();
-        abilitiesByDatasheetId.clear();
-        compositionByDatasheetId.clear();
-        costsByDatasheetId.clear();
-        keywordsByDatasheetId.clear();
-
-        optionsByDatasheetId.clear();
-        leadersByDatasheetId.clear();
-        stratagemsByDatasheetId.clear();
-        enhancementsByDatasheetId.clear();
-        detachmentAbilitiesByDatasheetId.clear();
-
-        // armies
-        armyById.clear();
-        detachmentsByArmyId.clear();
-        unitsByArmyId.clear();
-        wargearByUnitsId.clear();
-    }
 
     public static synchronized void reloadFromSqlite() throws SQLException {
         loaded = false;
-        clearCache();
         loadAllFromSqlite();
     }
 
     public static synchronized void loadAllFromSqlite() throws SQLException {
-        if (loaded) return;
-
-        // =========================
-        // Datasheets
-        // =========================
-
-        for (Datasheets d : DatasheetsRepository.getAllDatasheets()) {
-            if (d != null && d.id() != null) datasheetsById.put(d.id(), d);
+        if (loaded) {
+            return;
         }
 
-        {
-            Map<String, List<Datasheets_models>> tmp = new HashMap<>();
-            for (Datasheets_models m : Datasheets_modelsRepository.getAllDatasheets_models()) {
-                if (m == null || m.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(m.datasheet_id(), k -> new ArrayList<>()).add(m);
+        clearCache();
+
+        try {
+            for (DatasheetBundleRepository.DatasheetRecordBundle recordBundle : DatasheetBundleRepository.findAllBundles()) {
+                DatasheetBundle bundle = toServiceBundle(recordBundle);
+                datasheetBundlesById.put(bundle.datasheet.id(), bundle);
             }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
-                modelsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+
+            for (ArmyBundleRepository.ArmyRecordBundle recordBundle : ArmyBundleRepository.findAllBundles()) {
+                ArmyBundle bundle = toServiceBundle(recordBundle);
+                armyBundlesById.put(bundle.army.auto_id(), bundle);
+
+                Map<Integer, List<Army_wargear>> groupedByUnitId = new HashMap<>();
+                for (Army_wargear wargear : bundle.wargear) {
+                    groupedByUnitId.computeIfAbsent(wargear.units_id(), ignored -> new ArrayList<>()).add(wargear);
+                }
+
+                for (Map.Entry<Integer, List<Army_wargear>> entry : groupedByUnitId.entrySet()) {
+                    wargearByUnitsId.put(entry.getKey(), List.copyOf(entry.getValue()));
+                }
             }
+
+            loaded = true;
+        } catch (SQLException e) {
+            clearCache();
+            loaded = false;
+            throw e;
         }
-
-        {
-            Map<String, List<Datasheets_wargear>> tmp = new HashMap<>();
-            for (Datasheets_wargear w : Datasheets_wargearRepository.getAllDatasheets_wargear()) {
-                if (w == null || w.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(w.datasheet_id(), k -> new ArrayList<>()).add(w);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(
-                        Comparator.comparingInt((Datasheets_wargear x) -> safeLineInt(x.line()))
-                                .thenComparingInt(x -> safeLineInt(x.line_in_wargear()))
-                );
-                wargearByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        }
-
-        {
-            Map<String, List<Datasheets_abilities>> tmp = new HashMap<>();
-            for (Datasheets_abilities a : Datasheets_abilitiesRepository.getAllDatasheets_abilities()) {
-                if (a == null || a.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(a.datasheet_id(), k -> new ArrayList<>()).add(a);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
-                abilitiesByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        }
-
-        {
-            Map<String, List<Datasheets_unit_composition>> tmp = new HashMap<>();
-            for (Datasheets_unit_composition c : Datasheets_unit_compositionRepository.getAllDatasheets_unit_composition()) {
-                if (c == null || c.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(c.datasheet_id(), k -> new ArrayList<>()).add(c);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
-                compositionByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        }
-
-        {
-            Map<String, List<Datasheets_models_cost>> tmp = new HashMap<>();
-            for (Datasheets_models_cost c : Datasheets_models_costRepository.getAllDatasheets_models_cost()) {
-                if (c == null || c.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(c.datasheet_id(), k -> new ArrayList<>()).add(c);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
-                costsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        }
-
-        try {
-            Map<String, List<Datasheets_keywords>> tmp = new HashMap<>();
-            for (Datasheets_keywords k : Datasheets_keywordsRepository.getAllDatasheets_keywords()) {
-                if (k == null || k.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(k.datasheet_id(), x -> new ArrayList<>()).add(k);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(
-                        Comparator.comparing(Datasheets_keywords::keyword, Comparator.nullsLast(String::compareToIgnoreCase))
-                                .thenComparing(Datasheets_keywords::model, Comparator.nullsLast(String::compareToIgnoreCase))
-                );
-                keywordsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<String, List<Datasheets_options>> tmp = new HashMap<>();
-            for (Datasheets_options o : Datasheets_optionsRepository.getAllDatasheets_options()) {
-                if (o == null || o.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(o.datasheet_id(), k -> new ArrayList<>()).add(o);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(x -> safeLineInt(x.line())));
-                optionsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<String, List<Datasheets_leader>> tmp = new HashMap<>();
-            for (Datasheets_leader l : Datasheets_leaderRepository.getAllDatasheets_leader()) {
-                if (l == null || l.attached_id() == null) continue;
-                tmp.computeIfAbsent(l.attached_id(), k -> new ArrayList<>()).add(l);
-            }
-            for (var e : tmp.entrySet()) {
-                leadersByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<String, List<Datasheets_stratagems>> tmp = new HashMap<>();
-            for (Datasheets_stratagems s : Datasheets_stratagemsRepository.getAllDatasheets_stratagems()) {
-                if (s == null || s.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(s.datasheet_id(), k -> new ArrayList<>()).add(s);
-            }
-            for (var e : tmp.entrySet()) {
-                stratagemsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<String, List<Datasheets_enhancements>> tmp = new HashMap<>();
-            for (Datasheets_enhancements x : Datasheets_enhancementsRepository.getAllDatasheets_enhancements()) {
-                if (x == null || x.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(x.datasheet_id(), k -> new ArrayList<>()).add(x);
-            }
-            for (var e : tmp.entrySet()) {
-                enhancementsByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<String, List<Datasheets_detachment_abilities>> tmp = new HashMap<>();
-            for (Datasheets_detachment_abilities x : Datasheets_detachment_abilitiesRepository.getAllDatasheets_detachment_abilities()) {
-                if (x == null || x.datasheet_id() == null) continue;
-                tmp.computeIfAbsent(x.datasheet_id(), k -> new ArrayList<>()).add(x);
-            }
-            for (var e : tmp.entrySet()) {
-                detachmentAbilitiesByDatasheetId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        // =========================
-        // Army
-        // =========================
-
-        try {
-            for (Army a : ArmyRepository.getAllArmy()) {
-                if (a != null) armyById.put(a.auto_id(), a);
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<Integer, List<Army_detachment>> tmp = new HashMap<>();
-            for (Army_detachment d : Army_detachmentRepository.getAllArmy_detachment()) {
-                if (d == null) continue;
-                tmp.computeIfAbsent(d.army_id(), k -> new ArrayList<>()).add(d);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(Army_detachment::auto_id));
-                detachmentsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<Integer, List<Army_units>> tmp = new HashMap<>();
-            for (Army_units u : Army_unitsRepository.getAllArmy_units()) {
-                if (u == null) continue;
-                tmp.computeIfAbsent(u.army_id(), k -> new ArrayList<>()).add(u);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(Army_units::auto_id));
-                unitsByArmyId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Map<Integer, List<Army_wargear>> tmp = new HashMap<>();
-            for (Army_wargear w : Army_wargearRepository.getAllArmy_wargear()) {
-                if (w == null) continue;
-                tmp.computeIfAbsent(w.units_id(), k -> new ArrayList<>()).add(w);
-            }
-            for (var e : tmp.entrySet()) {
-                e.getValue().sort(Comparator.comparingInt(Army_wargear::auto_id));
-                wargearByUnitsId.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
-            }
-        } catch (Exception ignored) {}
-
-        loaded = true;
     }
-
-    // =========================
-    // Datasheet APIs
-    // =========================
 
     public static DatasheetBundle getDatasheetBundle(String datasheetId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
-
-        Datasheets d = datasheetsById.get(datasheetId);
-        if (d == null) return null;
-
-        return new DatasheetBundle(
-                d,
-                modelsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                wargearByDatasheetId.getOrDefault(datasheetId, List.of()),
-                abilitiesByDatasheetId.getOrDefault(datasheetId, List.of()),
-                compositionByDatasheetId.getOrDefault(datasheetId, List.of()),
-                costsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                keywordsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                optionsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                leadersByDatasheetId.getOrDefault(datasheetId, List.of()),
-                stratagemsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                enhancementsByDatasheetId.getOrDefault(datasheetId, List.of()),
-                detachmentAbilitiesByDatasheetId.getOrDefault(datasheetId, List.of())
-        );
+        ensureLoaded();
+        return datasheetBundlesById.get(datasheetId);
     }
 
-    // =========================
-    // Army APIs
-    // =========================
-
     public static Army getArmy(int armyId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
-        return armyById.get(armyId);
+        ensureLoaded();
+        ArmyBundle bundle = armyBundlesById.get(armyId);
+        return bundle == null ? null : bundle.army;
     }
 
     public static List<Army> getAllArmies() throws SQLException {
-        if (!loaded) loadAllFromSqlite();
-        List<Army> list = new ArrayList<>(armyById.values());
-        list.sort(Comparator.comparingInt(Army::auto_id));
-        return Collections.unmodifiableList(list);
+        ensureLoaded();
+
+        List<Army> armies = new ArrayList<>();
+        for (ArmyBundle bundle : armyBundlesById.values()) {
+            armies.add(bundle.army);
+        }
+
+        armies.sort(Comparator.comparingInt(Army::auto_id));
+        return List.copyOf(armies);
     }
 
     public static List<Army_detachment> getArmyDetachments(int armyId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
-        return detachmentsByArmyId.getOrDefault(armyId, List.of());
+        ensureLoaded();
+        ArmyBundle bundle = armyBundlesById.get(armyId);
+        return bundle == null ? List.of() : bundle.detachments;
     }
 
     public static List<Army_units> getArmyUnits(int armyId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
-        return unitsByArmyId.getOrDefault(armyId, List.of());
+        ensureLoaded();
+        ArmyBundle bundle = armyBundlesById.get(armyId);
+        return bundle == null ? List.of() : bundle.units;
     }
 
     public static List<Army_wargear> getArmyWargearByUnitId(int unitsId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
+        ensureLoaded();
         return wargearByUnitsId.getOrDefault(unitsId, List.of());
     }
 
     public static ArmyBundle getArmyBundle(int armyId) throws SQLException {
-        if (!loaded) loadAllFromSqlite();
+        ensureLoaded();
+        return armyBundlesById.get(armyId);
+    }
 
-        Army army = armyById.get(armyId);
-        if (army == null) return null;
-
-        List<Army_detachment> detachments = detachmentsByArmyId.getOrDefault(armyId, List.of());
-        List<Army_units> units = unitsByArmyId.getOrDefault(armyId, List.of());
-
-        List<Army_wargear> flatWargear = new ArrayList<>();
-        for (Army_units u : units) {
-            flatWargear.addAll(wargearByUnitsId.getOrDefault(u.auto_id(), List.of()));
+    private static void ensureLoaded() throws SQLException {
+        if (!loaded) {
+            loadAllFromSqlite();
         }
-        flatWargear.sort(Comparator.comparingInt(Army_wargear::auto_id));
+    }
 
-        return new ArmyBundle(
-                army,
-                detachments,
-                units,
-                Collections.unmodifiableList(flatWargear)
+    private static void clearCache() {
+        datasheetBundlesById.clear();
+        armyBundlesById.clear();
+        wargearByUnitsId.clear();
+    }
+
+    private static DatasheetBundle toServiceBundle(DatasheetBundleRepository.DatasheetRecordBundle recordBundle) {
+        return new DatasheetBundle(
+                recordBundle.datasheet(),
+                recordBundle.models(),
+                recordBundle.wargear(),
+                recordBundle.abilities(),
+                recordBundle.compositions(),
+                recordBundle.costs(),
+                recordBundle.keywords(),
+                recordBundle.options(),
+                recordBundle.leaders(),
+                recordBundle.stratagems(),
+                recordBundle.enhancements(),
+                recordBundle.detachmentAbilities()
         );
     }
 
-    // =========================
-    // utils
-    // =========================
+    private static ArmyBundle toServiceBundle(ArmyBundleRepository.ArmyRecordBundle recordBundle) {
+        return new ArmyBundle(
+                recordBundle.army(),
+                recordBundle.detachments(),
+                recordBundle.units(),
+                recordBundle.wargear()
+        );
+    }
 
-    private static int safeLineInt(String s) {
-        if (s == null) return Integer.MAX_VALUE;
-        try {
-            return Integer.parseInt(s.trim());
-        } catch (Exception e) {
-            return Integer.MAX_VALUE;
-        }
+    private static <T> List<T> listOrEmpty(List<T> rows) {
+        return rows == null ? List.of() : List.copyOf(rows);
     }
 }

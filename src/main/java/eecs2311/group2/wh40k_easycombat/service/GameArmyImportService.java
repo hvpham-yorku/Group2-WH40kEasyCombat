@@ -2,6 +2,7 @@ package eecs2311.group2.wh40k_easycombat.service;
 
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
+import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameSubUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameWeaponVM;
@@ -236,23 +237,11 @@ public final class GameArmyImportService {
         }
 
         try {
-            Class<?> repo = Class.forName("eecs2311.group2.wh40k_easycombat.repository.FactionsRepository");
-            java.lang.reflect.Method m = repo.getMethod("getAllFactions");
-            Object result = m.invoke(null);
-
-            if (result instanceof java.util.List<?> list) {
-                for (Object f : list) {
-                    String id = s(getAny(f, "id", "faction_id"));
-                    if (factionId.equalsIgnoreCase(id)) {
-                        String name = s(getAny(f, "name", "faction", "faction_name"));
-                        return name.isBlank() ? factionId : name;
-                    }
-                }
-            }
+            String name = FactionLookupRepository.findNameById(factionId);
+            return (name == null || name.isBlank()) ? factionId : name;
         } catch (Exception ignored) {
+            return factionId;
         }
-
-        return factionId;
     }
 
     public record SavedArmyOption(int armyId, String name, String factionId, int points, boolean marked) {
