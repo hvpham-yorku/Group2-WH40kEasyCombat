@@ -1,7 +1,11 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.assembler;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
+import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameSubUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameWeaponVM;
@@ -14,9 +18,9 @@ import java.util.Map;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.getAny;
 import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.s;
 
-public final class GameArmyImportService {
+public final class SavedArmyGameAssembler {
 
-    private GameArmyImportService() {
+    private SavedArmyGameAssembler() {
     }
 
     public static List<SavedArmyOption> loadSavedArmies() throws Exception {
@@ -43,7 +47,7 @@ public final class GameArmyImportService {
     }
 
     public static ImportedArmyData importArmy(int armyId) throws Exception {
-        StaticDataService.ArmyBundle bundle = StaticDataService.getArmyBundle(armyId);
+    	ArmyAggregate bundle = StaticDataService.getArmyBundle(armyId);
         if (bundle == null || bundle.army == null) {
             return null;
         }
@@ -51,7 +55,7 @@ public final class GameArmyImportService {
         List<GameArmyUnitVM> importedUnits = new ArrayList<>();
 
         for (Army_units savedUnit : bundle.units) {
-            StaticDataService.DatasheetBundle datasheetBundle =
+        	DatasheetAggregate datasheetBundle =
                     StaticDataService.getDatasheetBundle(savedUnit.datasheet_id());
 
             if (datasheetBundle == null || datasheetBundle.datasheet == null) {
@@ -84,10 +88,11 @@ public final class GameArmyImportService {
         );
     }
 
-    private static void buildSubUnits(GameArmyUnitVM vm,
-                                      StaticDataService.DatasheetBundle bundle,
-                                      int totalModelCount) {
-
+    private static void buildSubUnits(
+            GameArmyUnitVM vm,
+            DatasheetAggregate bundle,
+            int totalModelCount
+    ) {
         if (bundle.models == null || bundle.models.isEmpty()) {
             return;
         }
@@ -176,8 +181,10 @@ public final class GameArmyImportService {
         return result;
     }
 
-    private static void buildWeapons(GameArmyUnitVM vm, StaticDataService.DatasheetBundle bundle) {
-        if (bundle.wargear == null) return;
+    private static void buildWeapons(GameArmyUnitVM vm, DatasheetAggregate bundle) {
+        if (bundle.wargear == null) {
+            return;
+        }
 
         for (Object w : bundle.wargear) {
             String name = s(getAny(w, "wargear", "weapon", "name"));
@@ -236,23 +243,11 @@ public final class GameArmyImportService {
         }
 
         try {
-            Class<?> repo = Class.forName("eecs2311.group2.wh40k_easycombat.repository.FactionsRepository");
-            java.lang.reflect.Method m = repo.getMethod("getAllFactions");
-            Object result = m.invoke(null);
-
-            if (result instanceof java.util.List<?> list) {
-                for (Object f : list) {
-                    String id = s(getAny(f, "id", "faction_id"));
-                    if (factionId.equalsIgnoreCase(id)) {
-                        String name = s(getAny(f, "name", "faction", "faction_name"));
-                        return name.isBlank() ? factionId : name;
-                    }
-                }
-            }
+            String name = FactionLookupRepository.findNameById(factionId);
+            return (name == null || name.isBlank()) ? factionId : name;
         } catch (Exception ignored) {
+            return factionId;
         }
-
-        return factionId;
     }
 
     public record SavedArmyOption(int armyId, String name, String factionId, int points, boolean marked) {

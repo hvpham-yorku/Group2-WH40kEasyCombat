@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import eecs2311.group2.wh40k_easycombat.util.CostTier;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySaveValidator;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM.EnhancementEntry;
 
 
@@ -16,7 +17,7 @@ class ArmyValidationServiceTest {
     @Test
     @DisplayName("Validation should fail when faction is null")
     void testNullFactionValidation() {
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             null,
             "Detachment",
             "MyArmy",
@@ -31,7 +32,7 @@ class ArmyValidationServiceTest {
     @DisplayName("Validation fails when faction is string 'All'")
     void testAllFactionValidation() {
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "All",
             "Detachment",
             "MyArmy",
@@ -46,7 +47,7 @@ class ArmyValidationServiceTest {
     @DisplayName("Validation fails when detachment is null")
     void testNullDetachmentValidation() {
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             null,
             "MyArmy",
@@ -61,7 +62,7 @@ class ArmyValidationServiceTest {
     @DisplayName("Validation fails when army name is empty")
     void testEmptyArmyNameValidation() {
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "",
@@ -75,7 +76,7 @@ class ArmyValidationServiceTest {
     @DisplayName("Validation fails when army list is empty")
     void testEmptyArmyValidation() {
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "MyArmy",
@@ -96,7 +97,7 @@ class ArmyValidationServiceTest {
         u1.warlordProperty().set(true);
         u2.warlordProperty().set(true);
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "MyArmy",
@@ -119,7 +120,7 @@ class ArmyValidationServiceTest {
         u1.setEnhancement(e);
         u2.setEnhancement(e);
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "MyArmy",
@@ -142,7 +143,7 @@ class ArmyValidationServiceTest {
 
         unit1.warlordProperty().set(true);
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "MyArmy",
@@ -160,7 +161,7 @@ class ArmyValidationServiceTest {
         ArmyUnitVM unit = createDummyUnit("TestUnit", true);
         unit.warlordProperty().set(true);
 
-        String result = ArmyValidationService.validateBeforeSave(
+        String result = ArmySaveValidator.validateBeforeSave(
             "SpaceMarines",
             "Detachment",
             "MyArmy",

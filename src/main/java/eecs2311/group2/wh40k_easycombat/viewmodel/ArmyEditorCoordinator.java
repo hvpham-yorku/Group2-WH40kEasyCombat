@@ -1,8 +1,6 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerPersistence;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -11,9 +9,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public final class ArmyEditorStateService {
+public final class ArmyEditorCoordinator {
 
-    private ArmyEditorStateService() {
+    private ArmyEditorCoordinator() {
     }
 
     public static EditorResetResult resetEditor(

@@ -1,12 +1,10 @@
-package eecs2311.group2.wh40k_easycombat.service;
-
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import java.util.List;
 
-public final class ArmyPointService {
+public final class ArmyPointsCalculator {
 
-    private ArmyPointService() {
+    private ArmyPointsCalculator() {
     }
 
     public static int calculateArmyPoints(List<ArmyUnitVM> units) {

@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -116,7 +116,7 @@ public final class DatasheetsTextFormatter {
         return String.join("\n", lines);
     }
 
-    public static String buildOtherSection(DatasheetBundle bundle) {
+    public static String buildOtherSection(DatasheetAggregate bundle) {
         List<String> sections = new ArrayList<>();
 
         String leadersText = joinLines(bundle.leaders, "text", "rule", "description", "line_text", "name");

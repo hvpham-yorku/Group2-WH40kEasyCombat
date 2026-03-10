@@ -3,11 +3,11 @@ package eecs2311.group2.wh40k_easycombat.controller;
 import java.io.IOException;
 import java.util.Optional;
 
+import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler.ImportedArmyData;
 import eecs2311.group2.wh40k_easycombat.cell.GameArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.cell.GameStrategyCell;
 import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.ImportedArmyData;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.manager.GameStateManager;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;

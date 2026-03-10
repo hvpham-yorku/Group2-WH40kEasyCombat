@@ -1,17 +1,19 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyEditorStateService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyPointService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyValidationService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerDataLoader;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerPersistence;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyEditorCoordinator;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyPointsCalculator;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySaveValidator;
 import eecs2311.group2.wh40k_easycombat.viewmodel.UnitFactory;
 
 import java.io.IOException;
@@ -212,7 +214,7 @@ public class ArmyController {
         }
 
         try {
-            StaticDataService.DatasheetBundle bundle =
+        	DatasheetAggregate bundle =
                     StaticDataService.getDatasheetBundle(selected.getValue().datasheetId());
 
             if (bundle == null) {
@@ -259,7 +261,7 @@ public class ArmyController {
                 return;
             }
 
-            ArmyCrudService.ArmyWriteBundle bundle = ArmyControllerPersistence.buildWriteBundle(
+            ArmyWriteAggregate bundle = ArmyControllerPersistence.buildWriteBundle(
                     editingArmyId,
                     editingArmyMarked,
                     armyNametxt.getText().trim(),
@@ -299,8 +301,8 @@ public class ArmyController {
                 return;
             }
 
-            ArmyEditorStateService.LoadedEditorState state =
-                    ArmyEditorStateService.applyLoadedArmy(
+            ArmyEditorCoordinator.LoadedEditorState state =
+                    ArmyEditorCoordinator.applyLoadedArmy(
                             loaded,
                             currentArmy,
                             this::setSelectedFactionById,
@@ -379,7 +381,7 @@ public class ArmyController {
     // ======================= Cell Callbacks =======================
     private void refreshPoints() {
         ArmyBuilderManager.sortArmy(currentArmy);
-        pointNumber.setText(String.valueOf(ArmyPointService.calculateArmyPoints(currentArmy)));
+        pointNumber.setText(String.valueOf(ArmyPointsCalculator.calculateArmyPoints(currentArmy)));
         armyList.refresh();
     }
 
@@ -409,8 +411,8 @@ public class ArmyController {
 
     // ======================= Editor State =======================
     private void resetEditor() {
-        ArmyEditorStateService.EditorResetResult state =
-                ArmyEditorStateService.resetEditor(
+        ArmyEditorCoordinator.EditorResetResult state =
+                ArmyEditorCoordinator.resetEditor(
                         currentArmy,
                         armyNametxt,
                         factionCBbox,
@@ -466,7 +468,7 @@ public class ArmyController {
 
     // ======================= Validation =======================
     private String validateBeforeSave() {
-        return ArmyValidationService.validateBeforeSave(
+        return ArmySaveValidator.validateBeforeSave(
                 getSelectedFactionId(),
                 getSelectedDetachmentId(),
                 armyNametxt.getText(),

@@ -1,16 +1,17 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.assembler;
 
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Stratagems;
 import eecs2311.group2.wh40k_easycombat.repository.StratagemsRepository;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class GameStrategyImportService {
+public final class ArmyStrategyAssembler {
 
-    private GameStrategyImportService() {
+    private ArmyStrategyAssembler() {
     }
 
     public static List<GameStrategyVM> importStrategiesForArmy(int armyId) throws Exception {
