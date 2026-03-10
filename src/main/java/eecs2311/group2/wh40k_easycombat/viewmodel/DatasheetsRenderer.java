@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -23,7 +23,7 @@ public final class DatasheetsRenderer {
     }
 
     public static void renderBundle(
-            DatasheetBundle bundle,
+    		DatasheetAggregate bundle,
             DatasheetsPageState state,
             Label datasheetName,
             Label unitName1,

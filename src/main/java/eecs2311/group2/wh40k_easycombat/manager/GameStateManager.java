@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.manager;
 
-import assembler.ArmyStrategyAssembler;
-import assembler.SavedArmyGameAssembler.ImportedArmyData;
+import eecs2311.group2.wh40k_easycombat.assembler.ArmyStrategyAssembler;
+import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler.ImportedArmyData;
 import eecs2311.group2.wh40k_easycombat.controller.GameUIController.ArmySide;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;

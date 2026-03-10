@@ -1,5 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.application.ArmyWriteCommand;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
@@ -212,7 +214,7 @@ public class ArmyController {
         }
 
         try {
-            StaticDataService.DatasheetBundle bundle =
+        	DatasheetAggregate bundle =
                     StaticDataService.getDatasheetBundle(selected.getValue().datasheetId());
 
             if (bundle == null) {
@@ -259,7 +261,7 @@ public class ArmyController {
                 return;
             }
 
-            ArmyCrudService.ArmyWriteBundle bundle = ArmyControllerPersistence.buildWriteBundle(
+            ArmyWriteCommand bundle = ArmyControllerPersistence.buildWriteBundle(
                     editingArmyId,
                     editingArmyMarked,
                     armyNametxt.getText().trim(),

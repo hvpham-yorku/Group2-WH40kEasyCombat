@@ -1,5 +1,7 @@
-package assembler;
+package eecs2311.group2.wh40k_easycombat.assembler;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
 import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
@@ -45,7 +47,7 @@ public final class SavedArmyGameAssembler {
     }
 
     public static ImportedArmyData importArmy(int armyId) throws Exception {
-        StaticDataService.ArmyBundle bundle = StaticDataService.getArmyBundle(armyId);
+    	ArmyAggregate bundle = StaticDataService.getArmyBundle(armyId);
         if (bundle == null || bundle.army == null) {
             return null;
         }
@@ -53,7 +55,7 @@ public final class SavedArmyGameAssembler {
         List<GameArmyUnitVM> importedUnits = new ArrayList<>();
 
         for (Army_units savedUnit : bundle.units) {
-            StaticDataService.DatasheetBundle datasheetBundle =
+        	DatasheetAggregate datasheetBundle =
                     StaticDataService.getDatasheetBundle(savedUnit.datasheet_id());
 
             if (datasheetBundle == null || datasheetBundle.datasheet == null) {
@@ -86,10 +88,11 @@ public final class SavedArmyGameAssembler {
         );
     }
 
-    private static void buildSubUnits(GameArmyUnitVM vm,
-                                      StaticDataService.DatasheetBundle bundle,
-                                      int totalModelCount) {
-
+    private static void buildSubUnits(
+            GameArmyUnitVM vm,
+            DatasheetAggregate bundle,
+            int totalModelCount
+    ) {
         if (bundle.models == null || bundle.models.isEmpty()) {
             return;
         }
@@ -178,8 +181,10 @@ public final class SavedArmyGameAssembler {
         return result;
     }
 
-    private static void buildWeapons(GameArmyUnitVM vm, StaticDataService.DatasheetBundle bundle) {
-        if (bundle.wargear == null) return;
+    private static void buildWeapons(GameArmyUnitVM vm, DatasheetAggregate bundle) {
+        if (bundle.wargear == null) {
+            return;
+        }
 
         for (Object w : bundle.wargear) {
             String name = s(getAny(w, "wargear", "weapon", "name"));

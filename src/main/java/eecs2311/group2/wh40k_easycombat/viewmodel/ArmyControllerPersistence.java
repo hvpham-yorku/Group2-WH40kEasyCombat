@@ -1,10 +1,12 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.application.ArmyWriteCommand;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
 import eecs2311.group2.wh40k_easycombat.model.Army_wargear;
-import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public final class ArmyControllerPersistence {
     private ArmyControllerPersistence() {
     }
 
-    public static ArmyCrudService.ArmyWriteBundle buildWriteBundle(
+    public static ArmyWriteCommand buildWriteBundle(
             Integer editingArmyId,
             boolean editingArmyMarked,
             String armyName,
@@ -75,14 +77,14 @@ public final class ArmyControllerPersistence {
             tempUnitId--;
         }
 
-        return new ArmyCrudService.ArmyWriteBundle(army, detachments, units, wargears);
+        return new ArmyWriteCommand(army, detachments, units, wargears);
     }
 
     public static LoadedArmyData loadArmyForEdit(
             int armyId,
             Map<String, ArmyUnitVM.EnhancementEntry> enhancementInfoById
     ) throws Exception {
-        StaticDataService.ArmyBundle bundle = StaticDataService.getArmyBundle(armyId);
+    	 ArmyAggregate bundle = StaticDataService.getArmyBundle(armyId);
         if (bundle == null || bundle.army == null) {
             return null;
         }
@@ -101,7 +103,7 @@ public final class ArmyControllerPersistence {
         List<ArmyUnitVM> units = new ArrayList<>();
 
         for (Army_units savedUnit : bundle.units) {
-            StaticDataService.DatasheetBundle datasheetBundle =
+        	DatasheetAggregate datasheetBundle =
                     StaticDataService.getDatasheetBundle(savedUnit.datasheet_id());
 
             if (datasheetBundle == null) continue;

@@ -1,8 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
 import eecs2311.group2.wh40k_easycombat.service.*;
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsFilterApplier;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageLoader;
@@ -316,7 +316,7 @@ public class DatasheetsController implements Initializable {
         }
 
         try {
-            DatasheetBundle bundle = StaticDataService.getDatasheetBundle(datasheetId);
+        	DatasheetAggregate bundle = StaticDataService.getDatasheetBundle(datasheetId);
             if (bundle == null) {
                 clearRightPanel();
                 return;

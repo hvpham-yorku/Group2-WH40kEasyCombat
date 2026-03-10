@@ -1,4 +1,4 @@
-package assembler;
+package eecs2311.group2.wh40k_easycombat.assembler;
 
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Stratagems;

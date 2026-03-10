@@ -1,5 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
+import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.controller.ArmyController;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets;
@@ -161,7 +162,7 @@ public final class ArmyControllerDataLoader {
             if (!factionId.equalsIgnoreCase(d.faction_id())) continue;
 
             try {
-                StaticDataService.DatasheetBundle bundle = StaticDataService.getDatasheetBundle(d.id());
+            	DatasheetAggregate bundle = StaticDataService.getDatasheetBundle(d.id());
                 if (bundle == null) continue;
 
                 int minPoints = basePoints(bundle.costs);

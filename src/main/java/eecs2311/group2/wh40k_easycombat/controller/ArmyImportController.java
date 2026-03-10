@@ -1,8 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import assembler.SavedArmyGameAssembler;
-import assembler.SavedArmyGameAssembler.ImportedArmyData;
-import assembler.SavedArmyGameAssembler.SavedArmyOption;
+import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler;
+import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler.ImportedArmyData;
+import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler.SavedArmyOption;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
