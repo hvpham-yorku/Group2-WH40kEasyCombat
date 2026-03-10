@@ -1,7 +1,5 @@
 package eecs2311.group2.wh40k_easycombat.model.instance;
 
-import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,7 @@ public class ArmyInstance {
     private int currentVp;
 
     private final List<UnitInstance> units = new ArrayList<>();
-    private final List<GameStrategyVM> strategies = new ArrayList<>();
+    private final List<StratagemInstance> strategies = new ArrayList<>();
 
     public ArmyInstance(
             int armyId,
@@ -74,7 +72,7 @@ public class ArmyInstance {
         return units;
     }
 
-    public List<GameStrategyVM> getStrategies() {
+    public List<StratagemInstance> getStrategies() {
         return strategies;
     }
 
@@ -84,7 +82,7 @@ public class ArmyInstance {
         }
     }
 
-    public void addStrategy(GameStrategyVM strategy) {
+    public void addStrategy(StratagemInstance strategy) {
         if (strategy != null) {
             strategies.add(strategy);
         }

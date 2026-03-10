@@ -9,8 +9,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
@@ -45,7 +45,11 @@ public class GameStrategyCell extends ListCell<GameStrategyVM> {
         nameLabel.setMaxWidth(170);
         nameLabel.setStyle("-fx-font-weight: bold;");
 
-        Label cpLabel = new Label(item.getCpCost() + " CP");
+        String cpText = item.getCpCost() == null || item.getCpCost().isBlank()
+                ? "0 CP"
+                : item.getCpCost() + " CP";
+
+        Label cpLabel = new Label(cpText);
         cpLabel.setStyle("-fx-font-weight: bold;");
 
         Region spacer = new Region();

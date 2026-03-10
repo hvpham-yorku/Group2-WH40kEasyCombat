@@ -1,6 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
 import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
+import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.repository.ArmyBundleRepository;
 
 import java.sql.SQLException;
@@ -28,6 +29,18 @@ public final class ArmyCrudService {
     public static void deleteArmyBundle(int armyId) throws SQLException {
         ArmyBundleRepository.deleteBundle(armyId);
         StaticDataService.reloadFromSqlite();
+    }
+
+    public static boolean toggleFavorite(int armyId) throws SQLException {
+        Army army = StaticDataService.getArmy(armyId);
+        if (army == null) {
+            throw new IllegalStateException("Army could not be loaded.");
+        }
+
+        boolean newMarked = !army.isMarked();
+        ArmyBundleRepository.updateMarked(armyId, newMarked);
+        StaticDataService.reloadFromSqlite();
+        return newMarked;
     }
 
     private static ArmyBundleRepository.ArmyWriteRecordBundle toRepositoryBundle(ArmyWriteAggregate command) {

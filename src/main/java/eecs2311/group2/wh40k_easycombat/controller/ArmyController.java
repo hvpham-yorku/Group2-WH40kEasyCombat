@@ -3,18 +3,18 @@ package eecs2311.group2.wh40k_easycombat.controller;
 import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
 import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyEditorControllerHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyEditorService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerDataLoader;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerPersistence;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyEditorCoordinator;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyPointsCalculator;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyEditorLoadVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySavedRowVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitTreeRowVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySaveValidator;
-import eecs2311.group2.wh40k_easycombat.viewmodel.UnitFactory;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,9 +30,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -74,17 +71,17 @@ public class ArmyController {
     @FXML private ListView<ArmyUnitVM> armyList;
 
     // ======================= Saved Armies ==================
-    @FXML private TableView<SavedArmyRow> savedArmyTable;
-    @FXML private TableColumn<SavedArmyRow, String> savedName;
-    @FXML private TableColumn<SavedArmyRow, Number> savedPoint;
+    @FXML private TableView<ArmySavedRowVM> savedArmyTable;
+    @FXML private TableColumn<ArmySavedRowVM, String> savedName;
+    @FXML private TableColumn<ArmySavedRowVM, Number> savedPoint;
 
     // ======================= Unit Selection ================
-    @FXML private TreeTableView<UnitTreeRow> unitSectionTreeTable;
-    @FXML private TreeTableColumn<UnitTreeRow, String> selectUnit;
-    @FXML private TreeTableColumn<UnitTreeRow, Number> selectPoint;
+    @FXML private TreeTableView<ArmyUnitTreeRowVM> unitSectionTreeTable;
+    @FXML private TreeTableColumn<ArmyUnitTreeRowVM, String> selectUnit;
+    @FXML private TreeTableColumn<ArmyUnitTreeRowVM, Number> selectPoint;
 
     private final ObservableList<ArmyUnitVM> currentArmy = FXCollections.observableArrayList();
-    private final ObservableList<SavedArmyRow> savedArmyRows = FXCollections.observableArrayList();
+    private final ObservableList<ArmySavedRowVM> savedArmyRows = FXCollections.observableArrayList();
 
     private Map<String, ArmyUnitVM.EnhancementEntry> enhancementInfoById = new LinkedHashMap<>();
 
@@ -104,7 +101,7 @@ public class ArmyController {
         try {
             StaticDataService.loadAllFromSqlite();
         } catch (Exception e) {
-            showError("Initialization Error", e.getMessage());
+            DialogHelper.showError("Initialization Error", e);
         }
 
         setupSizeComboBox();
@@ -145,7 +142,7 @@ public class ArmyController {
     }
 
     private void loadInitialData() {
-        enhancementInfoById = ArmyControllerDataLoader.loadEnhancementInfoById();
+        enhancementInfoById = ArmyControllerDataHelper.loadEnhancementInfoById();
 
         loadFactionOptions();
         loadSavedArmies();
@@ -172,13 +169,13 @@ public class ArmyController {
 
     @FXML
     void cancelTheChange(MouseEvent event) throws IOException {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Exit");
-        alert.setHeaderText("Are you sure you want to exit this page?");
-        alert.setContentText("Unsaved changes will be lost.");
+        boolean shouldExit = DialogHelper.confirmOkCancel(
+                "Exit",
+                "Are you sure you want to exit this page?",
+                "Unsaved changes will be lost."
+        );
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (shouldExit) {
             FixedAspectView.switchTo((Node) event.getSource(),
                     "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
                     1200.0, 800.0);
@@ -191,7 +188,7 @@ public class ArmyController {
     void confirm(MouseEvent event) {
         String factionId = getSelectedFactionId();
         if (factionId == null || factionId.isBlank() || "all".equalsIgnoreCase(factionId)) {
-            showWarning("Faction Required", "Please choose one specific faction. \"All\" is not allowed.");
+            DialogHelper.showWarning("Faction Required", "Please choose one specific faction. \"All\" is not allowed.");
             return;
         }
 
@@ -207,26 +204,26 @@ public class ArmyController {
 
     @FXML
     void add(MouseEvent event) {
-        TreeItem<UnitTreeRow> selected = unitSectionTreeTable.getSelectionModel().getSelectedItem();
-        if (selected == null || selected.getValue() == null || selected.getValue().group()) {
-            showWarning("No Unit Selected", "Please select one unit from the tree.");
+        TreeItem<ArmyUnitTreeRowVM> selected = unitSectionTreeTable.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getValue() == null || selected.getValue().isGroup()) {
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit from the tree.");
             return;
         }
 
         try {
-        	DatasheetAggregate bundle =
+            DatasheetAggregate bundle =
                     StaticDataService.getDatasheetBundle(selected.getValue().datasheetId());
 
             if (bundle == null) {
-                showWarning("Missing Datasheet", "Selected unit could not be loaded.");
+                DialogHelper.showWarning("Missing Datasheet", "Selected unit could not be loaded.");
                 return;
             }
 
-            ArmyUnitVM vm = UnitFactory.create(bundle, enhancementInfoById);
+            ArmyUnitVM vm = ArmyEditorService.createArmyUnitVM(bundle, enhancementInfoById);
             ArmyBuilderManager.addUnit(currentArmy, vm);
             refreshPoints();
         } catch (Exception e) {
-            showError("Add Unit Error", e.getMessage());
+            DialogHelper.showError("Add Unit Error", e);
         }
     }
 
@@ -234,7 +231,7 @@ public class ArmyController {
     void removeUnit(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("No Unit Selected", "Please select one unit in the army list.");
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit in the army list.");
             return;
         }
 
@@ -245,7 +242,7 @@ public class ArmyController {
     void setWarlord(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("No Unit Selected", "Please select one unit in the army list.");
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit in the army list.");
             return;
         }
 
@@ -257,11 +254,11 @@ public class ArmyController {
         try {
             String validation = validateBeforeSave();
             if (validation != null) {
-                showWarning("Cannot Save", validation);
+                DialogHelper.showWarning("Cannot Save", validation);
                 return;
             }
 
-            ArmyWriteAggregate bundle = ArmyControllerPersistence.buildWriteBundle(
+            ArmyWriteAggregate bundle = ArmyEditorService.buildWriteBundle(
                     editingArmyId,
                     editingArmyMarked,
                     armyNametxt.getText().trim(),
@@ -278,31 +275,31 @@ public class ArmyController {
 
             loadSavedArmies();
             resetEditor();
-            showInfo("Saved", "Army saved successfully.");
+            DialogHelper.showInfo("Saved", "Army saved successfully.");
         } catch (Exception e) {
-            showError("Save Error", e.getMessage());
+            DialogHelper.showError("Save Error", e);
         }
     }
 
     @FXML
     void loadArmy(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
         try {
-            ArmyControllerPersistence.LoadedArmyData loaded =
-                    ArmyControllerPersistence.loadArmyForEdit(row.armyId(), enhancementInfoById);
+            ArmyEditorLoadVM loaded =
+                    ArmyEditorService.loadArmyForEdit(row.armyId(), enhancementInfoById);
 
             if (loaded == null || loaded.army() == null) {
-                showWarning("Load Failed", "The selected army could not be loaded.");
+                DialogHelper.showWarning("Load Failed", "The selected army could not be loaded.");
                 return;
             }
 
-            ArmyEditorCoordinator.LoadedEditorState state =
-                    ArmyEditorCoordinator.applyLoadedArmy(
+            ArmyEditorControllerHelper.LoadedEditorState state =
+                    ArmyEditorControllerHelper.applyLoadedArmy(
                             loaded,
                             currentArmy,
                             this::setSelectedFactionById,
@@ -318,26 +315,19 @@ public class ArmyController {
 
             refreshPoints();
         } catch (Exception e) {
-            showError("Load Error", e.getMessage());
+            DialogHelper.showError("Load Error", e);
         }
     }
 
     @FXML
     void delete(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
-        Alert alert = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Delete army \"" + row.armyName() + "\" ?",
-                ButtonType.YES, ButtonType.NO
-        );
-        alert.setHeaderText("Confirm Delete");
-
-        if (alert.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
+        if (!DialogHelper.confirmYesNo("Confirm Delete", "Delete army \"" + row.armyName() + "\" ?")) {
             return;
         }
 
@@ -348,20 +338,20 @@ public class ArmyController {
             }
             loadSavedArmies();
         } catch (Exception e) {
-            showError("Delete Error", e.getMessage());
+            DialogHelper.showError("Delete Error", e);
         }
     }
 
     @FXML
     void favorite(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
         try {
-            boolean newMarked = ArmyFavoriteService.toggleFavorite(row.armyId());
+        	boolean newMarked = ArmyCrudService.toggleFavorite(row.armyId());
 
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
                 editingArmyMarked = newMarked;
@@ -369,19 +359,19 @@ public class ArmyController {
 
             loadSavedArmies();
         } catch (Exception e) {
-            showError("Favorite Error", e.getMessage());
+            DialogHelper.showError("Favorite Error", e);
         }
     }
 
     @FXML
     void importData(MouseEvent event) {
-        showInfo("Reserved", "Import will be implemented later.");
+        DialogHelper.showInfo("Reserved", "Import will be implemented later.");
     }
 
     // ======================= Cell Callbacks =======================
     private void refreshPoints() {
         ArmyBuilderManager.sortArmy(currentArmy);
-        pointNumber.setText(String.valueOf(ArmyPointsCalculator.calculateArmyPoints(currentArmy)));
+        pointNumber.setText(String.valueOf(ArmyBuilderManager.calculateArmyPoints(currentArmy)));
         armyList.refresh();
     }
 
@@ -392,7 +382,7 @@ public class ArmyController {
 
     private void setWarlordFromCell(ArmyUnitVM vm) {
         if (vm == null || !vm.isCharacter()) {
-            showWarning("Invalid Warlord", "Only CHARACTER units can be set as warlord.");
+            DialogHelper.showWarning("Invalid Warlord", "Only CHARACTER units can be set as warlord.");
             return;
         }
 
@@ -411,8 +401,8 @@ public class ArmyController {
 
     // ======================= Editor State =======================
     private void resetEditor() {
-        ArmyEditorCoordinator.EditorResetResult state =
-                ArmyEditorCoordinator.resetEditor(
+        ArmyEditorControllerHelper.EditorResetResult state =
+                ArmyEditorControllerHelper.resetEditor(
                         currentArmy,
                         armyNametxt,
                         factionCBbox,
@@ -428,11 +418,11 @@ public class ArmyController {
     }
 
     private void loadSavedArmies() {
-        savedArmyRows.setAll(ArmyControllerDataLoader.loadSavedArmyRows());
+        savedArmyRows.setAll(ArmyControllerDataHelper.loadSavedArmyRows());
     }
 
     private void loadFactionOptions() {
-        ArmyControllerDataLoader.FactionDisplayData data = ArmyControllerDataLoader.loadFactionDisplayData();
+        ArmyControllerDataHelper.FactionDisplayData data = ArmyControllerDataHelper.loadFactionDisplayData();
 
         factionDisplayToId = data.displayToId();
         factionIdToDisplay = data.idToDisplay();
@@ -446,8 +436,8 @@ public class ArmyController {
     }
 
     private void refreshDetachmentOptions() {
-        ArmyControllerDataLoader.DetachmentDisplayData data =
-                ArmyControllerDataLoader.loadDetachmentDisplayData(getSelectedFactionId());
+        ArmyControllerDataHelper.DetachmentDisplayData data =
+                ArmyControllerDataHelper.loadDetachmentDisplayData(getSelectedFactionId());
 
         detachmentDisplayToId = data.displayToId();
         detachmentIdToDisplay = data.idToDisplay();
@@ -458,17 +448,13 @@ public class ArmyController {
     }
 
     private void rebuildUnitTree() {
-        TreeItem<UnitTreeRow> root = ArmyControllerDataLoader.buildUnitTree(
-                getSelectedFactionId(),
-                unit -> new UnitTreeRow(unit.name(), unit.datasheetId(), unit.role(), unit.points(), false),
-                UnitTreeRow::group
-        );
+        TreeItem<ArmyUnitTreeRowVM> root = ArmyControllerDataHelper.buildUnitTree(getSelectedFactionId());
         unitSectionTreeTable.setRoot(root);
     }
 
     // ======================= Validation =======================
     private String validateBeforeSave() {
-        return ArmySaveValidator.validateBeforeSave(
+        return ArmyBuilderManager.validateBeforeSave(
                 getSelectedFactionId(),
                 getSelectedDetachmentId(),
                 armyNametxt.getText(),
@@ -501,46 +487,15 @@ public class ArmyController {
     }
 
     private static String defaultFactionDisplay(List<String> factions) {
-        for (String f : factions) {
-            if ("Space Marines".equalsIgnoreCase(f)) return f;
+        for (String faction : factions) {
+            if ("Space Marines".equalsIgnoreCase(faction)) return faction;
         }
-        for (String f : factions) {
-            if ("Adeptus Astartes".equalsIgnoreCase(f)) return f;
+        for (String faction : factions) {
+            if ("Adeptus Astartes".equalsIgnoreCase(faction)) return faction;
         }
-        for (String f : factions) {
-            if (f != null && f.toLowerCase(Locale.ROOT).contains("marine")) return f;
+        for (String faction : factions) {
+            if (faction != null && faction.toLowerCase(Locale.ROOT).contains("marine")) return faction;
         }
         return factions.isEmpty() ? null : factions.get(0);
-    }
-
-    private void showWarning(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    private void showError(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.ERROR, text == null ? "Unknown error." : text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    private void showInfo(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    // ======================= Rows =======================
-    public record UnitTreeRow(String displayName, String datasheetId, String role, int points, boolean group) {
-        static UnitTreeRow group(String name) {
-            return new UnitTreeRow(name, null, null, 0, true);
-        }
-    }
-
-    public record SavedArmyRow(int armyId, String armyName, int points, boolean marked) {
-        String displayName() {
-            return marked ? "★ " + armyName : armyName;
-        }
     }
 }

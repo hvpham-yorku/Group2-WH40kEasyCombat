@@ -1,15 +1,14 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import java.io.IOException;
-import java.util.Optional;
 
-import eecs2311.group2.wh40k_easycombat.assembler.SavedArmyGameAssembler.ImportedArmyData;
 import eecs2311.group2.wh40k_easycombat.cell.GameArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.cell.GameStrategyCell;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
-import eecs2311.group2.wh40k_easycombat.manager.GameStateManager;
+import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyImportVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
 
@@ -19,7 +18,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -87,7 +92,11 @@ public class GameUIController {
     private void initialize() {
         setupArmyLists();
         setupStrategyLists();
-        RoundManager.initialize(roundLabel, blueCPLabel, redCPLabel);
+        applyRoundState(RoundManager.initialize(
+                roundLabel == null ? null : roundLabel.getText(),
+                blueCPLabel == null ? null : blueCPLabel.getText(),
+                redCPLabel == null ? null : redCPLabel.getText()
+        ));
     }
 
     private void setupArmyLists() {
@@ -106,28 +115,17 @@ public class GameUIController {
         redStrategyList.setCellFactory(v -> new GameStrategyCell());
     }
 
-    public void acceptImportedArmy(ArmySide side, ImportedArmyData data) {
+    public void acceptImportedArmy(ArmySide side, GameArmyImportVM data) {
         if (data == null) return;
 
-        try {
-            GameStateManager.applyImportedArmy(
-                    side,
-                    data,
-                    blueArmyUnits,
-                    redArmyUnits,
-                    blueStrategies,
-                    redStrategies
-            );
-
-            if (side == ArmySide.BLUE) {
-                blueFactionLabel.setText(data.factionName());
-            } else {
-                redFactionLabel.setText(data.factionName());
-            }
-        } catch (Exception e) {
-            Alert a = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
-            a.setHeaderText("Import Strategy Error");
-            a.showAndWait();
+        if (side == ArmySide.BLUE) {
+            blueArmyUnits.setAll(data.units());
+            blueStrategies.setAll(data.strategies());
+            blueFactionLabel.setText(data.factionName());
+        } else {
+            redArmyUnits.setAll(data.units());
+            redStrategies.setAll(data.strategies());
+            redFactionLabel.setText(data.factionName());
         }
     }
 
@@ -148,9 +146,7 @@ public class GameUIController {
             stage.setScene(new javafx.scene.Scene(root));
             stage.showAndWait();
         } catch (Exception e) {
-            Alert a = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
-            a.setHeaderText("Open Import Page Error");
-            a.showAndWait();
+            DialogHelper.showError("Open Import Page Error", e);
         }
     }
 
@@ -167,12 +163,12 @@ public class GameUIController {
 
     @FXML
     void blueClickPlus(MouseEvent event) {
-        RoundManager.addBlueCp(blueCPLabel, 1);
+        applyRoundState(RoundManager.addBlueCp(readRoundState(), 1));
     }
 
     @FXML
     void blueClickSub(MouseEvent event) {
-        RoundManager.addBlueCp(blueCPLabel, -1);
+        applyRoundState(RoundManager.addBlueCp(readRoundState(), -1));
     }
 
     @FXML
@@ -182,13 +178,7 @@ public class GameUIController {
 
     @FXML
     void blueSelect(MouseEvent event) {
-        StratagemUseManager.useSelectedStrategy(
-                ArmySide.BLUE,
-                blueStrategyList,
-                redStrategyList,
-                blueCPLabel,
-                redCPLabel
-        );
+        useSelectedStrategy(ArmySide.BLUE);
     }
 
     // ======================= Red Actions ======================
@@ -204,12 +194,12 @@ public class GameUIController {
 
     @FXML
     void redClickPlus(MouseEvent event) {
-        RoundManager.addRedCp(redCPLabel, 1);
+        applyRoundState(RoundManager.addRedCp(readRoundState(), 1));
     }
 
     @FXML
     void redClickSub(MouseEvent event) {
-        RoundManager.addRedCp(redCPLabel, -1);
+        applyRoundState(RoundManager.addRedCp(readRoundState(), -1));
     }
 
     @FXML
@@ -219,25 +209,19 @@ public class GameUIController {
 
     @FXML
     void redSelect(MouseEvent event) {
-        StratagemUseManager.useSelectedStrategy(
-                ArmySide.RED,
-                blueStrategyList,
-                redStrategyList,
-                blueCPLabel,
-                redCPLabel
-        );
+        useSelectedStrategy(ArmySide.RED);
     }
 
     // ======================= General Actions ==================
     @FXML
     void clickExit(MouseEvent event) throws IOException {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Exit");
-        alert.setHeaderText("Are you sure you want to exit this game?");
-        alert.setContentText("Unsaved changes will be lost.");
+        boolean shouldExit = DialogHelper.confirmOkCancel(
+                "Exit",
+                "Are you sure you want to exit this game?",
+                "Unsaved changes will be lost."
+        );
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (shouldExit) {
             FixedAspectView.switchTo((Node) event.getSource(),
                     "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
                     1200.0, 800.0);
@@ -246,19 +230,11 @@ public class GameUIController {
 
     @FXML
     void nextRound(MouseEvent event) {
-        Alert alert = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to enter the next round?",
-                ButtonType.YES,
-                ButtonType.NO
-        );
-        alert.setHeaderText("Next Round");
-
-        if (alert.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
+        if (!DialogHelper.confirmYesNo("Next Round", "Are you sure you want to enter the next round?")) {
             return;
         }
 
-        RoundManager.nextRound(roundLabel, blueCPLabel, redCPLabel);
+        applyRoundState(RoundManager.nextRound(readRoundState()));
     }
 
     @FXML
@@ -269,5 +245,68 @@ public class GameUIController {
     @FXML
     void rollDice(MouseEvent event) {
 
+    }
+
+    private void useSelectedStrategy(ArmySide side) {
+        GameStrategyVM selected = getSelectedStrategy(side);
+
+        StratagemUseManager.UseResult result = StratagemUseManager.useStrategy(
+                toBattleSide(side),
+                selected == null ? null : selected.getStrategy(),
+                getCpLabel(side).getText()
+        );
+
+        if (!result.success()) {
+            DialogHelper.showWarning(result.title(), result.message());
+            return;
+        }
+
+        if (!DialogHelper.confirmYesNo("Confirm Stratagem", "Use stratagem \"" + result.title() + "\"?")) {
+            return;
+        }
+
+        getCpLabel(side).setText(result.nextCpText());
+        DialogHelper.showInfo(result.title(), result.message());
+    }
+
+    private GameStrategyVM getSelectedStrategy(ArmySide side) {
+        if (side == ArmySide.BLUE) {
+            return blueStrategyList.getSelectionModel().getSelectedItem();
+        }
+        return redStrategyList.getSelectionModel().getSelectedItem();
+    }
+
+    private Label getCpLabel(ArmySide side) {
+        return side == ArmySide.BLUE ? blueCPLabel : redCPLabel;
+    }
+
+    private StratagemUseManager.BattleSide toBattleSide(ArmySide side) {
+        return side == ArmySide.BLUE
+                ? StratagemUseManager.BattleSide.BLUE
+                : StratagemUseManager.BattleSide.RED;
+    }
+
+    private RoundManager.RoundState readRoundState() {
+        return RoundManager.fromTexts(
+                roundLabel == null ? null : roundLabel.getText(),
+                blueCPLabel == null ? null : blueCPLabel.getText(),
+                redCPLabel == null ? null : redCPLabel.getText()
+        );
+    }
+
+    private void applyRoundState(RoundManager.RoundState state) {
+        if (state == null) {
+            return;
+        }
+
+        if (roundLabel != null) {
+            roundLabel.setText(String.valueOf(state.round()));
+        }
+        if (blueCPLabel != null) {
+            blueCPLabel.setText(String.valueOf(state.blueCp()));
+        }
+        if (redCPLabel != null) {
+            redCPLabel.setText(String.valueOf(state.redCp()));
+        }
     }
 }

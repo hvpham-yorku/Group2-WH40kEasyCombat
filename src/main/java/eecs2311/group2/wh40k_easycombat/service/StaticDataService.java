@@ -68,6 +68,31 @@ public final class StaticDataService {
         }
     }
 
+    public static void saveBundle(DatasheetAggregate bundle) throws SQLException {
+        if (bundle == null || bundle.datasheet == null || bundle.datasheet.id() == null) {
+            throw new IllegalArgumentException("bundle/datasheet/id must not be null");
+        }
+
+        DatasheetBundleRepository.saveBundle(
+                new DatasheetBundleRepository.DatasheetRecordBundle(
+                        bundle.datasheet,
+                        bundle.models,
+                        bundle.wargear,
+                        bundle.abilities,
+                        bundle.compositions,
+                        bundle.costs,
+                        bundle.keywords,
+                        bundle.options,
+                        bundle.leaders,
+                        bundle.stratagems,
+                        bundle.enhancements,
+                        bundle.detachmentAbilities
+                )
+        );
+
+        reloadFromSqlite();
+    }
+
     public static DatasheetAggregate getDatasheetBundle(String datasheetId) throws SQLException {
         ensureLoaded();
         return datasheetBundlesById.get(datasheetId);
