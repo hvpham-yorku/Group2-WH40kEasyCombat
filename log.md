@@ -6,6 +6,8 @@
 
 2026.03.06 - A final testing and debriefing meeting will be held before the end of ITR2.
 
+2026.03.09 - Because the due date was postponed, more code structure optimization tasks were identified.
+
 ## Changes
 2026.02.26 - The discovery of Data Export from Wahapedia established the basis for reading its CSV files to obtain relevant data and rules.
 
@@ -16,6 +18,8 @@
 2026.03.04 - The service classes were refactored and several new service classes were added to meet the needs of reading large amounts of data from the database.
 
 2026.03.05 - Most of the features in the Army section have been added; users can now create armies and use some basic logic in the Game section. The virtual dice feature has been removed because more complex new features will be developed for ITR3.
+
+2026.03.10 - The entire software structure was restructured, the functionality of each package and class was defined, overlapping classes and functions were removed, and new classes were added to control the location of functions.
 
 ## Concern
 The database restructuring required rewriting a significant amount of structural code,
@@ -53,10 +57,13 @@ San Khoshaba - Data populator and documentation
 Displays more professional Warhammer data - Plan 3 - Actual - 5
 
 
-Basic Game Logic - Plan 2 - Actual 1
+Basic Game Logic - Plan 2 - Actual 3
 
 
 Army table creation - Plan 3 - Actual 1
+
+
+Restructuring - Plan 2 - Actual 1
 
 ---
 
