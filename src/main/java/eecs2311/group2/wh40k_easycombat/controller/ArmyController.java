@@ -7,7 +7,7 @@ import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelp
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyEditorControllerHelper;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
-import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyBundleService;
 import eecs2311.group2.wh40k_easycombat.service.ArmyEditorService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
@@ -268,9 +268,9 @@ public class ArmyController {
             );
 
             if (editingArmyId == null) {
-                ArmyCrudService.createArmyBundle(bundle);
+                ArmyBundleService.createArmyBundle(bundle);
             } else {
-                ArmyCrudService.updateArmyBundle(bundle);
+                ArmyBundleService.updateArmyBundle(bundle);
             }
 
             loadSavedArmies();
@@ -332,7 +332,7 @@ public class ArmyController {
         }
 
         try {
-            ArmyCrudService.deleteArmyBundle(row.armyId());
+            ArmyBundleService.deleteArmyBundle(row.armyId());
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
                 resetEditor();
             }
@@ -351,7 +351,7 @@ public class ArmyController {
         }
 
         try {
-        	boolean newMarked = ArmyCrudService.toggleFavorite(row.armyId());
+        	boolean newMarked = ArmyBundleService.toggleFavorite(row.armyId());
 
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
                 editingArmyMarked = newMarked;
