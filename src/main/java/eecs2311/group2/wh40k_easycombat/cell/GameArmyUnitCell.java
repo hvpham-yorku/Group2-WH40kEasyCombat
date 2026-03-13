@@ -1,8 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.cell;
 
+import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
+import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
-import eecs2311.group2.wh40k_easycombat.viewmodel.GameSubUnitVM;
-import eecs2311.group2.wh40k_easycombat.viewmodel.GameWeaponVM;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,7 +52,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         detailBox.visibleProperty().bind(item.expandedProperty());
         detailBox.managedProperty().bind(item.expandedProperty());
 
-        for (GameSubUnitVM sub : item.getSubUnits()) {
+        for (UnitModelInstance sub : item.getSubUnits()) {
             detailBox.getChildren().add(buildSubUnitBox(sub));
         }
 
@@ -61,7 +61,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
             title.setStyle("-fx-font-weight: bold;");
             detailBox.getChildren().add(title);
 
-            for (GameWeaponVM row : item.getRangedWeapons()) {
+            for (WeaponProfile row : item.getRangedWeapons()) {
                 detailBox.getChildren().add(buildWeaponBox(row, false));
             }
         }
@@ -71,7 +71,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
             title.setStyle("-fx-font-weight: bold;");
             detailBox.getChildren().add(title);
 
-            for (GameWeaponVM row : item.getMeleeWeapons()) {
+            for (WeaponProfile row : item.getMeleeWeapons()) {
                 detailBox.getChildren().add(buildWeaponBox(row, true));
             }
         }
@@ -80,12 +80,17 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         setGraphic(root);
     }
 
-    private VBox buildSubUnitBox(GameSubUnitVM sub) {
-        Label name = new Label(sub.getName());
+    private VBox buildSubUnitBox(UnitModelInstance sub) {
+        Label name = new Label(sub.getModelName());
 
-        TextField hpField = new TextField();
+        TextField hpField = new TextField(String.valueOf(sub.getCurrentHp()));
         hpField.setPrefWidth(60);
-        hpField.textProperty().bindBidirectional(sub.hpProperty());
+        hpField.setOnAction(e -> syncHpField(sub, hpField));
+        hpField.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) {
+                syncHpField(sub, hpField);
+            }
+        });
 
         Label hpLabel = new Label("HP");
 
@@ -103,10 +108,23 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         return box;
     }
 
-    private VBox buildWeaponBox(GameWeaponVM row, boolean melee) {
-        Label name = new Label(row.getName());
+    private void syncHpField(UnitModelInstance sub, TextField hpField) {
+        try {
+            sub.setCurrentHp(Integer.parseInt(hpField.getText().trim()));
+        } catch (Exception ignored) {
+        }
 
-        Label count = new Label("x" + row.getCount());
+        hpField.setText(String.valueOf(sub.getCurrentHp()));
+
+        if (getListView() != null) {
+            getListView().refresh();
+        }
+    }
+
+    private VBox buildWeaponBox(WeaponProfile row, boolean melee) {
+        Label name = new Label(row.name());
+
+        Label count = new Label("x" + row.count());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -115,12 +133,12 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         topRow.setAlignment(Pos.CENTER_LEFT);
 
         Label statRow = new Label(
-                "Range: " + safe(row.getRange())
-                        + "   A: " + safe(row.getA())
-                        + "   " + (melee ? "WS" : "BS") + ": " + safe(row.getSkill())
-                        + "   S: " + safe(row.getS())
-                        + "   AP: " + safe(row.getAp())
-                        + "   D: " + safe(row.getD())
+                "Range: " + safe(row.range())
+                        + "   A: " + safe(row.a())
+                        + "   " + (melee ? "WS" : "BS") + ": " + safe(row.skill())
+                        + "   S: " + safe(row.s())
+                        + "   AP: " + safe(row.ap())
+                        + "   D: " + safe(row.d())
         );
         statRow.setWrapText(true);
 
@@ -129,7 +147,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         return box;
     }
 
-    private String buildSubUnitStatText(GameSubUnitVM sub) {
+    private String buildSubUnitStatText(UnitModelInstance sub) {
         String text = "M:" + safe(sub.getM())
                 + "   T:" + safe(sub.getT())
                 + "   SV:" + safe(sub.getSv())

@@ -1,10 +1,9 @@
-package eecs2311.group2.wh40k_easycombat.repository;
+package eecs2311.group2.wh40k_easycombat.service;
 
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,7 @@ class StaticDataServiceTest {
 
         assertNotNull(existingId, "DB must contain at least 1 datasheet for this test");
 
-        StaticDataService.DatasheetBundle b = StaticDataService.getDatasheetBundle(existingId);
+        DatasheetAggregate b = StaticDataService.getDatasheetBundle(existingId);
 
         assertNotNull(b, "Bundle should not be null");
         assertNotNull(b.datasheet, "Bundle.datasheet should not be null");

@@ -1,22 +1,25 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.ImportedArmyData;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService.SavedArmyOption;
-
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySavedRowVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyImportVM;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class ArmyImportController {
 
-    @FXML private TableView<SavedArmyOption> armyTable;
-    @FXML private TableColumn<SavedArmyOption, String> armyName;
-    @FXML private TableColumn<SavedArmyOption, Number> armyPoints;
+    @FXML private TableView<ArmySavedRowVM> armyTable;
+    @FXML private TableColumn<ArmySavedRowVM, String> armyName;
+    @FXML private TableColumn<ArmySavedRowVM, Number> armyPoints;
     @FXML private Button importButton;
 
     private GameUIController parentController;
@@ -35,11 +38,7 @@ public class ArmyImportController {
 
     private void setupTable() {
         armyName.setCellValueFactory(data ->
-                new SimpleStringProperty(
-                        data.getValue().marked()
-                                ? "★ " + data.getValue().name()
-                                : data.getValue().name()
-                )
+                new SimpleStringProperty(data.getValue().displayName())
         );
 
         armyPoints.setCellValueFactory(data ->
@@ -49,29 +48,31 @@ public class ArmyImportController {
 
     private void loadSavedArmies() {
         try {
-            armyTable.setItems(FXCollections.observableArrayList(GameArmyImportService.loadSavedArmies()));
+            armyTable.setItems(FXCollections.observableArrayList(
+                    ArmyControllerDataHelper.loadSavedArmyRows()
+            ));
         } catch (Exception e) {
-            showError("Load Saved Armies Error", e.getMessage());
+            DialogHelper.showError("Load Saved Armies Error", e);
         }
     }
 
     @FXML
     void importArmy(MouseEvent event) {
-        SavedArmyOption selected = armyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM selected = armyTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("No Army Selected", "Please select one army to import.");
+            DialogHelper.showWarning("No Army Selected", "Please select one army to import.");
             return;
         }
 
         if (parentController == null || targetSide == null) {
-            showWarning("Import Error", "Import target is not set.");
+            DialogHelper.showWarning("Import Error", "Import target is not set.");
             return;
         }
 
         try {
-            ImportedArmyData data = GameArmyImportService.importArmy(selected.armyId());
+            GameArmyImportVM data = GameArmyImportService.importArmy(selected.armyId());
             if (data == null) {
-                showWarning("Import Failed", "The selected army could not be imported.");
+                DialogHelper.showWarning("Import Failed", "The selected army could not be imported.");
                 return;
             }
 
@@ -80,19 +81,7 @@ public class ArmyImportController {
             Stage stage = (Stage) importButton.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
-            showError("Import Error", e.getMessage());
+            DialogHelper.showError("Import Error", e);
         }
-    }
-
-    private void showWarning(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    private void showError(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.ERROR, text == null ? "Unknown error." : text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
     }
 }

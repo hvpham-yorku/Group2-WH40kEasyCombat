@@ -26,9 +26,8 @@ import java.util.*;
  *   CSV usually doesn't have this column. Importer must NOT insert auto_id; let SQLite generate it.
  *
  * Import policy:
- * - Always INSERT (keep ALL rows, including duplicates) to satisfy "read all content".
- *   If your table still has extra UNIQUE constraints besides auto_id, those rows would still fail.
- *   So for "keep all", make sure schema PK is auto_id only (or remove other UNIQUE constraints).
+ * - Static tables: generic seed-like import.
+ * - Army preset tables: special import with id remapping, because child tables depend on old CSV auto_id values.
  */
 public final class CsvToSqliteImporter {
 
@@ -37,6 +36,14 @@ public final class CsvToSqliteImporter {
 
     // If your auto id column is not named this, add more names here.
     private static final Set<String> AUTO_ID_COLS = Set.of("auto_id", "id_auto", "pk", "rowid");
+
+    // These tables cannot use the generic importer because their child rows reference old CSV auto_id values.
+    private static final Set<String> PRESET_ARMY_TABLES = Set.of(
+            "Army",
+            "Army_detachment",
+            "Army_units",
+            "Army_wargear"
+    );
 
     private CsvToSqliteImporter() {}
 
@@ -63,6 +70,11 @@ public final class CsvToSqliteImporter {
 
             for (Path csv : csvFiles) {
                 String table = stripExt(csv.getFileName().toString());
+
+                if (isPresetArmyTable(table)) {
+                    System.out.println("[DEFER] " + table + ": imported by army preset remap flow");
+                    continue;
+                }
 
                 if (!tableExists(conn, table)) {
                     System.out.println("[SKIP] Table not found in DB: " + table + " (from " + csv.getFileName() + ")");
@@ -113,7 +125,6 @@ public final class CsvToSqliteImporter {
                     if (h == null || h.isBlank()) continue;
 
                     if (!dbCols.contains(h)) continue;
-
                     if (isAutoIdColumn(h)) continue;
 
                     insertCols.add(h);
@@ -147,8 +158,309 @@ public final class CsvToSqliteImporter {
                 System.out.println("[OK] " + table + ": imported " + inserted + " rows from " + csv.getFileName());
             }
 
+            importArmyPresetFamily(conn, folder, forceReimport);
             conn.commit();
         }
+    }
+
+    // -------------------- Special import for Army preset family --------------------
+
+    /**
+     * Army preset tables need special handling:
+     * - CSV keeps old auto_id / foreign ids for relation purposes
+     * - DB inserts must IGNORE auto_id
+     * - army_id / units_id must be remapped to the newly generated SQLite ids
+     *
+     * Current policy:
+     * - forceReimport = false: append only NEW preset armies; existing presets are skipped as a whole
+     * - forceReimport = true: clear Army preset tables and rebuild them from CSV
+     */
+    private static void importArmyPresetFamily(Connection conn, Path folder, boolean forceReimport)
+            throws IOException, SQLException {
+
+        Path armyCsv = folder.resolve("Army.csv");
+        if (!Files.exists(armyCsv)) {
+            System.out.println("[SKIP] Army preset import: Army.csv not found");
+            return;
+        }
+
+        Path armyDetachmentCsv = folder.resolve("Army_detachment.csv");
+        Path armyUnitsCsv = folder.resolve("Army_units.csv");
+        Path armyWargearCsv = folder.resolve("Army_wargear.csv");
+
+        if (forceReimport) {
+            clearArmyPresetTables(conn);
+        }
+
+        List<Map<String, String>> armyRows = readCsvAsMaps(armyCsv);
+        if (armyRows.isEmpty()) {
+            System.out.println("[SKIP] Army preset import: Army.csv has no data rows");
+            return;
+        }
+
+        Map<Integer, Integer> armyIdMap = new LinkedHashMap<>();
+        int importedArmyCount = 0;
+
+        for (Map<String, String> row : armyRows) {
+            int csvArmyId = parseIntSafe(row.get("auto_id"));
+            if (csvArmyId <= 0) {
+                System.out.println("[SKIP] Army preset row missing valid auto_id: " + row);
+                continue;
+            }
+
+            if (!forceReimport && armyPresetAlreadyExists(conn, row)) {
+                System.out.println("[SKIP] Army preset already exists: " + safe(row.get("name")));
+                continue;
+            }
+
+            int newArmyId = insertArmy(conn, row);
+            armyIdMap.put(csvArmyId, newArmyId);
+            importedArmyCount++;
+        }
+
+        if (armyIdMap.isEmpty()) {
+            System.out.println("[OK] Army preset import: no new Army rows to import");
+            return;
+        }
+
+        int importedDetachmentCount = 0;
+        if (Files.exists(armyDetachmentCsv)) {
+            importedDetachmentCount = importArmyDetachments(conn, armyDetachmentCsv, armyIdMap);
+        }
+
+        Map<Integer, Integer> unitIdMap = new LinkedHashMap<>();
+        int importedUnitCount = 0;
+        if (Files.exists(armyUnitsCsv)) {
+            ImportUnitsResult unitResult = importArmyUnits(conn, armyUnitsCsv, armyIdMap);
+            importedUnitCount = unitResult.importedCount();
+            unitIdMap.putAll(unitResult.unitIdMap());
+        }
+
+        int importedWargearCount = 0;
+        if (Files.exists(armyWargearCsv) && !unitIdMap.isEmpty()) {
+            importedWargearCount = importArmyWargear(conn, armyWargearCsv, unitIdMap);
+        }
+
+        System.out.println(
+                "[OK] Army preset import: "
+                        + importedArmyCount + " armies, "
+                        + importedDetachmentCount + " detachments, "
+                        + importedUnitCount + " units, "
+                        + importedWargearCount + " wargear rows"
+        );
+    }
+
+    private static void clearArmyPresetTables(Connection conn) throws SQLException {
+        try (Statement st = conn.createStatement()) {
+            st.execute("DELETE FROM \"Army_wargear\";");
+            st.execute("DELETE FROM \"Army_units\";");
+            st.execute("DELETE FROM \"Army_detachment\";");
+            st.execute("DELETE FROM \"Army\";");
+        }
+    }
+
+    private static boolean armyPresetAlreadyExists(Connection conn, Map<String, String> row) throws SQLException {
+        String sql = """
+                SELECT auto_id
+                FROM "Army"
+                WHERE name = ?
+                  AND faction_id = ?
+                  AND warlord_id = ?
+                  AND total_points = ?
+                  AND isMarked = ?
+                LIMIT 1
+                """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, safe(row.get("name")));
+            ps.setString(2, safe(row.get("faction_id")));
+            ps.setString(3, safe(row.get("warlord_id")));
+            ps.setInt(4, parseIntSafe(row.get("total_points")));
+            ps.setInt(5, parseBooleanish(row.get("isMarked")) ? 1 : 0);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private static int insertArmy(Connection conn, Map<String, String> row) throws SQLException {
+        String sql = """
+                INSERT INTO "Army" (name, faction_id, warlord_id, total_points, isMarked)
+                VALUES (?, ?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, safe(row.get("name")));
+            ps.setString(2, safe(row.get("faction_id")));
+            ps.setString(3, safe(row.get("warlord_id")));
+            ps.setInt(4, parseIntSafe(row.get("total_points")));
+            ps.setInt(5, parseBooleanish(row.get("isMarked")) ? 1 : 0);
+            ps.executeUpdate();
+            return getGeneratedId(conn, ps);
+        }
+    }
+
+    private static int importArmyDetachments(
+            Connection conn,
+            Path csv,
+            Map<Integer, Integer> armyIdMap
+    ) throws IOException, SQLException {
+        List<Map<String, String>> rows = readCsvAsMaps(csv);
+        int inserted = 0;
+
+        String sql = """
+                INSERT INTO "Army_detachment" (army_id, datasheet_id, detachment_id)
+                VALUES (?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (Map<String, String> row : rows) {
+                int oldArmyId = parseIntSafe(row.get("army_id"));
+                Integer newArmyId = armyIdMap.get(oldArmyId);
+                if (newArmyId == null) {
+                    continue;
+                }
+
+                ps.setInt(1, newArmyId);
+                ps.setString(2, safe(row.get("datasheet_id")));
+                ps.setString(3, safe(row.get("detachment_id")));
+                ps.addBatch();
+                inserted++;
+            }
+
+            ps.executeBatch();
+        }
+
+        return inserted;
+    }
+
+    private static ImportUnitsResult importArmyUnits(
+            Connection conn,
+            Path csv,
+            Map<Integer, Integer> armyIdMap
+    ) throws IOException, SQLException {
+        List<Map<String, String>> rows = readCsvAsMaps(csv);
+        Map<Integer, Integer> unitIdMap = new LinkedHashMap<>();
+        int inserted = 0;
+
+        String sql = """
+                INSERT INTO "Army_units" (army_id, datasheet_id, enhancements_id, model_count, unit_cost)
+                VALUES (?, ?, ?, ?, ?)
+                """;
+
+        for (Map<String, String> row : rows) {
+            int oldArmyId = parseIntSafe(row.get("army_id"));
+            Integer newArmyId = armyIdMap.get(oldArmyId);
+            if (newArmyId == null) {
+                continue;
+            }
+
+            int oldUnitId = parseIntSafe(row.get("auto_id"));
+            try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, newArmyId);
+                ps.setString(2, safe(row.get("datasheet_id")));
+                ps.setString(3, safe(row.get("enhancements_id")));
+                ps.setInt(4, parseIntSafe(row.get("model_count")));
+                ps.setInt(5, parseIntSafe(row.get("unit_cost")));
+                ps.executeUpdate();
+
+                int newUnitId = getGeneratedId(conn, ps);
+                if (oldUnitId > 0) {
+                    unitIdMap.put(oldUnitId, newUnitId);
+                }
+                inserted++;
+            }
+        }
+
+        return new ImportUnitsResult(inserted, unitIdMap);
+    }
+
+    private static int importArmyWargear(
+            Connection conn,
+            Path csv,
+            Map<Integer, Integer> unitIdMap
+    ) throws IOException, SQLException {
+        List<Map<String, String>> rows = readCsvAsMaps(csv);
+        int inserted = 0;
+
+        String sql = """
+                INSERT INTO "Army_wargear" (wargear_id, units_id, wargear_count)
+                VALUES (?, ?, ?)
+                """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (Map<String, String> row : rows) {
+                int oldUnitsId = parseIntSafe(row.get("units_id"));
+                Integer newUnitsId = unitIdMap.get(oldUnitsId);
+                if (newUnitsId == null) {
+                    continue;
+                }
+
+                ps.setInt(1, parseIntSafe(row.get("wargear_id")));
+                ps.setInt(2, newUnitsId);
+                ps.setInt(3, parseIntSafe(row.get("wargear_count")));
+                ps.addBatch();
+                inserted++;
+            }
+
+            ps.executeBatch();
+        }
+
+        return inserted;
+    }
+
+    private static int getGeneratedId(Connection conn, PreparedStatement ps) throws SQLException {
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            if (rs != null && rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT last_insert_rowid()")) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+
+        throw new SQLException("Failed to read generated id.");
+    }
+
+    private static List<Map<String, String>> readCsvAsMaps(Path file) throws IOException {
+        List<List<String>> rows = readPipeDelimitedCsv(file);
+        if (rows.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> headers = normalizeHeaders(rows.get(0));
+        headers = trimTrailingEmptyHeaders(headers);
+
+        List<Map<String, String>> result = new ArrayList<>();
+        for (int r = 1; r < rows.size(); r++) {
+            List<String> row = rows.get(r);
+            if (isAllEmpty(row)) {
+                continue;
+            }
+
+            Map<String, String> mapped = new LinkedHashMap<>();
+            for (int i = 0; i < headers.size(); i++) {
+                String header = headers.get(i);
+                if (header == null || header.isBlank()) {
+                    continue;
+                }
+
+                String value = i < row.size() ? row.get(i) : "";
+                mapped.put(header, stripBom(value == null ? "" : value.trim()));
+            }
+
+            result.add(mapped);
+        }
+
+        return result;
+    }
+
+    private record ImportUnitsResult(int importedCount, Map<Integer, Integer> unitIdMap) {
     }
 
     // -------------------- SQL helpers --------------------
@@ -241,8 +553,16 @@ public final class CsvToSqliteImporter {
         if (col == null) return false;
         String x = col.trim().toLowerCase();
         if (AUTO_ID_COLS.contains(x)) return true;
-        // common pattern
         return x.endsWith("_auto_id") || x.endsWith("_pk") || x.equals("autoid");
+    }
+
+    private static boolean isPresetArmyTable(String table) {
+        for (String presetTable : PRESET_ARMY_TABLES) {
+            if (presetTable.equalsIgnoreCase(table)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // -------------------- CSV parsing (robust pipe CSV) --------------------
@@ -272,7 +592,6 @@ public final class CsvToSqliteImporter {
             while ((ch = br.read()) != -1) {
                 char c = (char) ch;
 
-                // normalize Windows CRLF
                 if (c == '\r') continue;
 
                 if (inQuotes) {
@@ -280,9 +599,9 @@ public final class CsvToSqliteImporter {
                         br.mark(1);
                         int next = br.read();
                         if (next == '"') {
-                            field.append('"'); // escaped quote
+                            field.append('"');
                         } else {
-                            inQuotes = false; // end quoted field
+                            inQuotes = false;
                             if (next != -1) br.reset();
                         }
                     } else {
@@ -292,9 +611,7 @@ public final class CsvToSqliteImporter {
                     continue;
                 }
 
-                // not in quotes
                 if (atFieldStart && c == '"') {
-                    // quote is only special at field start
                     inQuotes = true;
                     atFieldStart = false;
                     continue;
@@ -312,7 +629,6 @@ public final class CsvToSqliteImporter {
                     field.setLength(0);
                     atFieldStart = true;
 
-                    // avoid adding a single empty row produced by trailing newline
                     if (!(row.size() == 1 && row.get(0).isEmpty())) {
                         rows.add(row);
                     }
@@ -324,7 +640,6 @@ public final class CsvToSqliteImporter {
                 atFieldStart = false;
             }
 
-            // flush last record if no newline at EOF
             if (field.length() > 0 || !row.isEmpty()) {
                 row.add(field.toString());
                 if (!(row.size() == 1 && row.get(0).isEmpty())) {
@@ -343,7 +658,6 @@ public final class CsvToSqliteImporter {
         for (String h : headers) {
             String x = (h == null) ? "" : h.trim();
 
-            // export/spec variants -> your DB columns
             if ("datasheet_id".equalsIgnoreCase(x)) x = "leader_id";
             if ("attached_datasheet_id".equalsIgnoreCase(x)) x = "attached_id";
 
@@ -386,5 +700,32 @@ public final class CsvToSqliteImporter {
             return s.substring(1);
         }
         return s;
+    }
+
+    private static int parseIntSafe(String value) {
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
+
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private static boolean parseBooleanish(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+
+        String normalized = value.trim();
+        return "1".equals(normalized)
+                || "true".equalsIgnoreCase(normalized)
+                || "yes".equalsIgnoreCase(normalized);
+    }
+
+    private static String safe(String value) {
+        return value == null ? "" : value.trim();
     }
 }

@@ -1,3 +1,72 @@
+## For ITR2
+## Meeting Minutes
+2026.02.23 - Delivery 1 was discussed and it was decided to refactor the database in ITR2.
+
+2026.03.02 -  The Delivery 1 presentation slides were reviewed, and the database reconstruction approach for ITR2, based on the Warhammer CSV data file structure, was finalized.
+
+2026.03.06 - A final testing and debriefing meeting will be held before the end of ITR2.
+
+2026.03.09 - Because the due date was postponed, more code structure optimization tasks were identified.
+
+## Changes
+2026.02.26 - The discovery of Data Export from Wahapedia established the basis for reading its CSV files to obtain relevant data and rules.
+
+2026.03.02 - To better handle CSV file input, the database structure was restructured to align with the CSV data structure.
+
+2026.03.03 - The appearance of the `RulesUI` page was redesigned based on the CSV data, and it was renamed to `Datasheets`.
+
+2026.03.04 - The service classes were refactored and several new service classes were added to meet the needs of reading large amounts of data from the database.
+
+2026.03.05 - Most of the features in the Army section have been added; users can now create armies and use some basic logic in the Game section. The virtual dice feature has been removed because more complex new features will be developed for ITR3.
+
+2026.03.10 - The entire software structure was restructured, the functionality of each package and class was defined, overlapping classes and functions were removed, and new classes were added to control the location of functions.
+
+## Concern
+The database restructuring required rewriting a significant amount of structural code,
+and it resulted in some team members not understanding some new attributes that had been renamed to align CSV data.
+Meanwhile, changes to the service class caused errors in some content planned for development in ITR1, and it was postponed to ITR3.
+
+## Task Assignments
+Bin Xu - Class structure organization and supervision
+
+Kishan Kumarasamy - Refactor code
+
+Mark Susanto - Write new test cases, write basic game logic
+
+Ruien Huang - Refactor the database and code, modify front-end.
+
+San Khoshaba - Data populator and documentation
+
+## Development Tasks per User Story
+### Displays more professional Warhammer data
+- Class structure organization
+- Refactor code
+- Refactor database
+- modify front-end
+- Data populator for CSV files
+
+### Basic Game Logic
+- Write basic game logic
+- Available Game UI
+
+### Army table creation
+- New Army database
+- Army service classes
+
+## Time Spent (days)
+Displays more professional Warhammer data - Plan 3 - Actual - 5
+
+
+Basic Game Logic - Plan 2 - Actual 3
+
+
+Army table creation - Plan 3 - Actual 1
+
+
+Restructuring - Plan 2 - Actual 1
+
+---
+
 ## For ITR1
 ## Meeting Minutes
 2026.01.26 - The first meeting after ITR0 concluded reaffirmed the use cases and architecture-related tasks selected in ITR0.

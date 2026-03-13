@@ -49,8 +49,8 @@
                                     <Font size="18.0" />
                                  </font>
                               </Label>
-                              <Button fx:id="editButton" layoutX="15.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickEditButton" prefHeight="30.0" prefWidth="65.0" text="Edit" />
-                              <Button fx:id="addButton" layoutX="102.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickAddButton" prefHeight="30.0" prefWidth="65.0" text="Add" />
+                              <Button fx:id="editButton" layoutX="15.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickEditButton" prefHeight="30.0" prefWidth="65.0" text="Edit" visible="false" />
+                              <Button fx:id="addButton" layoutX="102.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickAddButton" prefHeight="30.0" prefWidth="65.0" text="Add" visible="false" />
                               <ComboBox fx:id="factionComboBox" layoutX="102.0" layoutY="63.0" onAction="#selectFaction" prefHeight="40.0" prefWidth="210.0" />
                            </children>
                         </Pane>
