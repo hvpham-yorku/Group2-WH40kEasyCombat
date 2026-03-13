@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.controller.helper;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models_cost;

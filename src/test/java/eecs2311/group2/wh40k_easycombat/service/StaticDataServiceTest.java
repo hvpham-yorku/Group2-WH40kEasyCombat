@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.db.Dao;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
