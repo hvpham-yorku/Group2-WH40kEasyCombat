@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyWriteAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army;
 import eecs2311.group2.wh40k_easycombat.repository.ArmyBundleRepository;
 

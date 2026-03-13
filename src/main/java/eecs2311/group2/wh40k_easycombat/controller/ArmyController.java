@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.ArmyWriteAggregate;
-import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyWriteAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyEditorControllerHelper;

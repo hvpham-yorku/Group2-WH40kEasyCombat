@@ -1,7 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.aggregate.ArmyAggregate;
-import eecs2311.group2.wh40k_easycombat.aggregate.DatasheetAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;

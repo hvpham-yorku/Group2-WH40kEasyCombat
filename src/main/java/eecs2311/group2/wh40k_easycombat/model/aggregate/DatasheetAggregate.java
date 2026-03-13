@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.aggregate;
+package eecs2311.group2.wh40k_easycombat.model.aggregate;
 
 import eecs2311.group2.wh40k_easycombat.model.Datasheets;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_abilities;
