@@ -41,14 +41,14 @@ public class SnapshotService {
 
         boolean removedCurrentState = false;
         while (!history.isEmpty() && !removedCurrentState) {
-            ISnapshot top = history.remove(history.size() - 1);
+            ISnapshot top = history.removeLast();
             if (top instanceof StateSnapshot) {
                 removedCurrentState = true;
             }
         }
 
         while (!history.isEmpty()) {
-            ISnapshot top = history.get(history.size() - 1);
+            ISnapshot top = history.getLast();
 
             if (top instanceof StateSnapshot ss) {
                 return Optional.of(ss.state());
@@ -88,14 +88,16 @@ public class SnapshotService {
 
     private void checkCapacity() {
         if (history.size() >= MAX_HISTORY_SIZE) {
-            history.remove(0);
+            history.removeFirst();
         }
     }
 
+    // TODO: still in testing
     public void exportToFile(String filePath) throws IOException {
         mapper.writeValue(new File(filePath), this.history);
     }
 
+    // TODO: still in testing
     public void loadFromFile(String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) throw new IOException("File not found: " + filePath);
