@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.service.game;
 
 import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyAggregate;
 import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
@@ -14,6 +14,7 @@ import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
 import eecs2311.group2.wh40k_easycombat.repository.StratagemsRepository;
+import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyImportVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
