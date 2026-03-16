@@ -2,7 +2,7 @@ package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
-import eecs2311.group2.wh40k_easycombat.service.GameArmyImportService;
+import eecs2311.group2.wh40k_easycombat.service.game.GameArmyImportService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySavedRowVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyImportVM;
 import javafx.beans.property.SimpleIntegerProperty;

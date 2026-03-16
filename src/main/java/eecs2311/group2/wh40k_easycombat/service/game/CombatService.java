@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service;
+package eecs2311.group2.wh40k_easycombat.service.game;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.ArmyInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.BattleState;

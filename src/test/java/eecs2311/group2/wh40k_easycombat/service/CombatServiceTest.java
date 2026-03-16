@@ -4,6 +4,8 @@ import eecs2311.group2.wh40k_easycombat.model.instance.ArmyInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.BattleState;
 import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
+import eecs2311.group2.wh40k_easycombat.service.game.CombatService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
