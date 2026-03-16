@@ -268,20 +268,22 @@
                                        <children>
                                           <TableView fx:id="rangedWeaponTable" prefHeight="200.0" prefWidth="650.0">
                                             <columns>
-                                              <TableColumn fx:id="rangedWeaponName" prefWidth="320.0" text="Ranged Weapons" />
+                                              <TableColumn fx:id="rangedWeaponName" prefWidth="255.0" text="Ranged Weapons" />
                                               <TableColumn fx:id="rangedWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
                                                 <TableColumn fx:id="rangedWeaponA" prefWidth="65.0" text="A" />
                                                 <TableColumn fx:id="rangedWeaponBS" prefWidth="65.0" text="BS" />
+                                                <TableColumn fx:id="rangedWeaponS" prefWidth="65.0" text="S" />
                                                 <TableColumn fx:id="rangedWeaponAP" prefWidth="65.0" text="AP" />
                                                 <TableColumn fx:id="rangedWeaponD" prefWidth="65.0" text="D" />
                                             </columns>
                                           </TableView>
                                           <TableView fx:id="meleeWeaponTable" layoutY="212.0" prefHeight="200.0" prefWidth="650.0">
                                              <columns>
-                                                <TableColumn fx:id="meleeWeaponName" prefWidth="320.0" text="Melee Weapons" />
+                                                <TableColumn fx:id="meleeWeaponName" prefWidth="255.0" text="Melee Weapons" />
                                                 <TableColumn fx:id="meleeWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
                                                 <TableColumn fx:id="meleeWeaponA" prefWidth="65.0" text="A" />
                                                 <TableColumn fx:id="meleeWeaponWS" prefWidth="65.0" text="WS" />
+                                                <TableColumn fx:id="meleeWeaponS" prefWidth="65.0" text="S" />
                                                 <TableColumn fx:id="meleeWeaponAP" prefWidth="65.0" text="AP" />
                                                 <TableColumn fx:id="meleeWeaponD" prefWidth="65.0" text="D" />
                                              </columns>

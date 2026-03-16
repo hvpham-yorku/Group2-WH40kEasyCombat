@@ -84,6 +84,7 @@ public class DatasheetsController implements Initializable {
     @FXML private TableColumn<WeaponProfile, String> meleeWeaponRange;
     @FXML private TableColumn<WeaponProfile, String> meleeWeaponA;
     @FXML private TableColumn<WeaponProfile, String> meleeWeaponWS;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponS;
     @FXML private TableColumn<WeaponProfile, String> meleeWeaponAP;
     @FXML private TableColumn<WeaponProfile, String> meleeWeaponD;
 
@@ -93,6 +94,7 @@ public class DatasheetsController implements Initializable {
     @FXML private TableColumn<WeaponProfile, String> rangedWeaponRange;
     @FXML private TableColumn<WeaponProfile, String> rangedWeaponA;
     @FXML private TableColumn<WeaponProfile, String> rangedWeaponBS;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponS;
     @FXML private TableColumn<WeaponProfile, String> rangedWeaponAP;
     @FXML private TableColumn<WeaponProfile, String> rangedWeaponD;
 
@@ -115,6 +117,7 @@ public class DatasheetsController implements Initializable {
             rangedWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
             rangedWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
             rangedWeaponBS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            rangedWeaponS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().s()));
             rangedWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
             rangedWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(rangedWeaponName);
@@ -125,6 +128,7 @@ public class DatasheetsController implements Initializable {
             meleeWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
             meleeWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
             meleeWeaponWS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            meleeWeaponS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().s()));
             meleeWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
             meleeWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(meleeWeaponName);
