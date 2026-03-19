@@ -15,11 +15,11 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="1080" prefWidth="1920" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.GameUIController">
+<BorderPane styleClass="game-root" stylesheets="@application.css" prefHeight="1080" prefWidth="1920" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.GameUIController">
    <top>
       <HBox prefHeight="160.0" prefWidth="1920.0" BorderPane.alignment="CENTER">
          <children>
-            <Pane prefHeight="160.0" prefWidth="650.0" style="-fx-background-color: #ADD8E6;">
+            <Pane styleClass="game-player-blue" prefHeight="160.0" prefWidth="650.0">
                <children>
                   <Label fx:id="blueVPLabel" alignment="CENTER" layoutX="437.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                      <font>
@@ -42,11 +42,11 @@
                      </font>
                   </Label>
                </children></Pane>
-            <AnchorPane prefHeight="160.0" prefWidth="620.0" style="-fx-background-color: #DCDCDC;">
+            <AnchorPane styleClass="game-round-panel" prefHeight="160.0" prefWidth="620.0">
                <children>
-                  <Label fx:id="roundLabel" alignment="CENTER" layoutX="270.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
+                  <Label fx:id="roundLabel" styleClass="game-round-number" alignment="CENTER" layoutX="270.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                      <font>
-                        <Font name="System Bold" size="36.0" />
+                        <Font name="System Bold" size="48.0" />
                      </font>
                   </Label>
                   <Label layoutX="272.0" layoutY="34.0" text="Round">
@@ -55,7 +55,7 @@
                      </font>
                   </Label>
                </children></AnchorPane>
-            <Pane prefHeight="160.0" prefWidth="650.0" style="-fx-background-color: #FFB6C1;">
+            <Pane styleClass="game-player-red" prefHeight="160.0" prefWidth="650.0">
                <children>
                   <Label fx:id="redVPLabel" alignment="CENTER" layoutX="93.0" layoutY="66.0" prefHeight="80.0" prefWidth="80.0" text="1" textAlignment="CENTER">
                      <font>
@@ -82,9 +82,9 @@
       </HBox>
    </top>
    <left>
-      <Pane prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
+      <Pane styleClass="game-side-panel" prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="blueSelectButton" layoutX="100.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#blueSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Button fx:id="blueSelectButton" styleClass="wh-btn" layoutX="100.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#blueSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
             <Label layoutX="47.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
@@ -95,12 +95,12 @@
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="bluePlusButton" layoutX="194.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="bluePlusButton" styleClass="wh-btn" layoutX="194.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="blueSubButton" layoutX="47.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="blueSubButton" styleClass="wh-btn" layoutX="47.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#blueClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
@@ -110,23 +110,23 @@
                   <Font size="24.0" />
                </font>
             </Label>
-            <Button fx:id="blueImportButton" layoutX="402.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#blueImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
-            <ListView fx:id="blueArmyList" layoutX="287.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
-            <ListView fx:id="blueStrategyList" layoutX="5.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
-            <TableView fx:id="blueMissionTable" layoutX="5.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
+            <Button fx:id="blueImportButton" styleClass="wh-btn" layoutX="402.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#blueImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <ListView fx:id="blueArmyList" styleClass="game-list" layoutX="287.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
+            <ListView fx:id="blueStrategyList" styleClass="game-list" layoutX="5.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
+            <TableView fx:id="blueMissionTable" styleClass="game-table" layoutX="5.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
               <columns>
                 <TableColumn fx:id="blueMissionName" prefWidth="245.0" text="Mission" />
                 <TableColumn fx:id="blueMissionState" prefWidth="84.0" text="State" />
               </columns>
             </TableView>
-            <Button fx:id="blueCheckMissionButton" layoutX="339.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#blueCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
-            <Button fx:id="blueAbandonMissionButton" layoutX="339.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#blueAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
+            <Button fx:id="blueCheckMissionButton" styleClass="wh-btn" layoutX="339.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#blueCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
+            <Button fx:id="blueAbandonMissionButton" styleClass="wh-btn, wh-btn-danger" layoutX="339.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#blueAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
          </children></Pane>
    </left>
    <right>
-      <Pane prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
+      <Pane styleClass="game-side-panel" prefHeight="200.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="redSelectButton" layoutX="476.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#redSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
+            <Button fx:id="redSelectButton" styleClass="wh-btn" layoutX="476.0" layoutY="554.0" mnemonicParsing="false" onMouseClicked="#redSelect" prefHeight="36.0" prefWidth="80.0" text="Select" />
             <Label layoutX="423.0" layoutY="14.0" text="Command Point">
                <font>
                   <Font size="24.0" />
@@ -137,12 +137,12 @@
                   <Font name="System Bold" size="36.0" />
                </font>
             </Label>
-            <Button fx:id="redPlusButton" layoutX="570.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
+            <Button fx:id="redPlusButton" styleClass="wh-btn" layoutX="570.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickPlus" prefHeight="40.0" prefWidth="40.0" text="+" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="redSubButton" layoutX="423.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
+            <Button fx:id="redSubButton" styleClass="wh-btn" layoutX="423.0" layoutY="66.0" mnemonicParsing="false" onMouseClicked="#redClickSub" prefHeight="40.0" prefWidth="40.0" text="-" textAlignment="CENTER">
                <font>
                   <Font size="18.0" />
                </font>
@@ -152,23 +152,23 @@
                   <Font size="24.0" />
                </font>
             </Label>
-            <Button fx:id="redImportButton" layoutX="129.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#redImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
-            <ListView fx:id="redArmyList" layoutX="13.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
-            <ListView fx:id="redStrategyList" layoutX="375.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
-            <TableView fx:id="redMissionTable" layoutX="316.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
+            <Button fx:id="redImportButton" styleClass="wh-btn" layoutX="129.0" layoutY="614.0" mnemonicParsing="false" onMouseClicked="#redImport" prefHeight="36.0" prefWidth="119.0" text="Import Army" />
+            <ListView fx:id="redArmyList" styleClass="game-list" layoutX="13.0" layoutY="14.0" prefHeight="590.0" prefWidth="350.0" />
+            <ListView fx:id="redStrategyList" styleClass="game-list" layoutX="375.0" layoutY="126.0" prefHeight="420.0" prefWidth="270.0" />
+            <TableView fx:id="redMissionTable" styleClass="game-table" layoutX="316.0" layoutY="650.0" prefHeight="240.0" prefWidth="327.0">
               <columns>
                 <TableColumn fx:id="redMissionName" prefWidth="245.0" text="Mission" />
                 <TableColumn fx:id="redState" prefWidth="84.0" text="State" />
               </columns>
             </TableView>
-            <Button fx:id="redCheckMissionButton" layoutX="186.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#redCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
-            <Button fx:id="redAbandonMissionButton" layoutX="186.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#redAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
+            <Button fx:id="redCheckMissionButton" styleClass="wh-btn" layoutX="186.0" layoutY="701.0" mnemonicParsing="false" onMouseClicked="#redCheckClicked" prefHeight="36.0" prefWidth="124.0" text="Check Mission" />
+            <Button fx:id="redAbandonMissionButton" styleClass="wh-btn, wh-btn-danger" layoutX="186.0" layoutY="790.0" mnemonicParsing="false" onMouseClicked="#redAbandonClicked" prefHeight="36.0" prefWidth="124.0" text="Abandon Mission" />
          </children></Pane>
    </right>
    <center>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #000000;" BorderPane.alignment="CENTER">
+      <AnchorPane styleClass="game-center-panel" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <CheckBox fx:id="autoBattleCheckBox" layoutX="252.0" layoutY="654.0" mnemonicParsing="false" text="Auto Battle">
+            <CheckBox fx:id="autoBattleCheckBox" styleClass="game-checkbox" layoutX="252.0" layoutY="654.0" mnemonicParsing="false" text="Auto Battle">
                <font>
                   <Font size="16.0" />
                </font>
@@ -183,29 +183,29 @@
                   <Font name="System Bold Italic" size="24.0" />
                </font>
             </Label>
-            <TextArea fx:id="virtuaDiceBox" layoutX="129.0" layoutY="307.0" prefHeight="283.0" prefWidth="361.0" wrapText="true" />
-            <Button fx:id="rollButton" layoutX="270.0" layoutY="603.0" mnemonicParsing="false" onMouseClicked="#rollDice" prefHeight="36.0" prefWidth="80.0" text="Roll" />
+            <TextArea fx:id="virtuaDiceBox" styleClass="game-textarea" layoutX="129.0" layoutY="307.0" prefHeight="283.0" prefWidth="361.0" wrapText="true" />
+            <Button fx:id="rollButton" styleClass="wh-btn, wh-btn-primary" layoutX="270.0" layoutY="603.0" mnemonicParsing="false" onMouseClicked="#rollDice" prefHeight="36.0" prefWidth="80.0" text="Roll" />
             <Label layoutX="245.0" layoutY="207.0" text="Virtual dice">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
-            <Spinner fx:id="virtuaDiceSpinner" editable="true" layoutX="247.0" layoutY="249.0" prefHeight="43.0" prefWidth="125.0">
+            <Spinner fx:id="virtuaDiceSpinner" styleClass="game-spinner" editable="true" layoutX="247.0" layoutY="249.0" prefHeight="43.0" prefWidth="125.0">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
             </Spinner>
-            <Button fx:id="nextRoundButton" alignment="CENTER" layoutX="184.0" layoutY="703.0" mnemonicParsing="false" onMouseClicked="#nextRound" prefHeight="65.0" prefWidth="251.0" text="Next Round" textAlignment="CENTER">
+            <Button fx:id="nextRoundButton" styleClass="wh-btn, wh-btn-primary" alignment="CENTER" layoutX="184.0" layoutY="703.0" mnemonicParsing="false" onMouseClicked="#nextRound" prefHeight="65.0" prefWidth="251.0" text="Next Round" textAlignment="CENTER">
                <font>
                   <Font size="24.0" />
                </font>
             </Button>
-            <Button fx:id="exitGameButton" layoutX="255.0" layoutY="859.0" mnemonicParsing="false" onMouseClicked="#clickExit" text="Exit Game">
+            <Button fx:id="exitGameButton" styleClass="wh-btn, wh-btn-danger" layoutX="255.0" layoutY="859.0" mnemonicParsing="false" onMouseClicked="#clickExit" text="Exit Game">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="battleLogButton" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" onMouseClicked="#openLog" text="Battle Log">
+            <Button fx:id="battleLogButton" styleClass="wh-btn" layoutX="254.0" layoutY="792.0" mnemonicParsing="false" onMouseClicked="#openLog" text="Battle Log">
                <font>
                   <Font size="18.0" />
                </font>

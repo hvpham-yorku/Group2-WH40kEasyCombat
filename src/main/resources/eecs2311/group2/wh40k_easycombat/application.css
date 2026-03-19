@@ -90,7 +90,7 @@
     -fx-background-color: linear-gradient(to bottom, #dbb732, #c9a227);
     -fx-text-fill: #0f0f0f;
     -fx-border-color: #e8c843;
-    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.55), 16, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.65), 18, 0.3, 0, 2);
 }
 
 .wh-btn-primary:pressed {
@@ -114,4 +114,280 @@
 .wh-btn-danger:pressed {
     -fx-background-color: #2a1010;
     -fx-border-color: #601818;
+}
+
+/* ============================================================
+   GameUI — Battle Screen
+   ============================================================ */
+
+/* --- Game Root --- */
+.game-root {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Top Bar: Player Panels --- */
+.game-player-blue {
+    -fx-background-color: #0d1b2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 0 1px 1px 0;
+}
+
+.game-player-blue .label {
+    -fx-text-fill: #8ecae6;
+}
+
+.game-player-red {
+    -fx-background-color: #2a0d0d;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 0 0 1px 1px;
+}
+
+.game-player-red .label {
+    -fx-text-fill: #ffb3b3;
+}
+
+/* --- Top Bar: Round Panel --- */
+.game-round-panel {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.4);
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.2, 0, 2);
+}
+
+.game-round-panel .label {
+    -fx-text-fill: #c9a227;
+}
+
+.game-round-number {
+    -fx-text-fill: #c9a227;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.4), 10, 0.2, 0, 0);
+}
+
+/* --- Side Panels (Left / Right) --- */
+.game-side-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 6, 0.2, 0, 1);
+}
+
+.game-side-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Center Command Panel --- */
+.game-center-panel {
+    -fx-background-color: #141414;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.3, 0, 2);
+}
+
+.game-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- ListView (Army / Strategy lists) --- */
+.game-list {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.game-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e6e6e6;
+}
+
+/* Strategy cell labels (name, CP, turn, phase) */
+.game-list .list-cell .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* Strategy cell title (bold name label) */
+.game-list .list-cell .label:focused,
+.game-list .list-cell:filled:selected .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Text nodes inside TextFlow (description content) */
+.game-list .list-cell Text {
+    -fx-fill: #e6e6e6;
+}
+
+.game-list .list-cell:filled:selected Text {
+    -fx-fill: #ffffff;
+}
+
+/* Expand/collapse button inside strategy cells */
+.game-list .list-cell .button {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #c9a227;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-padding: 1 4 1 4;
+    -fx-cursor: hand;
+}
+
+.game-list .list-cell .button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.game-list .list-cell:filled:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.1);
+}
+
+.game-list .list-cell:filled:selected {
+    -fx-background-color: rgba(201, 162, 39, 0.2);
+    -fx-text-fill: #ffffff;
+}
+
+/* --- TableView (Mission tables) --- */
+.game-table {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+/* Remove white from all internal table backgrounds */
+.game-table .virtual-flow,
+.game-table .clipped-container,
+.game-table .virtual-flow .corner,
+.game-table .placeholder .label {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Header bar background */
+.game-table .column-header-background {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent transparent rgba(201, 162, 39, 0.2) transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Individual column headers */
+.game-table .column-header {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent rgba(201, 162, 39, 0.12) transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* Header filler (empty space right of last column) */
+.game-table .filler {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Header text */
+.game-table .column-header .label {
+    -fx-text-fill: #c9a227;
+    -fx-font-weight: bold;
+}
+
+/* Row cells */
+.game-table .table-row-cell {
+    -fx-background-color: #0f0f0f;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.03) transparent;
+}
+
+/* Empty rows (no data) */
+.game-table .table-row-cell:empty {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent;
+}
+
+.game-table .table-row-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+}
+
+.game-table .table-row-cell:selected {
+    -fx-background-color: rgba(201, 162, 39, 0.2);
+}
+
+/* Cell text */
+.game-table .table-cell {
+    -fx-text-fill: #e6e6e6;
+    -fx-border-color: transparent rgba(201, 162, 39, 0.06) transparent transparent;
+}
+
+/* --- TextArea (Dice output) --- */
+.game-textarea {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+}
+
+.game-textarea .content {
+    -fx-background-color: #1a1a1a;
+}
+
+/* --- Spinner (Dice count) --- */
+.game-spinner {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.game-spinner .text-field {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-spinner .increment-arrow-button,
+.game-spinner .decrement-arrow-button {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+}
+
+.game-spinner .increment-arrow-button:hover,
+.game-spinner .decrement-arrow-button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+/* --- CheckBox --- */
+.game-checkbox {
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-checkbox .box {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.game-checkbox:selected .mark {
+    -fx-background-color: #c9a227;
+}
+
+/* --- ScrollBar theming (shared across lists/tables/textarea) --- */
+.scroll-bar {
+    -fx-background-color: #1a1a1a;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #3a3a3a;
+    -fx-background-radius: 3px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #555555;
 }
