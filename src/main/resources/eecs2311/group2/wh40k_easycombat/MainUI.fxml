@@ -1,28 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<HBox stylesheets="@application.css" styleClass="main-root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.MainUIController">
-   <children>
-      <AnchorPane styleClass="main-panel" prefHeight="800.0" prefWidth="1200.0">
-         <children>
-            <!-- Title -->
-            <Label styleClass="main-title" text="WARHAMMER 40,000" layoutX="400.0" layoutY="60.0" prefWidth="400.0" alignment="CENTER" />
-            <Label styleClass="main-subtitle" text="Easy Combat" layoutX="400.0" layoutY="115.0" prefWidth="400.0" alignment="CENTER" />
+<StackPane prefHeight="800.0" prefWidth="1200.0"
+           styleClass="main-root"
+           stylesheets="@application.css"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="eecs2311.group2.wh40k_easycombat.controller.MainUIController">
 
-            <!-- Button panel backdrop -->
-            <Region styleClass="button-panel" layoutX="440.0" layoutY="170.0" prefWidth="320.0" prefHeight="420.0" />
+    <children>
+        <VBox alignment="CENTER" fillWidth="true" maxWidth="420.0" spacing="28.0">
+            <padding>
+                <Insets top="32.0" right="24.0" bottom="32.0" left="24.0" />
+            </padding>
 
-            <!-- Buttons -->
-            <Button fx:id="startButton" styleClass="wh-btn, wh-btn-primary" layoutX="500.0" layoutY="191.0" mnemonicParsing="false" onMouseClicked="#startBtn" prefHeight="60.0" prefWidth="200.0" text="Start Game" />
-            <Button fx:id="ruleButton" styleClass="wh-btn" layoutX="500.0" layoutY="299.0" mnemonicParsing="false" onMouseClicked="#ruleBtn" prefHeight="60.0" prefWidth="200.0" text="Datasheets and Rules" />
-            <Button fx:id="armyButton" styleClass="wh-btn" layoutX="500.0" layoutY="400.0" mnemonicParsing="false" onMouseClicked="#armyBtn" prefHeight="60.0" prefWidth="200.0" text="Army List" />
-            <Button fx:id="exitButton" styleClass="wh-btn, wh-btn-danger" layoutX="500.0" layoutY="502.0" mnemonicParsing="false" onMouseClicked="#exitBtn" prefHeight="60.0" prefWidth="200.0" text="Exit" />
-         </children>
-      </AnchorPane>
-   </children>
-</HBox>
+            <children>
+                <Label styleClass="main-title"
+                       alignment="CENTER"
+                       maxWidth="1.7976931348623157E308"
+                       text="WARHAMMER 40,000"
+                       textAlignment="CENTER"
+                       wrapText="true" />
+
+                <Label styleClass="main-subtitle"
+                       alignment="CENTER"
+                       maxWidth="1.7976931348623157E308"
+                       text="Easy Combat"
+                       textAlignment="CENTER" />
+
+                <VBox alignment="CENTER" fillWidth="true" maxWidth="340.0" spacing="18.0" styleClass="button-panel">
+                    <padding>
+                        <Insets top="26.0" right="22.0" bottom="26.0" left="22.0" />
+                    </padding>
+
+                    <children>
+                        <Button fx:id="startButton"
+                                maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false"
+                                onMouseClicked="#startBtn"
+                                prefHeight="58.0"
+                                styleClass="wh-btn, wh-btn-primary"
+                                text="Start Game" />
+
+                        <Button fx:id="ruleButton"
+                                maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false"
+                                onMouseClicked="#ruleBtn"
+                                prefHeight="58.0"
+                                styleClass="wh-btn"
+                                text="Datasheets and Rules"
+                                wrapText="true" />
+
+                        <Button fx:id="armyButton"
+                                maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false"
+                                onMouseClicked="#armyBtn"
+                                prefHeight="58.0"
+                                styleClass="wh-btn"
+                                text="Army List" />
+
+                        <Button fx:id="exitButton"
+                                maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false"
+                                onMouseClicked="#exitBtn"
+                                prefHeight="58.0"
+                                styleClass="wh-btn, wh-btn-danger"
+                                text="Exit" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

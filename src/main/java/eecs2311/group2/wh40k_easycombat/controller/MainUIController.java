@@ -38,17 +38,27 @@ public class MainUIController {
     // When click "Rules and Datasheets" button
     @FXML
     void ruleBtn(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo((Node) event.getSource(),
+    	FixedAspectView.switchResponsiveTo(
+                (Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/Datasheets.fxml",
-                1400.0, 800.0);
+                1080.0,
+                700.0,
+                1320.0,
+                820.0
+        );
     }
 
     // When click "Army" button, go to army page
     @FXML
     void armyBtn(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo((Node) event.getSource(),
+        FixedAspectView.switchResponsiveTo(
+                (Node) event.getSource(),
                 "/eecs2311/group2/wh40k_easycombat/Army.fxml",
-                1200.0, 800.0);
+                1080.0,
+                700.0,
+                1320.0,
+                820.0
+        );
     }
 
     // When click "Exit" button, exit the program
