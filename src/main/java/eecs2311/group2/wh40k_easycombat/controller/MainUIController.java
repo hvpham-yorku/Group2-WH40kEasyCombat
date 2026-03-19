@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import java.io.IOException;
 import java.util.Optional;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -119,6 +120,7 @@ public class MainUIController {
         alert.setTitle("Exit");
         alert.setHeaderText("Are you sure you want to exit?");
         alert.setContentText("Unsaved changes will be lost.");
+        DialogHelper.styleAlert(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
