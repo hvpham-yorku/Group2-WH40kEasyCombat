@@ -720,3 +720,73 @@
 .game-list .combo-box .combo-box-popup .list-view .list-cell:hover {
     -fx-background-color: rgba(212, 175, 55, 0.15);
 }
+
+/* ============================================================
+   Alert / Dialog Styling
+   ============================================================ */
+
+.custom-alert {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .header-panel {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .header-panel .label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+}
+
+.custom-alert .content.label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.custom-alert .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* Alert button bar */
+.custom-alert .button-bar {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .button-bar .button {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+}
+
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: #404040;
+    -fx-border-color: #e8c843;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.55), 14, 0.3, 0, 2);
+}
+
+.custom-alert .button-bar .button:pressed {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #a88620;
+}
+
+.custom-alert .button-bar .button:default {
+    -fx-background-color: linear-gradient(to bottom, #c9a227, #a88620);
+    -fx-text-fill: #0f0f0f;
+    -fx-border-color: #dbb732;
+}
+
+.custom-alert .button-bar .button:default:hover {
+    -fx-background-color: linear-gradient(to bottom, #dbb732, #c9a227);
+    -fx-text-fill: #0f0f0f;
+    -fx-border-color: #e8c843;
+}
+
+/* Alert graphic (icon) region */
+.custom-alert .graphic-container {
+    -fx-background-color: #1a1a1a;
+}

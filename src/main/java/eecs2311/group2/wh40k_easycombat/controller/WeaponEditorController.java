@@ -4,6 +4,7 @@ package eecs2311.group2.wh40k_easycombat.controller;
 // Old RangeWeapons/MeleeWeapons/WeaponKeywords/Units/StaticDataService may not exist after schema change.
 // Temporarily disable DB-dependent logic and keep UI navigable.
 
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -138,6 +139,7 @@ public class WeaponEditorController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
+        DialogHelper.styleAlert(a);
         a.showAndWait();
     }
 }

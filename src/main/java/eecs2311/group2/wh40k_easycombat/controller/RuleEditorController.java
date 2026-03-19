@@ -1,5 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -142,6 +143,7 @@ public class RuleEditorController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
+        DialogHelper.styleAlert(a);
         a.showAndWait();
     }
 
@@ -151,6 +153,7 @@ public class RuleEditorController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
+        DialogHelper.styleAlert(a);
         a.showAndWait();
     }
 }
