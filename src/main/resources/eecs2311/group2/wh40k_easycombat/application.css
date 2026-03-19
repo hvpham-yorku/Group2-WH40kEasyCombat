@@ -2,6 +2,13 @@
    WH40K Easy Combat — Grimdark Command Console Theme
    ============================================================ */
 
+/* --- Global: Override default JavaFX blue focus/accent --- */
+* {
+    -fx-focus-color: #f0d060;
+    -fx-faint-focus-color: rgba(240, 208, 96, 0.3);
+    -fx-accent: #d4af37;
+}
+
 /* --- Main Menu Root --- */
 .main-root {
     -fx-background-color: linear-gradient(to bottom, #0f0f0f, #1a1a1a);
@@ -242,7 +249,7 @@
 }
 
 .game-list .list-cell:filled:selected {
-    -fx-background-color: rgba(201, 162, 39, 0.2);
+    -fx-background-color: #6b5410;
     -fx-text-fill: #ffffff;
 }
 
@@ -311,7 +318,11 @@
 }
 
 .game-table .table-row-cell:selected {
-    -fx-background-color: rgba(201, 162, 39, 0.2);
+    -fx-background-color: #6b5410;
+}
+
+.game-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: #ffffff;
 }
 
 /* Cell text */
@@ -602,4 +613,110 @@
 
 .ds-combo .arrow {
     -fx-background-color: #c9a227;
+}
+
+/* ============================================================
+   Army Builder Screen
+   ============================================================ */
+
+/* --- Root --- */
+.army-root {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Left Panel --- */
+.army-left-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 0;
+}
+
+.army-left-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Center Panel --- */
+.army-center-panel {
+    -fx-background-color: #141414;
+}
+
+.army-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Section Titles (gold) --- */
+.army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+/* --- Points value --- */
+.army-points-value {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- TreeTableView (reuse game-table internals) --- */
+.army-left-panel .game-table .tree-table-row-cell {
+    -fx-background-color: #0f0f0f;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:odd {
+    -fx-background-color: #161616;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:empty {
+    -fx-background-color: #1e1e1e;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.1);
+}
+
+.army-left-panel .game-table .tree-table-row-cell:selected {
+    -fx-background-color: #6b5410;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:selected .tree-table-cell {
+    -fx-text-fill: #ffffff;
+}
+
+.army-left-panel .game-table .tree-table-cell {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-size: 13px;
+}
+
+/* --- Enhancement ComboBox (created in Java inside army list cells) --- */
+.game-list .combo-box {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.game-list .combo-box .list-cell {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-list .combo-box .arrow-button {
+    -fx-background-color: #1a1a1a;
+}
+
+.game-list .combo-box .arrow {
+    -fx-background-color: #d4af37;
+}
+
+.game-list .combo-box .combo-box-popup .list-view {
+    -fx-background-color: #1a1a1a;
+}
+
+.game-list .combo-box .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-list .combo-box .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(212, 175, 55, 0.15);
 }
