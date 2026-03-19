@@ -192,67 +192,68 @@ public class BattleState {
 }
 
   private static UnitInstance copyUnit(UnitInstance source) {
-	    UnitInstance copy = new UnitInstance(
-	            source.getDatasheetId(),
-	            source.getUnitName()
-	    );
+        UnitInstance copy = new UnitInstance(
+                source.getDatasheetId(),
+                source.getUnitName()
+        );
 
-	    copy.setBattleShocked(source.isBattleShocked());
+        copy.setBattleShocked(source.isBattleShocked());
 
-	    for (UnitModelInstance model : source.getModels()) {
-	        copy.addModel(copyModel(model));
-	    }
+        for (UnitModelInstance model : source.getModels()) {
+            copy.addModel(copyModel(model));
+        }
 
-	    for (WeaponProfile weapon : source.getRangedWeapons()) {
-	        copy.addRangedWeapon(copyWeapon(weapon));
-	    }
+        for (WeaponProfile weapon : source.getRangedWeapons()) {
+            copy.addRangedWeapon(copyWeapon(weapon));
+        }
 
-	    for (WeaponProfile weapon : source.getMeleeWeapons()) {
-	        copy.addMeleeWeapon(copyWeapon(weapon));
-	    }
+        for (WeaponProfile weapon : source.getMeleeWeapons()) {
+            copy.addMeleeWeapon(copyWeapon(weapon));
+        }
 
-	    return copy;
-	}
+        return copy;
+    }
 
   private static UnitModelInstance copyModel(UnitModelInstance source) {
-	    UnitModelInstance copy = new UnitModelInstance(
-	            source.getModelName(),
-	            source.getM(),
-	            source.getT(),
-	            source.getSv(),
-	            source.getW(),
-	            source.getLd(),
-	            source.getOc(),
-	            source.getInv()
-	    );
+        UnitModelInstance copy = new UnitModelInstance(
+                source.getModelName(),
+                source.getM(),
+                source.getT(),
+                source.getSv(),
+                source.getW(),
+                source.getLd(),
+                source.getOc(),
+                source.getInv()
+        );
 
-	    copy.setCurrentHp(source.getCurrentHp());
-	    return copy;
-	}
+        copy.setCurrentHp(source.getCurrentHp());
+        return copy;
+    }
 
   private static WeaponProfile copyWeapon(WeaponProfile source) {
-	    return new WeaponProfile(
-	            source.name(),
-	            source.description(),
-	            source.count(),
-	            source.range(),
-	            source.a(),
-	            source.skill(),
-	            source.s(),
-	            source.ap(),
-	            source.d(),
-	            source.melee()
-	    );
-	}
+        return new WeaponProfile(
+                source.weaponID(),
+                source.name(),
+                source.description(),
+                source.count(),
+                source.range(),
+                source.a(),
+                source.skill(),
+                source.s(),
+                source.ap(),
+                source.d(),
+                source.melee()
+        );
+    }
 
-	private static StratagemInstance copyStrategy(StratagemInstance source) {
-	    return new StratagemInstance(
-	            source.name(),
-	            source.cpCost(),
-	            source.turn(),
-	            source.phase(),
-	            source.descriptionHtml()
-	    );
-	}
+    private static StratagemInstance copyStrategy(StratagemInstance source) {
+        return new StratagemInstance(
+                source.name(),
+                source.cpCost(),
+                source.turn(),
+                source.phase(),
+                source.descriptionHtml()
+        );
+    }
 
 }
