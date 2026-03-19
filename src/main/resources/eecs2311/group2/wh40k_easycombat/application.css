@@ -790,3 +790,18 @@
 .custom-alert .graphic-container {
     -fx-background-color: #1a1a1a;
 }
+
+.game-panel-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.game-panel-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.game-panel-scroll > .corner {
+    -fx-background-color: transparent;
+}
+

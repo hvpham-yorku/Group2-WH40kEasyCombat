@@ -5,10 +5,16 @@ import javafx.scene.text.TextFlow;
 
 public final class GameHtmlTextBuilder {
 
+    private static final double DEFAULT_FONT_SIZE = 14.0;
+
     private GameHtmlTextBuilder() {
     }
 
     public static void setHtmlLikeText(TextFlow flow, String html) {
+        setHtmlLikeText(flow, html, DEFAULT_FONT_SIZE);
+    }
+
+    public static void setHtmlLikeText(TextFlow flow, String html, double fontSize) {
         if (flow == null) return;
 
         flow.getChildren().clear();
@@ -23,14 +29,14 @@ public final class GameHtmlTextBuilder {
         String[] lines = working.split("\n", -1);
 
         for (int i = 0; i < lines.length; i++) {
-            addFormattedLine(flow, lines[i]);
+            addFormattedLine(flow, lines[i], fontSize);
             if (i < lines.length - 1) {
-                flow.getChildren().add(new Text("\n"));
+                flow.getChildren().add(buildText("\n", false, fontSize));
             }
         }
     }
 
-    private static void addFormattedLine(TextFlow flow, String line) {
+    private static void addFormattedLine(TextFlow flow, String line, double fontSize) {
         if (line == null) return;
 
         String working = line;
@@ -40,9 +46,7 @@ public final class GameHtmlTextBuilder {
             if (bStart < 0) {
                 String plain = htmlToPlainText(working);
                 if (!plain.isEmpty()) {
-                    Text text = new Text(plain);
-                    text.setStyle("-fx-font-size: 12px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(buildText(plain, false, fontSize));
                 }
                 break;
             }
@@ -50,9 +54,7 @@ public final class GameHtmlTextBuilder {
             if (bStart > 0) {
                 String plainBefore = htmlToPlainText(working.substring(0, bStart));
                 if (!plainBefore.isEmpty()) {
-                    Text text = new Text(plainBefore);
-                    text.setStyle("-fx-font-size: 12px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(buildText(plainBefore, false, fontSize));
                 }
             }
 
@@ -60,9 +62,7 @@ public final class GameHtmlTextBuilder {
             if (bEnd < 0) {
                 String plain = htmlToPlainText(working);
                 if (!plain.isEmpty()) {
-                    Text text = new Text(plain);
-                    text.setStyle("-fx-font-size: 12px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(buildText(plain, false, fontSize));
                 }
                 break;
             }
@@ -71,13 +71,19 @@ public final class GameHtmlTextBuilder {
             String cleanedBold = htmlToPlainText(boldContent);
 
             if (!cleanedBold.isEmpty()) {
-                Text boldText = new Text(cleanedBold);
-                boldText.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
-                flow.getChildren().add(boldText);
+                flow.getChildren().add(buildText(cleanedBold, true, fontSize));
             }
 
             working = working.substring(bEnd + 4);
         }
+    }
+
+    private static Text buildText(String value, boolean bold, double fontSize) {
+        Text text = new Text(value);
+        String style = (bold ? "-fx-font-weight: bold; " : "")
+                + "-fx-font-size: " + fontSize + "px;";
+        text.setStyle(style);
+        return text;
     }
 
     private static String htmlToPlainText(String html) {
