@@ -214,7 +214,7 @@ public class DatasheetsController implements Initializable {
         if (!style.isBlank() && !style.endsWith(";")) {
             style += ";";
         }
-        style += "-fx-background-color: white;";
+        style += "-fx-background-color: #1e1e1e; -fx-text-fill: #e6e6e6; -fx-border-color: #c9a227; -fx-border-width: 1px; -fx-border-radius: 4px; -fx-background-radius: 4px;";
 
         label.setStyle(style);
     }

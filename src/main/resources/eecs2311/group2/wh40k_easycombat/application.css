@@ -284,14 +284,20 @@
 
 /* Header text */
 .game-table .column-header .label {
-    -fx-text-fill: #c9a227;
+    -fx-text-fill: #d4af37;
     -fx-font-weight: bold;
+    -fx-font-size: 13px;
 }
 
 /* Row cells */
 .game-table .table-row-cell {
     -fx-background-color: #0f0f0f;
-    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.03) transparent;
+    -fx-border-color: transparent transparent rgba(201, 162, 39, 0.05) transparent;
+}
+
+/* Alternating rows for readability */
+.game-table .table-row-cell:odd {
+    -fx-background-color: #161616;
 }
 
 /* Empty rows (no data) */
@@ -301,7 +307,7 @@
 }
 
 .game-table .table-row-cell:hover {
-    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-background-color: rgba(201, 162, 39, 0.1);
 }
 
 .game-table .table-row-cell:selected {
@@ -311,7 +317,8 @@
 /* Cell text */
 .game-table .table-cell {
     -fx-text-fill: #e6e6e6;
-    -fx-border-color: transparent rgba(201, 162, 39, 0.06) transparent transparent;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent rgba(201, 162, 39, 0.04) transparent transparent;
 }
 
 /* --- TextArea (Dice output) --- */
@@ -390,4 +397,209 @@
 .scroll-bar .increment-arrow,
 .scroll-bar .decrement-arrow {
     -fx-background-color: #555555;
+}
+
+/* ============================================================
+   Datasheets Screen
+   ============================================================ */
+
+/* --- Root TabPane --- */
+.ds-root {
+    -fx-background-color: #0f0f0f;
+}
+
+.ds-root > .tab-header-area {
+    -fx-background-color: #1a1a1a;
+}
+
+.ds-root > .tab-header-area > .tab-header-background {
+    -fx-background-color: #1a1a1a;
+}
+
+.ds-root .tab {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px 1px 0 1px;
+}
+
+.ds-root .tab .tab-label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+}
+
+.ds-root .tab:selected {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #c9a227;
+}
+
+.ds-root .tab:selected .tab-label {
+    -fx-text-fill: #c9a227;
+}
+
+.ds-root .tab-content-area {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Outer BorderPane --- */
+.ds-outer {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Left Panel (sidebar) --- */
+.ds-left-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* --- Right Panel --- */
+.ds-right-panel {
+    -fx-background-color: #141414;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+    -fx-border-width: 0 0 0 1px;
+}
+
+/* --- Center Panel --- */
+.ds-center-panel {
+    -fx-background-color: #141414;
+}
+
+.ds-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Left Panel labels --- */
+.ds-left-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Right Panel labels --- */
+.ds-right-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- General label --- */
+.ds-label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Datasheet Name (big title) --- */
+.ds-datasheet-name {
+    -fx-text-fill: #c9a227;
+    -fx-padding: 0 0 0 12;
+}
+
+/* --- Stat header labels (M, T, Sv, W, LD, OC, INVSV) --- */
+.ds-stat-header {
+    -fx-text-fill: #c9a227;
+}
+
+/* --- Stat value boxes (dark metallic panels) --- */
+.ds-stat-value {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.15), 4, 0, 0, 1);
+}
+
+/* --- Info panels (Abilities, Unit Composition, Cost, Other) --- */
+.ds-info-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+.ds-panel-title,
+.ds-right-panel .ds-panel-title,
+.ds-info-panel .ds-panel-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.ds-divider {
+    -fx-text-fill: rgba(201, 162, 39, 0.3);
+}
+
+/* --- ScrollPanes inside info panels --- */
+.ds-scroll {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent;
+}
+
+.ds-scroll > .viewport {
+    -fx-background-color: #1e1e1e;
+}
+
+/* --- TextFlow areas --- */
+.ds-text-flow {
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-text-flow Text {
+    -fx-fill: #e6e6e6;
+}
+
+/* --- Keywords panel --- */
+.ds-keywords {
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-keywords Text {
+    -fx-fill: #e6e6e6;
+}
+
+/* --- Search TextField --- */
+.ds-search {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-prompt-text-fill: #666666;
+}
+
+/* --- ComboBox --- */
+.ds-combo {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.ds-combo .list-cell {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-combo .combo-box-popup .list-view {
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.15);
+}
+
+.ds-combo .arrow-button {
+    -fx-background-color: #2a2a2a;
+}
+
+.ds-combo .arrow {
+    -fx-background-color: #c9a227;
 }
