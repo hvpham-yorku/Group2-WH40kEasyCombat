@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 
-<HBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.MainUIController">
+<HBox stylesheets="@application.css" styleClass="main-root" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.MainUIController">
    <children>
-      <AnchorPane prefHeight="800.0" prefWidth="1200.0">
+      <AnchorPane styleClass="main-panel" prefHeight="800.0" prefWidth="1200.0">
          <children>
-            <Button fx:id="startButton" layoutX="500.0" layoutY="191.0" mnemonicParsing="false" onMouseClicked="#startBtn" prefHeight="60.0" prefWidth="200.0" text="Start Game" />
-            <Button fx:id="ruleButton" layoutX="500.0" layoutY="299.0" mnemonicParsing="false" onMouseClicked="#ruleBtn" prefHeight="60.0" prefWidth="200.0" text="Datasheets and Rules" />
-            <Button fx:id="armyButton" layoutX="500.0" layoutY="400.0" mnemonicParsing="false" onMouseClicked="#armyBtn" prefHeight="60.0" prefWidth="200.0" text="Army List" />
-            <Button fx:id="exitButton" layoutX="500.0" layoutY="502.0" mnemonicParsing="false" onMouseClicked="#exitBtn" prefHeight="60.0" prefWidth="200.0" text="Exit" />
+            <!-- Title -->
+            <Label styleClass="main-title" text="WARHAMMER 40,000" layoutX="400.0" layoutY="60.0" prefWidth="400.0" alignment="CENTER" />
+            <Label styleClass="main-subtitle" text="Easy Combat" layoutX="400.0" layoutY="115.0" prefWidth="400.0" alignment="CENTER" />
+
+            <!-- Button panel backdrop -->
+            <Region styleClass="button-panel" layoutX="440.0" layoutY="170.0" prefWidth="320.0" prefHeight="420.0" />
+
+            <!-- Buttons -->
+            <Button fx:id="startButton" styleClass="wh-btn, wh-btn-primary" layoutX="500.0" layoutY="191.0" mnemonicParsing="false" onMouseClicked="#startBtn" prefHeight="60.0" prefWidth="200.0" text="Start Game" />
+            <Button fx:id="ruleButton" styleClass="wh-btn" layoutX="500.0" layoutY="299.0" mnemonicParsing="false" onMouseClicked="#ruleBtn" prefHeight="60.0" prefWidth="200.0" text="Datasheets and Rules" />
+            <Button fx:id="armyButton" styleClass="wh-btn" layoutX="500.0" layoutY="400.0" mnemonicParsing="false" onMouseClicked="#armyBtn" prefHeight="60.0" prefWidth="200.0" text="Army List" />
+            <Button fx:id="exitButton" styleClass="wh-btn, wh-btn-danger" layoutX="500.0" layoutY="502.0" mnemonicParsing="false" onMouseClicked="#exitBtn" prefHeight="60.0" prefWidth="200.0" text="Exit" />
          </children>
       </AnchorPane>
    </children>
