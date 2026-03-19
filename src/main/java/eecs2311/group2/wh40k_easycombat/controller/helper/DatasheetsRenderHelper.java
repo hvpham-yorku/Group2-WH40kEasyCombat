@@ -4,7 +4,6 @@ import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Abilities;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_abilities;
-import eecs2311.group2.wh40k_easycombat.model.Datasheets_detachment_abilities;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_keywords;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_leader;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
@@ -12,7 +11,6 @@ import eecs2311.group2.wh40k_easycombat.model.Datasheets_models_cost;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_options;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_unit_composition;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
-import eecs2311.group2.wh40k_easycombat.model.Detachment_abilities;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
@@ -221,13 +219,13 @@ public final class DatasheetsRenderHelper {
 
         setFlow(unitCompositionTextFlow, joinUnitComposition(bundle));
         setFlow(costTextFlow, buildModelCost(bundle.costs));
-        setFlow(keywordsTextFlow, joinKeywordsComma(bundle.keywords));
+        setFlow(keywordsTextFlow, joinKeywordsComma(bundle.keywords), 12.0);
 
         String normalAbilities = formatNonFactionAbilities(bundle.abilities, state);
         setFlow(abilityTextFlow, normalAbilities);
         setVisibleManaged(abilityTextFlow, !normalAbilities.isBlank());
 
-        String factionAbilities = formatFactionAbilityNames(bundle.abilities, bundle.detachmentAbilities, state);
+        String factionAbilities = formatFactionAbilityNames(bundle.abilities, state);
         setFlow(factionAbilityTextFlow, factionAbilities);
         setVisibleManaged(factionAbilityTextFlow, !factionAbilities.isBlank());
 
@@ -260,8 +258,11 @@ public final class DatasheetsRenderHelper {
     private static Datasheets_models nullSafeSecondModel(List<Datasheets_models> models) {
         return models.size() > 1 ? models.get(1) : null;
     }
-
     private static void setFlow(TextFlow flow, String text) {
+        setFlow(flow, text, 14.0);
+    }
+
+    private static void setFlow(TextFlow flow, String text, double fontSize) {
         if (flow == null) return;
 
         flow.getChildren().clear();
@@ -269,14 +270,14 @@ public final class DatasheetsRenderHelper {
 
         String[] lines = text.split("\\n", -1);
         for (int i = 0; i < lines.length; i++) {
-            addFormattedLine(flow, lines[i]);
+            addFormattedLine(flow, lines[i], fontSize);
             if (i < lines.length - 1) {
-                flow.getChildren().add(new Text("\n"));
+                flow.getChildren().add(styledText("\n", false, fontSize));
             }
         }
     }
 
-    private static void addFormattedLine(TextFlow flow, String line) {
+    private static void addFormattedLine(TextFlow flow, String line, double fontSize) {
         if (line == null) return;
 
         String working = line;
@@ -286,9 +287,7 @@ public final class DatasheetsRenderHelper {
             if (bStart < 0) {
                 String plain = htmlToPlainText(working);
                 if (!plain.isEmpty()) {
-                    Text text = new Text(plain);
-                    text.setStyle("-fx-font-size: 14px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(styledText(plain, false, fontSize));
                 }
                 break;
             }
@@ -296,9 +295,7 @@ public final class DatasheetsRenderHelper {
             if (bStart > 0) {
                 String plainBefore = htmlToPlainText(working.substring(0, bStart));
                 if (!plainBefore.isEmpty()) {
-                    Text text = new Text(plainBefore);
-                    text.setStyle("-fx-font-size: 14px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(styledText(plainBefore, false, fontSize));
                 }
             }
 
@@ -306,9 +303,7 @@ public final class DatasheetsRenderHelper {
             if (bEnd < 0) {
                 String plain = htmlToPlainText(working);
                 if (!plain.isEmpty()) {
-                    Text text = new Text(plain);
-                    text.setStyle("-fx-font-size: 14px;");
-                    flow.getChildren().add(text);
+                    flow.getChildren().add(styledText(plain, false, fontSize));
                 }
                 break;
             }
@@ -317,13 +312,19 @@ public final class DatasheetsRenderHelper {
             String cleanedBold = htmlToPlainText(boldContent);
 
             if (!cleanedBold.isEmpty()) {
-                Text boldText = new Text(cleanedBold);
-                boldText.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-                flow.getChildren().add(boldText);
+                flow.getChildren().add(styledText(cleanedBold, true, fontSize));
             }
 
             working = working.substring(bEnd + 4);
         }
+    }
+
+    private static Text styledText(String value, boolean bold, double fontSize) {
+        Text text = new Text(value);
+        String style = (bold ? "-fx-font-weight: bold; " : "")
+                + "-fx-font-size: " + fontSize + "px;";
+        text.setStyle(style);
+        return text;
     }
 
     private static void fillStats(Datasheets_models model, Label m, Label t, Label sv, Label w, Label ld, Label oc) {
@@ -413,14 +414,17 @@ public final class DatasheetsRenderHelper {
 
     private static String formatFactionAbilityNames(
             List<Datasheets_abilities> abilities,
-            List<Datasheets_detachment_abilities> detachmentAbilities,
             DatasheetsPageState state
     ) {
+        if (abilities == null || abilities.isEmpty()) {
+            return "";
+        }
+
         List<String> out = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
 
         for (Datasheets_abilities ability : abilities) {
-            if (!safe(ability.type()).toLowerCase().contains("faction")) {
+            if (!isFactionAbilityType(ability)) {
                 continue;
             }
 
@@ -430,19 +434,21 @@ public final class DatasheetsRenderHelper {
             }
         }
 
-        for (Datasheets_detachment_abilities detachmentAbility : detachmentAbilities) {
-            String id = safe(detachmentAbility.detachment_ability_id());
-            if (id.isBlank()) continue;
+        return String.join("\n", out);
+    }
 
-            Detachment_abilities master = state.getDetachmentAbilitiesById().get(id);
-            String name = master == null ? id : safe(master.name(), id);
-
-            if (!name.isBlank() && seen.add(name)) {
-                out.add("<b>" + name + "</b>");
-            }
+    private static boolean isFactionAbilityType(Datasheets_abilities ability) {
+        if (ability == null) {
+            return false;
         }
 
-        return String.join("\n", out);
+        String type = safe(ability.type()).trim().toLowerCase();
+
+        return type.equals("faction")
+                || type.equals("faction ability")
+                || type.startsWith("faction ")
+                || type.startsWith("faction:")
+                || type.startsWith("faction-");
     }
 
     private static String buildModelCost(List<Datasheets_models_cost> costs) {

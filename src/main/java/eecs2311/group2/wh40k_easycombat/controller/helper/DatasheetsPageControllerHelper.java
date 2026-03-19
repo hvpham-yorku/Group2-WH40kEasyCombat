@@ -15,9 +15,13 @@ import eecs2311.group2.wh40k_easycombat.repository.StratagemsRepository;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
+import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -161,7 +165,33 @@ public final class DatasheetsPageControllerHelper {
                 @Override
                 protected void updateItem(DatasheetListItemVM item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : item.getName());
+
+                    setText(null);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+                    if (empty || item == null) {
+                        setGraphic(null);
+                        return;
+                    }
+
+                    Label nameLabel = new Label(item.getName());
+                    nameLabel.getStyleClass().add("ds-list-name");
+                    nameLabel.setWrapText(true);
+
+                    Label factionLabel = new Label(item.getFactionName());
+                    factionLabel.getStyleClass().add("ds-list-faction");
+                    factionLabel.setWrapText(true);
+
+                    boolean hasFaction = item.getFactionName() != null && !item.getFactionName().isBlank();
+                    factionLabel.setVisible(hasFaction);
+                    factionLabel.setManaged(hasFaction);
+
+                    VBox card = new VBox(4, nameLabel, factionLabel);
+                    card.getStyleClass().add("ds-list-card");
+                    card.setPadding(new Insets(10, 12, 10, 12));
+                    card.prefWidthProperty().bind(lv.widthProperty().subtract(22));
+
+                    setGraphic(card);
                 }
             });
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -10,317 +11,445 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<TabPane styleClass="ds-root" stylesheets="@application.css" prefHeight="800.0" prefWidth="1400.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.DatasheetsController">
-  <tabs>
-    <Tab text="Datasheets">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <BorderPane styleClass="ds-outer" prefHeight="800.0" prefWidth="1400.0">
-                     <left>
-                        <Pane styleClass="ds-left-panel" prefWidth="330.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <ListView fx:id="datasheetsList" styleClass="game-list" layoutX="15.0" layoutY="164.0" prefHeight="530.0" prefWidth="300.0" />
-                              <Button fx:id="backToMainButton" styleClass="wh-btn, wh-btn-danger" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#clickBackButton" prefHeight="40.0" prefWidth="120.0" text="Back to Main">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Button>
-                              <TextField fx:id="searchTextField" styleClass="ds-search" layoutX="15.0" layoutY="118.0" prefHeight="30.0" prefWidth="220.0">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </TextField>
-                              <Button fx:id="searchButton" styleClass="wh-btn" layoutX="251.0" layoutY="118.0" mnemonicParsing="false" onMouseClicked="#clickSearchButton" prefHeight="30.0" prefWidth="65.0" text="Search">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Button>
-                              <Label styleClass="ds-label" layoutX="15.0" layoutY="71.0" text="Faction:">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Button fx:id="editButton" styleClass="wh-btn" layoutX="15.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickEditButton" prefHeight="30.0" prefWidth="65.0" text="Edit" visible="false" />
-                              <Button fx:id="addButton" styleClass="wh-btn" layoutX="102.0" layoutY="718.0" mnemonicParsing="false" onMouseClicked="#clickAddButton" prefHeight="30.0" prefWidth="65.0" text="Add" visible="false" />
-                              <ComboBox fx:id="factionComboBox" styleClass="ds-combo" layoutX="102.0" layoutY="63.0" onAction="#selectFaction" prefHeight="40.0" prefWidth="210.0" />
-                           </children>
-                        </Pane>
-                     </left>
-                     <center>
-                        <BorderPane prefWidth="200.0" BorderPane.alignment="CENTER">
-                           <right>
-                              <Pane styleClass="ds-right-panel" prefWidth="400.0" BorderPane.alignment="CENTER">
-                                 <children>
-                                    <VBox styleClass="ds-info-panel" layoutX="10.0" prefHeight="260.0" prefWidth="380.0">
-                                       <children>
-                                          <Label styleClass="ds-panel-title" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Abilities">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label styleClass="ds-panel-title" contentDisplay="CENTER" text=" Faction:">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollPane styleClass="ds-scroll">
-                                             <content>
-                                                <TextFlow fx:id="factionAbilityTextFlow" styleClass="ds-text-flow" prefHeight="100.0" prefWidth="350.0" />
-                                             </content>
-                                          </ScrollPane>
-                                          <Label styleClass="ds-divider" prefHeight="16.0" prefWidth="380.0" text="-----------------------------------------------------------------------" />
-                                          <ScrollPane styleClass="ds-scroll">
-                                             <content>
-                                                <TextFlow fx:id="abilityTextFlow" styleClass="ds-text-flow" prefHeight="400.0" prefWidth="360.0" />
-                                             </content>
-                                          </ScrollPane>
-                                       </children>
-                                    </VBox>
-                                    <VBox styleClass="ds-info-panel" layoutX="10.0" layoutY="265.0" prefHeight="130.0" prefWidth="380.0">
-                                       <children>
-                                          <Label styleClass="ds-panel-title" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Unit Composition">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollPane styleClass="ds-scroll">
-                                             <content>
-                                                <TextFlow fx:id="unitCompositionTextFlow" styleClass="ds-text-flow" prefHeight="400.0" prefWidth="360.0" />
-                                             </content>
-                                          </ScrollPane>
-                                       </children>
-                                    </VBox>
-                                    <VBox styleClass="ds-info-panel" layoutX="10.0" layoutY="400.0" prefHeight="120.0" prefWidth="380.0">
-                                       <children>
-                                          <Label styleClass="ds-panel-title" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Cost">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollPane styleClass="ds-scroll">
-                                             <content>
-                                                <TextFlow fx:id="costTextFlow" styleClass="ds-text-flow" prefHeight="400.0" prefWidth="360.0" />
-                                             </content>
-                                          </ScrollPane>
-                                       </children>
-                                    </VBox>
-                                    <VBox styleClass="ds-info-panel" layoutX="10.0" layoutY="524.0" prefHeight="180.0" prefWidth="380.0">
-                                       <children>
-                                          <Label styleClass="ds-panel-title" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="380.0" text="Other">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollPane styleClass="ds-scroll">
-                                             <content>
-                                                <TextFlow fx:id="otherTextFlow" styleClass="ds-text-flow" prefHeight="400.0" prefWidth="360.0" />
-                                             </content>
-                                          </ScrollPane>
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </Pane>
-                           </right>
-                           <center>
-                              <Pane styleClass="ds-center-panel" BorderPane.alignment="CENTER">
-                                 <children>
-                                    <HBox prefHeight="40.0" prefWidth="519.0">
-                                       <children>
-                                          <Label fx:id="datasheetName" styleClass="ds-datasheet-name" text="Datasheet Name">
-                                             <font>
-                                                <Font name="System Bold" size="28.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox styleClass="ds-stat-header-row" layoutY="40.0" prefHeight="35.0" prefWidth="540.0">
-                                       <children>
-                                          <Label prefHeight="27.0" prefWidth="20.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="M">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="50.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="T">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="50.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="Sv">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="50.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="W">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="50.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="LD">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="50.0" />
-                                          <Label styleClass="ds-stat-header" alignment="CENTER" prefWidth="40.0" text="OC">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox fx:id="unit1PropertyHBox" layoutX="8.0" layoutY="75.0" prefHeight="50.0" prefWidth="540.0">
-                                       <children>
-                                          <Label prefHeight="27.0" prefWidth="8.0" />
-                                          <Label fx:id="unit1MLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit1TLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit1SvLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit1WLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit1LdLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit1OcLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox fx:id="unit2PropertyHBox" layoutX="8.0" layoutY="140.0" prefHeight="50.0" prefWidth="540.0">
-                                       <children>
-                                          <Label prefHeight="27.0" prefWidth="8.0" />
-                                          <Label fx:id="unit2MLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit2TLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit2SvLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit2WLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit2LdLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Label prefHeight="27.0" prefWidth="40.0" />
-                                          <Label fx:id="unit2OcLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="50.0" text="15">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Label fx:id="unitName1" styleClass="ds-label" alignment="TOP_LEFT" layoutX="535.0" layoutY="70.0" prefHeight="60.0" prefWidth="100.0" text="UnitName1" wrapText="true" />
-                                    <Label fx:id="unitName2" styleClass="ds-label" alignment="TOP_LEFT" layoutX="535.0" layoutY="135.0" prefHeight="60.0" prefWidth="100.0" text="UnitName2" wrapText="true" />
-                                    <Pane layoutX="10.0" layoutY="208.0" prefHeight="410.0" prefWidth="650.0">
-                                       <children>
-                                          <TableView fx:id="rangedWeaponTable" styleClass="game-table" prefHeight="200.0" prefWidth="650.0">
-                                            <columns>
-                                              <TableColumn fx:id="rangedWeaponName" prefWidth="255.0" text="Ranged Weapons" />
-                                              <TableColumn fx:id="rangedWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
-                                                <TableColumn fx:id="rangedWeaponA" prefWidth="65.0" text="A" />
-                                                <TableColumn fx:id="rangedWeaponBS" prefWidth="65.0" text="BS" />
-                                                <TableColumn fx:id="rangedWeaponS" prefWidth="65.0" text="S" />
-                                                <TableColumn fx:id="rangedWeaponAP" prefWidth="65.0" text="AP" />
-                                                <TableColumn fx:id="rangedWeaponD" prefWidth="65.0" text="D" />
-                                            </columns>
-                                          </TableView>
-                                          <TableView fx:id="meleeWeaponTable" styleClass="game-table" layoutY="212.0" prefHeight="200.0" prefWidth="650.0">
-                                             <columns>
-                                                <TableColumn fx:id="meleeWeaponName" prefWidth="255.0" text="Melee Weapons" />
-                                                <TableColumn fx:id="meleeWeaponRange" minWidth="0.0" prefWidth="65.0" text="Range" />
-                                                <TableColumn fx:id="meleeWeaponA" prefWidth="65.0" text="A" />
-                                                <TableColumn fx:id="meleeWeaponWS" prefWidth="65.0" text="WS" />
-                                                <TableColumn fx:id="meleeWeaponS" prefWidth="65.0" text="S" />
-                                                <TableColumn fx:id="meleeWeaponAP" prefWidth="65.0" text="AP" />
-                                                <TableColumn fx:id="meleeWeaponD" prefWidth="65.0" text="D" />
-                                             </columns>
-                                          </TableView>
-                                       </children>
-                                    </Pane>
-                                    <TextFlow fx:id="keywordsTextFlow" styleClass="ds-keywords" layoutX="82.0" layoutY="625.0" prefHeight="79.0" prefWidth="578.0" />
-                                    <Label styleClass="ds-label" layoutX="10.0" layoutY="646.0" text="Keywords">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="InvsvLabel" styleClass="ds-stat-value" alignment="CENTER" contentDisplay="CENTER" layoutX="600.0" layoutY="-5.0" prefHeight="50.0" prefWidth="50.0" text="15">
-                                       <font>
-                                          <Font name="System Bold" size="18.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="insvTxtLabel" styleClass="ds-stat-header" alignment="CENTER" layoutX="514.0" layoutY="4.0" prefHeight="32.0" prefWidth="86.0" text="INVSV">
-                                       <font>
-                                          <Font size="24.0" />
-                                       </font>
-                                    </Label>
-                                 </children></Pane>
-                           </center>
-                           <top>
-                              <HBox prefHeight="60.0" prefWidth="1070.0" BorderPane.alignment="CENTER" />
-                           </top>
-                        </BorderPane>
-                     </center>
-                  </BorderPane>
-               </children></AnchorPane>
-      </content>
-    </Tab>
-    <Tab text="Core rule">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-      </content>
-    </Tab>
-  </tabs>
+<TabPane prefHeight="800.0"
+         prefWidth="1400.0"
+         styleClass="ds-root"
+         stylesheets="@application.css"
+         tabClosingPolicy="UNAVAILABLE"
+         xmlns="http://javafx.com/javafx/21"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="eecs2311.group2.wh40k_easycombat.controller.DatasheetsController">
+
+    <tabs>
+        <Tab text="Datasheets">
+            <content>
+                <BorderPane prefHeight="800.0" prefWidth="1400.0" styleClass="ds-outer">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+
+                    <left>
+                        <VBox prefWidth="330.0" spacing="14.0" styleClass="ds-left-panel" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button fx:id="backToMainButton"
+                                        mnemonicParsing="false"
+                                        onMouseClicked="#clickBackButton"
+                                        prefHeight="40.0"
+                                        prefWidth="130.0"
+                                        styleClass="wh-btn, wh-btn-danger"
+                                        text="Back to Main">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Button>
+
+                                <VBox spacing="12.0" styleClass="ds-card, ds-toolbar-card">
+                                    <padding>
+                                        <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                                    </padding>
+
+                                    <children>
+                                        <VBox spacing="8.0">
+                                            <children>
+                                                <Label styleClass="ds-panel-title" text="Faction">
+                                                    <font>
+                                                        <Font size="16.0" />
+                                                    </font>
+                                                </Label>
+                                                <ComboBox fx:id="factionComboBox"
+                                                          onAction="#selectFaction"
+                                                          prefHeight="40.0"
+                                                          prefWidth="296.0"
+                                                          styleClass="ds-combo" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="8.0">
+                                            <children>
+                                                <Label styleClass="ds-panel-title" text="Search Datasheets">
+                                                    <font>
+                                                        <Font size="16.0" />
+                                                    </font>
+                                                </Label>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <TextField fx:id="searchTextField"
+                                                                   prefHeight="38.0"
+                                                                   prefWidth="204.0"
+                                                                   styleClass="ds-search"
+                                                                   HBox.hgrow="ALWAYS">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </TextField>
+                                                        <Button fx:id="searchButton"
+                                                                mnemonicParsing="false"
+                                                                onMouseClicked="#clickSearchButton"
+                                                                prefHeight="38.0"
+                                                                prefWidth="82.0"
+                                                                styleClass="wh-btn"
+                                                                text="Search">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Button>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <Label styleClass="ds-card-title" text="Datasheets">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+
+                                <ListView fx:id="datasheetsList"
+                                          prefHeight="580.0"
+                                          prefWidth="330.0"
+                                          styleClass="game-list, ds-datasheet-list"
+                                          VBox.vgrow="ALWAYS" />
+
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Button fx:id="editButton"
+                                                mnemonicParsing="false"
+                                                onMouseClicked="#clickEditButton"
+                                                prefHeight="34.0"
+                                                prefWidth="76.0"
+                                                styleClass="wh-btn"
+                                                text="Edit"
+                                                visible="false" />
+                                        <Button fx:id="addButton"
+                                                mnemonicParsing="false"
+                                                onMouseClicked="#clickAddButton"
+                                                prefHeight="34.0"
+                                                prefWidth="76.0"
+                                                styleClass="wh-btn"
+                                                text="Add"
+                                                visible="false" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </left>
+
+                    <center>
+                        <HBox spacing="14.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <VBox spacing="14.0" styleClass="ds-center-panel" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <VBox spacing="14.0" styleClass="ds-card, ds-hero-card">
+                                            <padding>
+                                                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                            </padding>
+
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                                    <children>
+                                                        <Label fx:id="datasheetName"
+                                                               maxWidth="1.7976931348623157E308"
+                                                               styleClass="ds-datasheet-name"
+                                                               text="Datasheet Name"
+                                                               HBox.hgrow="ALWAYS">
+                                                            <font>
+                                                                <Font name="System Bold" size="36.0" />
+                                                            </font>
+                                                        </Label>
+
+                                                        <HBox alignment="CENTER" spacing="8.0">
+                                                            <children>
+                                                                <Label fx:id="insvTxtLabel"
+                                                                       alignment="CENTER"
+                                                                       prefHeight="36.0"
+                                                                       prefWidth="86.0"
+                                                                       styleClass="ds-stat-header"
+                                                                       text="INVSV">
+                                                                    <font>
+                                                                        <Font size="20.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <Label fx:id="InvsvLabel"
+                                                                       alignment="CENTER"
+                                                                       contentDisplay="CENTER"
+                                                                       prefHeight="58.0"
+                                                                       prefWidth="62.0"
+                                                                       styleClass="ds-stat-value"
+                                                                       text="15">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="22.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox spacing="18.0">
+                                                    <children>
+                                                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="ds-stat-header-row">
+                                                                    <children>
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="M" />
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="T" />
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="Sv" />
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="W" />
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="LD" />
+                                                                        <Label alignment="CENTER" prefWidth="62.0" styleClass="ds-stat-header" text="OC" />
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <HBox fx:id="unit1PropertyHBox" alignment="CENTER_LEFT" spacing="16.0">
+                                                                    <children>
+                                                                        <Label fx:id="unit1MLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit1TLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit1SvLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit1WLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit1LdLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit1OcLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+
+                                                                <HBox fx:id="unit2PropertyHBox" alignment="CENTER_LEFT" spacing="16.0">
+                                                                    <children>
+                                                                        <Label fx:id="unit2MLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit2TLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit2SvLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit2WLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit2LdLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                        <Label fx:id="unit2OcLabel" alignment="CENTER" prefHeight="58.0" prefWidth="62.0" styleClass="ds-stat-value" text="15">
+                                                                            <font><Font name="System Bold" size="22.0" /></font>
+                                                                        </Label>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                        <VBox alignment="TOP_LEFT" minWidth="140.0" prefWidth="140.0" spacing="12.0">
+                                                            <children>
+                                                                <Label styleClass="ds-panel-title" text="Models">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="16.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <Label fx:id="unitName1"
+                                                                       alignment="TOP_LEFT"
+                                                                       prefWidth="140.0"
+                                                                       styleClass="ds-model-name"
+                                                                       text="UnitName1"
+                                                                       wrapText="true">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="18.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <Label fx:id="unitName2"
+                                                                       alignment="TOP_LEFT"
+                                                                       prefWidth="140.0"
+                                                                       styleClass="ds-model-name"
+                                                                       text="UnitName2"
+                                                                       wrapText="true">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="18.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" styleClass="ds-card, ds-weapon-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Ranged Weapons">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <TableView fx:id="rangedWeaponTable"
+                                                           prefHeight="190.0"
+                                                           prefWidth="610.0"
+                                                           styleClass="game-table"
+                                                           VBox.vgrow="ALWAYS">
+                                                    <columns>
+                                                        <TableColumn fx:id="rangedWeaponName" prefWidth="245.0" text="Ranged Weapons" />
+                                                        <TableColumn fx:id="rangedWeaponRange" prefWidth="60.0" text="Range" />
+                                                        <TableColumn fx:id="rangedWeaponA" prefWidth="50.0" text="A" />
+                                                        <TableColumn fx:id="rangedWeaponBS" prefWidth="50.0" text="BS" />
+                                                        <TableColumn fx:id="rangedWeaponS" prefWidth="50.0" text="S" />
+                                                        <TableColumn fx:id="rangedWeaponAP" prefWidth="50.0" text="AP" />
+                                                        <TableColumn fx:id="rangedWeaponD" prefWidth="50.0" text="D" />
+                                                    </columns>
+                                                </TableView>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" styleClass="ds-card, ds-weapon-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Melee Weapons">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <TableView fx:id="meleeWeaponTable"
+                                                           prefHeight="190.0"
+                                                           prefWidth="610.0"
+                                                           styleClass="game-table"
+                                                           VBox.vgrow="ALWAYS">
+                                                    <columns>
+                                                        <TableColumn fx:id="meleeWeaponName" prefWidth="245.0" text="Melee Weapons" />
+                                                        <TableColumn fx:id="meleeWeaponRange" prefWidth="60.0" text="Range" />
+                                                        <TableColumn fx:id="meleeWeaponA" prefWidth="50.0" text="A" />
+                                                        <TableColumn fx:id="meleeWeaponWS" prefWidth="50.0" text="WS" />
+                                                        <TableColumn fx:id="meleeWeaponS" prefWidth="50.0" text="S" />
+                                                        <TableColumn fx:id="meleeWeaponAP" prefWidth="50.0" text="AP" />
+                                                        <TableColumn fx:id="meleeWeaponD" prefWidth="50.0" text="D" />
+                                                    </columns>
+                                                </TableView>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" styleClass="ds-card, ds-keywords-card">
+                                            <padding>
+                                                <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Keywords">
+                                                    <font><Font name="System Bold" size="16.0" /></font>
+                                                </Label>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="64.0" styleClass="ds-scroll">
+                                                    <content>
+                                                        <TextFlow fx:id="keywordsTextFlow"
+                                                                  prefWidth="560.0"
+                                                                  styleClass="ds-keywords" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox prefWidth="400.0" spacing="14.0" styleClass="ds-right-panel">
+                                    <children>
+                                        <VBox prefHeight="260.0" spacing="10.0" styleClass="ds-card, ds-info-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Abilities">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <Label styleClass="ds-panel-title" text="Faction">
+                                                    <font><Font name="System Bold" size="15.0" /></font>
+                                                </Label>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="78.0" styleClass="ds-scroll">
+                                                    <content>
+                                                        <TextFlow fx:id="factionAbilityTextFlow" prefWidth="340.0" styleClass="ds-text-flow" />
+                                                    </content>
+                                                </ScrollPane>
+                                                <Region maxWidth="1.7976931348623157E308" prefHeight="1.0" styleClass="ds-divider-line" />
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="120.0" styleClass="ds-scroll" VBox.vgrow="ALWAYS">
+                                                    <content>
+                                                        <TextFlow fx:id="abilityTextFlow" prefWidth="340.0" styleClass="ds-text-flow" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox prefHeight="130.0" spacing="10.0" styleClass="ds-card, ds-info-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Unit Composition">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="82.0" styleClass="ds-scroll" VBox.vgrow="ALWAYS">
+                                                    <content>
+                                                        <TextFlow fx:id="unitCompositionTextFlow" prefWidth="340.0" styleClass="ds-text-flow" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox prefHeight="120.0" spacing="10.0" styleClass="ds-card, ds-info-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Cost">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="72.0" styleClass="ds-scroll" VBox.vgrow="ALWAYS">
+                                                    <content>
+                                                        <TextFlow fx:id="costTextFlow" prefWidth="340.0" styleClass="ds-text-flow" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox prefHeight="180.0" spacing="10.0" styleClass="ds-card, ds-info-card">
+                                            <padding>
+                                                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                                            </padding>
+                                            <children>
+                                                <Label styleClass="ds-card-title" text="Other">
+                                                    <font><Font name="System Bold" size="18.0" /></font>
+                                                </Label>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="130.0" styleClass="ds-scroll" VBox.vgrow="ALWAYS">
+                                                    <content>
+                                                        <TextFlow fx:id="otherTextFlow" prefWidth="340.0" styleClass="ds-text-flow" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </center>
+                </BorderPane>
+            </content>
+        </Tab>
+
+        <Tab text="Core rule">
+            <content>
+                <BorderPane prefHeight="800.0" prefWidth="1400.0" styleClass="ds-outer" />
+            </content>
+        </Tab>
+    </tabs>
 </TabPane>

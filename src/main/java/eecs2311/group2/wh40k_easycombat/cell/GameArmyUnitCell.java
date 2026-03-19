@@ -7,6 +7,7 @@ import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
@@ -21,16 +22,22 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
     protected void updateItem(GameArmyUnitVM item, boolean empty) {
         super.updateItem(item, empty);
 
+        setText(null);
+        setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
         if (empty || item == null) {
-            setText(null);
             setGraphic(null);
             return;
         }
 
         VBox root = new VBox(6);
         root.setPadding(new Insets(8));
+        bindToListWidth(root, 24);
 
-        Button expandButton = new Button(item.expandedProperty().get() ? "▼" : "▶");
+        Button expandButton = new Button(item.expandedProperty().get() ? "-" : "+");
+        expandButton.setPrefWidth(26);
+        expandButton.setMinWidth(26);
+
         expandButton.setOnAction(e -> {
             e.consume();
             item.expandedProperty().set(!item.expandedProperty().get());
@@ -40,9 +47,12 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         });
 
         Label unitName = new Label(item.getUnitName());
-        unitName.setStyle("-fx-font-weight: bold;");
+        unitName.setWrapText(true);
+        unitName.setMaxWidth(Double.MAX_VALUE);
+        unitName.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
         Region spacer = new Region();
+        HBox.setHgrow(unitName, Priority.ALWAYS);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox header = new HBox(8, expandButton, unitName, spacer);
@@ -58,7 +68,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
         if (!item.getRangedWeapons().isEmpty()) {
             Label title = new Label("Ranged Weapons");
-            title.setStyle("-fx-font-weight: bold;");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
             detailBox.getChildren().add(title);
 
             for (WeaponProfile row : item.getRangedWeapons()) {
@@ -68,7 +78,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
         if (!item.getMeleeWeapons().isEmpty()) {
             Label title = new Label("Melee Weapons");
-            title.setStyle("-fx-font-weight: bold;");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
             detailBox.getChildren().add(title);
 
             for (WeaponProfile row : item.getMeleeWeapons()) {
@@ -82,9 +92,12 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
     private VBox buildSubUnitBox(UnitModelInstance sub) {
         Label name = new Label(sub.getModelName());
+        name.setWrapText(true);
+        name.setStyle("-fx-font-size: 13px;");
 
         TextField hpField = new TextField(String.valueOf(sub.getCurrentHp()));
         hpField.setPrefWidth(60);
+        hpField.setStyle("-fx-font-size: 13px;");
         hpField.setOnAction(e -> syncHpField(sub, hpField));
         hpField.focusedProperty().addListener((obs, oldV, newV) -> {
             if (!newV) {
@@ -93,8 +106,10 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         });
 
         Label hpLabel = new Label("HP");
+        hpLabel.setStyle("-fx-font-size: 13px;");
 
         Region spacer = new Region();
+        HBox.setHgrow(name, Priority.ALWAYS);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox topRow = new HBox(8, name, spacer, hpLabel, hpField);
@@ -102,8 +117,9 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
         Label statRow = new Label(buildSubUnitStatText(sub));
         statRow.setWrapText(true);
+        statRow.setStyle("-fx-font-size: 13px;");
 
-        VBox box = new VBox(2, topRow, statRow);
+        VBox box = new VBox(3, topRow, statRow);
         box.setPadding(new Insets(2, 0, 2, 20));
         return box;
     }
@@ -123,10 +139,15 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
     private VBox buildWeaponBox(WeaponProfile row, boolean melee) {
         Label name = new Label(row.name());
+        name.setWrapText(true);
+        name.setMaxWidth(Double.MAX_VALUE);
+        name.setStyle("-fx-font-size: 13px;");
 
         Label count = new Label("x" + row.count());
+        count.setStyle("-fx-font-size: 13px;");
 
         Region spacer = new Region();
+        HBox.setHgrow(name, Priority.ALWAYS);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox topRow = new HBox(8, name, spacer, count);
@@ -141,8 +162,9 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
                         + "   D: " + safe(row.d())
         );
         statRow.setWrapText(true);
+        statRow.setStyle("-fx-font-size: 13px;");
 
-        VBox box = new VBox(2, topRow, statRow);
+        VBox box = new VBox(3, topRow, statRow);
         box.setPadding(new Insets(2, 0, 2, 20));
         return box;
     }
@@ -164,5 +186,11 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
     private String safe(String s) {
         return s == null ? "" : s;
+    }
+
+    private void bindToListWidth(Region region, double offset) {
+        if (getListView() == null) return;
+        region.prefWidthProperty().bind(getListView().widthProperty().subtract(offset));
+        region.maxWidthProperty().bind(region.prefWidthProperty());
     }
 }

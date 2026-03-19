@@ -386,6 +386,20 @@
     -fx-background-color: #c9a227;
 }
 
+.game-panel-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.game-panel-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.game-panel-scroll > .corner {
+    -fx-background-color: transparent;
+}
+
 /* --- ScrollBar theming (shared across lists/tables/textarea) --- */
 .scroll-bar {
     -fx-background-color: #1a1a1a;
@@ -789,4 +803,365 @@
 /* Alert graphic (icon) region */
 .custom-alert .graphic-container {
     -fx-background-color: #1a1a1a;
+}
+
+/* ============================================================
+   Datasheets Refresh - Card Layout
+   ============================================================ */
+.ds-outer {
+    -fx-background-color:
+        linear-gradient(to bottom right, #0d0f10, #131719 38%, #101214 100%);
+}
+
+.ds-left-panel,
+.ds-center-panel,
+.ds-right-panel {
+    -fx-background-color: transparent;
+}
+
+.ds-card {
+    -fx-background-color:
+        linear-gradient(to bottom, rgba(31, 31, 31, 0.96), rgba(22, 22, 22, 0.96));
+    -fx-border-color: rgba(201, 162, 39, 0.22);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.38), 14, 0.18, 0, 3);
+}
+
+.ds-toolbar-card {
+    -fx-border-color: rgba(201, 162, 39, 0.18);
+}
+
+.ds-hero-card {
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.ds-weapon-card,
+.ds-info-card,
+.ds-keywords-card {
+    -fx-border-color: rgba(201, 162, 39, 0.20);
+}
+
+.ds-card-title {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.ds-panel-title {
+    -fx-text-fill: #cfa93b;
+    -fx-font-weight: bold;
+}
+
+.ds-datasheet-name {
+    -fx-text-fill: #e0bf55;
+    -fx-font-weight: bold;
+    -fx-font-size: 36px;
+    -fx-padding: 0;
+}
+
+.ds-label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-model-name {
+    -fx-text-fill: #f1f1f1;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.18);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 12px 10px 12px;
+}
+
+.ds-stat-header-row {
+    -fx-padding: 2px 0 0 0;
+}
+
+.ds-stat-header {
+    -fx-text-fill: #c9a227;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.ds-stat-value {
+    -fx-background-color: #1b1d1f;
+    -fx-text-fill: #f3f3f3;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.10), 6, 0, 0, 1);
+}
+
+.ds-divider-line {
+    -fx-background-color: rgba(201, 162, 39, 0.18);
+    -fx-min-height: 1px;
+    -fx-pref-height: 1px;
+    -fx-max-height: 1px;
+}
+
+.ds-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.ds-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.ds-text-flow {
+    -fx-background-color: transparent;
+    -fx-padding: 2px 0 2px 0;
+}
+
+.ds-text-flow Text {
+    -fx-fill: #e6e6e6;
+}
+
+.ds-keywords {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.ds-keywords Text {
+    -fx-fill: #d8d8d8;
+    -fx-font-size: 12px;
+}
+
+.ds-search {
+    -fx-background-color: #17191b;
+    -fx-text-fill: #ececec;
+    -fx-prompt-text-fill: #707070;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-combo {
+    -fx-background-color: #232628;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-combo .list-cell {
+    -fx-background-color: #232628;
+    -fx-text-fill: #ececec;
+}
+
+.ds-combo .combo-box-popup .list-view {
+    -fx-background-color: #161819;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #161819;
+    -fx-text-fill: #ececec;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.14);
+}
+
+.ds-combo .arrow-button {
+    -fx-background-color: #232628;
+}
+
+.ds-combo .arrow {
+    -fx-background-color: #c9a227;
+}
+
+.ds-datasheet-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.ds-datasheet-list .virtual-flow,
+.ds-datasheet-list .clipped-container,
+.ds-datasheet-list .sheet,
+.ds-datasheet-list > .viewport {
+    -fx-background-color: transparent;
+}
+
+.ds-datasheet-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 0 5px 0;
+}
+
+.ds-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.14);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-datasheet-list .list-cell:filled:hover .ds-list-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.ds-datasheet-list .list-cell:filled:selected .ds-list-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.ds-list-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.ds-list-faction {
+    -fx-text-fill: #aeb4b9;
+    -fx-font-size: 12px;
+}
+
+/* ============================================================
+   Army Refresh - Card Layout
+   ============================================================ */
+.army-root {
+    -fx-background-color:
+        linear-gradient(to bottom right, #0d0f10, #131719 40%, #101214 100%);
+}
+
+.army-left-panel,
+.army-center-panel {
+    -fx-background-color: transparent;
+}
+
+.army-card {
+    -fx-background-color:
+        linear-gradient(to bottom, rgba(31, 31, 31, 0.96), rgba(22, 22, 22, 0.96));
+    -fx-border-color: rgba(201, 162, 39, 0.22);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.36), 14, 0.18, 0, 3);
+}
+
+.army-card-title {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.army-points-row {
+    -fx-padding: 4px 0 4px 0;
+}
+
+.army-points-value {
+    -fx-text-fill: #f3f3f3;
+    -fx-font-weight: bold;
+}
+
+.army-points-chip {
+    -fx-background-color: #1b1d1f;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 6px 12px 6px 12px;
+}
+
+.army-army-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.army-army-list .virtual-flow,
+.army-army-list .clipped-container,
+.army-army-list .sheet,
+.army-army-list > .viewport {
+    -fx-background-color: transparent;
+}
+
+.army-army-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 0 5px 0;
+}
+
+.army-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.16);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.army-army-list .list-cell:filled:hover .army-list-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.army-army-list .list-cell:filled:selected .army-list-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.army-list-role {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.army-list-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.army-list-stat {
+    -fx-text-fill: #cfd4d8;
+    -fx-font-size: 12px;
+}
+
+.army-inline-label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-size: 12px;
+}
+
+.army-inline-button {
+    -fx-background-color: #242424;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 4px 8px 4px 8px;
+}
+
+.army-inline-button:hover {
+    -fx-background-color: #353535;
+    -fx-border-color: #d4af37;
+}
+
+.army-inline-button:pressed {
+    -fx-background-color: #181818;
+}
+
+.army-unit-select-card .game-table,
+.army-saved-card .game-table {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
 }

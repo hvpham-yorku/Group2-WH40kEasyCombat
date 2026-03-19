@@ -222,9 +222,14 @@ public class GameUIController {
         );
 
         if (shouldExit) {
-            FixedAspectView.switchTo((Node) event.getSource(),
-                    "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-                    1200.0, 800.0);
+        	FixedAspectView.switchResponsiveTo(
+        	        (Node) event.getSource(),
+        	        "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+        	        800.0,
+        	        600.0,
+        	        1200.0,
+        	        800.0
+        	);
         }
     }
 
