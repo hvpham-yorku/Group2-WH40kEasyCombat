@@ -5,6 +5,7 @@ import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
 import java.util.Locale;
 
 public record WeaponProfile(
+        int weaponID,
         String name,
         String description,
         int count,
@@ -17,6 +18,7 @@ public record WeaponProfile(
         boolean melee
 ) {
     public WeaponProfile {
+        weaponID = Math.max(0, weaponID);
         name = safe(name);
         description = safe(description);
         count = Math.max(1, count);
@@ -29,6 +31,10 @@ public record WeaponProfile(
     }
 
     public static WeaponProfile fromDatasheetWargear(Datasheets_wargear wargear) {
+        return fromDatasheetWargear(wargear, 1);
+    }
+
+    public static WeaponProfile fromDatasheetWargear(Datasheets_wargear wargear, int count) {
         if (wargear == null) {
             return null;
         }
@@ -38,9 +44,10 @@ public record WeaponProfile(
         boolean melee = isMelee(type, range);
 
         return new WeaponProfile(
+                wargear.auto_id(),
                 safe(wargear.name()),
                 safe(wargear.description()),
-                1,
+                count,
                 melee ? "Melee" : range,
                 safe(wargear.A()),
                 safe(wargear.BS_WS()),

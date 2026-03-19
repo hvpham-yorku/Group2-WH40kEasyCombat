@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyAggregate;
 import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Army_detachment;
 import eecs2311.group2.wh40k_easycombat.model.Army_units;
+import eecs2311.group2.wh40k_easycombat.model.Army_wargear;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_unit_composition;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
@@ -63,9 +64,10 @@ public final class GameArmyImportService {
 
             String unitName = safe(datasheetBundle.datasheet.name(), savedUnit.datasheet_id());
             UnitInstance unit = new UnitInstance(savedUnit.datasheet_id(), unitName);
+            List<Army_wargear> equippedWeapons = StaticDataService.getArmyWargearByUnitId(savedUnit.auto_id());
 
             buildSubUnits(unit, datasheetBundle, savedUnit.model_count());
-            buildWeapons(unit, datasheetBundle);
+            buildWeapons(unit, datasheetBundle, equippedWeapons);
 
             importedUnits.add(new GameArmyUnitVM(unit));
         }
@@ -211,22 +213,57 @@ public final class GameArmyImportService {
         return result;
     }
 
-    private static void buildWeapons(UnitInstance unit, DatasheetAggregate bundle) {
+    private static void buildWeapons(
+            UnitInstance unit,
+            DatasheetAggregate bundle,
+            List<Army_wargear> equippedWeapons
+    ) {
         if (bundle.wargear == null) {
             return;
         }
 
+        if (equippedWeapons == null || equippedWeapons.isEmpty()) {
+            for (Datasheets_wargear wargear : bundle.wargear) {
+                WeaponProfile weapon = WeaponProfile.fromDatasheetWargear(wargear);
+                addWeapon(unit, weapon);
+            }
+            return;
+        }
+
+        Map<Integer, Integer> weaponCountByID = new LinkedHashMap<>();
+        for (Army_wargear equipped : equippedWeapons) {
+            weaponCountByID.merge(
+                    equipped.wargear_id(),
+                    Math.max(1, equipped.wargear_count()),
+                    Integer::sum
+            );
+        }
+
+        Map<Integer, Datasheets_wargear> datasheetWargearByID = new LinkedHashMap<>();
         for (Datasheets_wargear wargear : bundle.wargear) {
-            WeaponProfile weapon = WeaponProfile.fromDatasheetWargear(wargear);
-            if (weapon == null) {
+            datasheetWargearByID.put(wargear.auto_id(), wargear);
+        }
+
+        for (Map.Entry<Integer, Integer> entry : weaponCountByID.entrySet()) {
+            Datasheets_wargear wargear = datasheetWargearByID.get(entry.getKey());
+            if (wargear == null) {
                 continue;
             }
 
-            if (weapon.melee()) {
-                unit.addMeleeWeapon(weapon);
-            } else {
-                unit.addRangedWeapon(weapon);
-            }
+            WeaponProfile weapon = WeaponProfile.fromDatasheetWargear(wargear, entry.getValue());
+            addWeapon(unit, weapon);
+        }
+    }
+
+    private static void addWeapon(UnitInstance unit, WeaponProfile weapon) {
+        if (weapon == null) {
+            return;
+        }
+
+        if (weapon.melee()) {
+            unit.addMeleeWeapon(weapon);
+        } else {
+            unit.addRangedWeapon(weapon);
         }
     }
 
