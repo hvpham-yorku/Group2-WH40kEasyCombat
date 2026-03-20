@@ -54,6 +54,10 @@ public class BattleState {
         return activePlayer;
     }
 
+    public Player getInactivePlayer() {
+        return (activePlayer == Player.ATTACKER) ? Player.DEFENDER : Player.ATTACKER;
+    }
+
     public void setActivePlayer(Player activePlayer) {
         this.activePlayer = activePlayer == null ? Player.ATTACKER : activePlayer;
     }

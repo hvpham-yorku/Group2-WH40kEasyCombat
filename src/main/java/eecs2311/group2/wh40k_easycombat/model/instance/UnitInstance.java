@@ -54,6 +54,21 @@ public class UnitInstance {
         return meleeWeapons;
     }
 
+    public WeaponProfile getWeaponProfileByName(String name){
+      WeaponProfile result = null;
+      for (WeaponProfile p : rangedWeapons) {
+          if (p.name().equals(name)){
+            result = p;
+          }
+      }
+      for (WeaponProfile p : meleeWeapons) {
+          if (p.name().equals(name)){
+            result = p;
+          }
+      }
+      return result;
+    }
+
     public void addModel(UnitModelInstance model) {
         if (model != null) {
             models.add(model);
