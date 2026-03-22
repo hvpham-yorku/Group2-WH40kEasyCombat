@@ -23,4 +23,18 @@ public class DiceService {
 	public ArrayList<Integer> getResults() {
 		return results;
 	}
+
+  public int convertStringIntoRoll(String stat) throws IllegalArgumentException{
+    rollDice(1);
+    int value = results.getFirst();
+    switch (stat) {
+        case "D3" -> {
+            return (value + 1) / 2 ;
+                }
+        case "D6" -> {
+            return value;
+                }
+        default -> throw new IllegalArgumentException();
+    }
+  }
 }

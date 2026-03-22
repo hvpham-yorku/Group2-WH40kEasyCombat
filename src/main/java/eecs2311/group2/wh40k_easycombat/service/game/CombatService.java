@@ -53,6 +53,14 @@ public final class CombatService {
         return ensureState().getInactiveArmy();
     }
 
+    public Player getActivePlayer() {
+        return ensureState().getActivePlayer();
+    }
+    
+    public Player getInactivePlayer() {
+        return ensureState().getInactivePlayer();
+    }
+    
     public void switchActivePlayer() {
         ensureState().switchActivePlayer();
     }

@@ -10,6 +10,7 @@ public class ArmyInstance {
     private final String factionName;
     private final String detachmentId;
 
+    private String secondaryMissionName;
     private int currentCp;
     private int currentVp;
 
@@ -52,6 +53,14 @@ public class ArmyInstance {
         return detachmentId;
     }
 
+    public String getSecondaryMissionName(){
+        return secondaryMissionName;
+    }
+
+    public void setSecondaryMissionName(String missionName){
+        this.secondaryMissionName = missionName;
+    }
+
     public int getCurrentCp() {
         return currentCp;
     }
@@ -74,6 +83,22 @@ public class ArmyInstance {
 
     public List<StratagemInstance> getStrategies() {
         return strategies;
+    }
+
+    public UnitInstance getUnitInstanceById(String id){
+      UnitInstance result = units.stream()
+        .filter(o -> o.getInstanceId().equals(id))
+        .findFirst()
+        .orElse(null);
+      return result;
+    }
+    
+    public StratagemInstance getStrategemInstanceByName(String name){
+      StratagemInstance result = strategies.stream()
+        .filter(o -> o.name().equals(name))
+        .findFirst()
+        .orElse(null);
+      return result;
     }
 
     public void addUnit(UnitInstance unit) {
