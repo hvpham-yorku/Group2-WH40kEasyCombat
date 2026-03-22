@@ -13,6 +13,9 @@ import eecs2311.group2.wh40k_easycombat.model.instance.StratagemInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_abilities;
+import eecs2311.group2.wh40k_easycombat.model.Datasheets_keywords;
+import eecs2311.group2.wh40k_easycombat.model.instance.UnitAbilityProfile;
 import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
 import eecs2311.group2.wh40k_easycombat.repository.StratagemsRepository;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
@@ -64,6 +67,7 @@ public final class GameArmyImportService {
 
             String unitName = safe(datasheetBundle.datasheet.name(), savedUnit.datasheet_id());
             UnitInstance unit = new UnitInstance(savedUnit.datasheet_id(), unitName);
+            importUnitRules(unit, datasheetBundle);
             List<Army_wargear> equippedWeapons = StaticDataService.getArmyWargearByUnitId(savedUnit.auto_id());
 
             buildSubUnits(unit, datasheetBundle, savedUnit.model_count());
@@ -302,5 +306,56 @@ public final class GameArmyImportService {
     private static String safe(String value, String fallback) {
         String normalized = safe(value);
         return normalized.isBlank() ? safe(fallback) : normalized;
+    }
+    
+    private static void importUnitRules(UnitInstance unit, DatasheetAggregate bundle) {
+        importKeywords(unit, bundle == null ? List.of() : bundle.keywords);
+        importAbilities(unit, bundle == null ? List.of() : bundle.abilities);
+    }
+
+    private static void importKeywords(UnitInstance unit, List<Datasheets_keywords> keywords) {
+        if (unit == null || keywords == null) {
+            return;
+        }
+
+        for (Datasheets_keywords keyword : keywords) {
+            String value = safe(keyword.keyword());
+            if (!value.isBlank()) {
+                unit.addKeyword(value);
+            }
+        }
+    }
+
+    private static void importAbilities(UnitInstance unit, List<Datasheets_abilities> abilities) {
+        if (unit == null || abilities == null) {
+            return;
+        }
+
+        for (Datasheets_abilities ability : abilities) {
+            String name = safe(ability.name(), ability.line());
+            String description = stripHtml(safe(ability.description()));
+            String type = safe(ability.type());
+
+            if (name.isBlank() && description.isBlank()) {
+                continue;
+            }
+
+            unit.addAbility(new UnitAbilityProfile(name, description, type));
+        }
+    }
+
+    private static String stripHtml(String text) {
+        if (text == null || text.isBlank()) {
+            return "";
+        }
+
+        return text
+                .replace("<br>", " ")
+                .replace("<br/>", " ")
+                .replace("<br />", " ")
+                .replace("&nbsp;", " ")
+                .replaceAll("<[^>]+>", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 }

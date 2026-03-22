@@ -30,6 +30,22 @@ public record WeaponProfile(
         d = safe(d);
     }
 
+    public WeaponProfile withCount(int nextCount) {
+        return new WeaponProfile(
+                weaponID,
+                name,
+                description,
+                nextCount,
+                range,
+                a,
+                skill,
+                s,
+                ap,
+                d,
+                melee
+        );
+    }
+
     public static WeaponProfile fromDatasheetWargear(Datasheets_wargear wargear) {
         return fromDatasheetWargear(wargear, 1);
     }

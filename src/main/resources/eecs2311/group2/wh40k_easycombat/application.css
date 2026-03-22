@@ -203,9 +203,18 @@
     -fx-background-radius: 2px;
 }
 
+.game-list .virtual-flow,
+.game-list .clipped-container,
+.game-list .sheet,
+.game-list > .viewport,
+.game-list .placeholder .label {
+    -fx-background-color: #1a1a1a;
+}
+
 .game-list .list-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #e6e6e6;
+    -fx-padding: 6px 0 6px 0;
 }
 
 /* Strategy cell labels (name, CP, turn, phase) */
@@ -251,6 +260,58 @@
 .game-list .list-cell:filled:selected {
     -fx-background-color: #6b5410;
     -fx-text-fill: #ffffff;
+}
+
+.game-list .text-field,
+.game-root .text-field {
+    -fx-background-color: #181818;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-prompt-text-fill: #7a7a7a;
+}
+
+.game-root .combo-box,
+.game-combo {
+    -fx-background-color: #202020;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.game-root .combo-box .list-cell,
+.game-combo .list-cell {
+    -fx-background-color: #202020;
+    -fx-text-fill: #ececec;
+}
+
+.game-root .combo-box .arrow-button,
+.game-combo .arrow-button {
+    -fx-background-color: #202020;
+}
+
+.game-root .combo-box .arrow,
+.game-combo .arrow {
+    -fx-background-color: #d4af37;
+}
+
+.game-root .combo-box-popup .list-view,
+.game-combo .combo-box-popup .list-view {
+    -fx-background-color: #161616;
+}
+
+.game-root .combo-box-popup .list-view .list-cell,
+.game-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #161616;
+    -fx-text-fill: #ececec;
+}
+
+.game-root .combo-box-popup .list-view .list-cell:hover,
+.game-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.14);
 }
 
 /* --- TableView (Mission tables) --- */
@@ -368,6 +429,129 @@
 .game-spinner .increment-arrow-button:hover,
 .game-spinner .decrement-arrow-button:hover {
     -fx-background-color: #3a3a3a;
+}
+
+.game-army-unit-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.16);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.game-list .list-cell:filled:hover .game-army-unit-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.game-list .list-cell:filled:selected .game-army-unit-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.game-army-unit-card-destroyed {
+    -fx-background-color: rgba(120, 120, 120, 0.10);
+    -fx-border-color: rgba(145, 145, 145, 0.22);
+}
+
+.game-unit-row-destroyed .game-army-unit-card {
+    -fx-opacity: 0.78;
+}
+
+.game-army-unit-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.game-army-unit-name-destroyed {
+    -fx-text-fill: #a6a6a6;
+    -fx-strikethrough: true;
+}
+
+.game-army-unit-summary {
+    -fx-text-fill: #cfd4d8;
+    -fx-font-size: 12px;
+}
+
+.game-army-unit-summary-destroyed {
+    -fx-text-fill: #989898;
+}
+
+.game-army-unit-summary-battleshocked {
+    -fx-text-fill: #f0d060;
+    -fx-font-weight: bold;
+}
+
+.game-army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.game-army-model-card,
+.game-army-weapon-card {
+    -fx-background-color: rgba(255, 255, 255, 0.025);
+    -fx-border-color: rgba(201, 162, 39, 0.12);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.game-army-model-card-destroyed {
+    -fx-background-color: rgba(120, 120, 120, 0.06);
+    -fx-border-color: rgba(140, 140, 140, 0.16);
+}
+
+.game-army-model-name,
+.game-army-weapon-name {
+    -fx-text-fill: #ececec;
+    -fx-font-weight: bold;
+}
+
+.game-army-model-name-destroyed {
+    -fx-text-fill: #9e9e9e;
+    -fx-strikethrough: true;
+}
+
+.game-army-model-stats,
+.game-army-weapon-stats {
+    -fx-text-fill: #c5cace;
+    -fx-font-size: 12px;
+}
+
+.game-army-model-stats-destroyed {
+    -fx-text-fill: #929292;
+}
+
+.game-army-weapon-count,
+.game-army-inline-label {
+    -fx-text-fill: #d9b44a;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.game-army-inline-button {
+    -fx-background-color: #242424;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 4px 8px 4px 8px;
+}
+
+.game-army-inline-button:hover {
+    -fx-background-color: #353535;
+    -fx-border-color: #d4af37;
+}
+
+.game-army-inline-button:pressed {
+    -fx-background-color: #181818;
+}
+
+.game-army-hp-field {
+    -fx-pref-width: 64px;
 }
 
 /* --- CheckBox --- */
