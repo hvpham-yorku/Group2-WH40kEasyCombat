@@ -202,6 +202,30 @@ public class BattleState {
         );
 
         copy.setBattleShocked(source.isBattleShocked());
+        copy.setEligibleToFightThisPhase(source.isEligibleToFightThisPhase());
+        copy.setFoughtThisPhase(source.hasFoughtThisPhase());
+        copy.setChargedThisTurn(source.hasChargedThisTurn());
+        copy.setWasChargedThisTurn(source.hasBeenChargedThisTurn());
+
+        for (String keyword : source.getKeywords()) {
+            copy.addKeyword(keyword);
+        }
+
+        for (UnitAbilityProfile ability : source.getAbilities()) {
+            copy.addAbility(ability);
+        }
+
+        for (String weaponKey : source.getUsedRangedWeaponKeysThisPhase()) {
+            copy.markRangedWeaponUsedThisPhaseByKey(weaponKey);
+        }
+
+        for (String weaponKey : source.getUsedOneShotWeaponKeysThisBattle()) {
+            copy.markOneShotWeaponUsedByKey(weaponKey);
+        }
+
+        for (String weaponKey : source.getRemovedWeaponKeysForDestroyedModels()) {
+            copy.markRemovedWeaponKey(weaponKey);
+        }
 
         for (UnitModelInstance model : source.getModels()) {
             copy.addModel(copyModel(model));

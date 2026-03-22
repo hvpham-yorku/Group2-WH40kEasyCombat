@@ -1,16 +1,29 @@
 package eecs2311.group2.wh40k_easycombat.service.calculations;
 
-public class BattleShockCalculations {
-    int roll;
-    static int leadership;
+import java.util.List;
 
-    public boolean checkBattleShock(int roll, int leadership) {
-        if (roll >= leadership) {
-           System.out.println("PASS! Unit is not Battle-shocked.");
-           return true;
-        } else {
-            System.out.println("FAIL! Unit becomes Battle-shocked.");
-            return false;
+public class BattleShockCalculations {
+    private BattleShockCalculations() {
+    }
+
+    public static boolean checkBattleShock(int roll, int leadership) {
+        return roll >= leadership;
+    }
+
+    public static int rollBattleShockTotal(DiceService diceService) {
+        if (diceService == null) {
+            diceService = new DiceService();
         }
+
+        diceService.rollDice(2);
+        return diceService.getResults().get(0) + diceService.getResults().get(1);
+    }
+
+    public static int rollBattleShockTotalFromExistingRoll(List<Integer> rolls) {
+        if (rolls == null || rolls.isEmpty()) {
+            return 0;
+        }
+
+        return rolls.stream().mapToInt(Integer::intValue).sum();
     }
 }

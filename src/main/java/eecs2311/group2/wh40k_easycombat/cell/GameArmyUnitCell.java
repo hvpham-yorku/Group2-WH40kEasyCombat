@@ -2,11 +2,12 @@ package eecs2311.group2.wh40k_easycombat.cell;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -18,25 +19,45 @@ import javafx.scene.layout.VBox;
 
 public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
+    private final Runnable onStateChanged;
+
+    public GameArmyUnitCell() {
+        this(null);
+    }
+
+    public GameArmyUnitCell(Runnable onStateChanged) {
+        this.onStateChanged = onStateChanged;
+    }
+
     @Override
     protected void updateItem(GameArmyUnitVM item, boolean empty) {
         super.updateItem(item, empty);
 
         setText(null);
         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        getStyleClass().remove("game-unit-row-destroyed");
 
         if (empty || item == null) {
             setGraphic(null);
             return;
         }
 
-        VBox root = new VBox(6);
-        root.setPadding(new Insets(8));
-        bindToListWidth(root, 24);
+        if (item.isDestroyed()) {
+            getStyleClass().add("game-unit-row-destroyed");
+        }
+
+        VBox root = new VBox(8);
+        root.setPadding(new Insets(10));
+        root.getStyleClass().add("game-army-unit-card");
+        if (item.isDestroyed()) {
+            root.getStyleClass().add("game-army-unit-card-destroyed");
+        }
+        bindToListWidth(root, 22);
 
         Button expandButton = new Button(item.expandedProperty().get() ? "-" : "+");
-        expandButton.setPrefWidth(26);
-        expandButton.setMinWidth(26);
+        expandButton.getStyleClass().add("game-army-inline-button");
+        expandButton.setPrefWidth(28);
+        expandButton.setMinWidth(28);
 
         expandButton.setOnAction(e -> {
             e.consume();
@@ -47,9 +68,45 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         });
 
         Label unitName = new Label(item.getUnitName());
+        unitName.getStyleClass().add("game-army-unit-name");
+        if (item.isDestroyed()) {
+            unitName.getStyleClass().add("game-army-unit-name-destroyed");
+        }
         unitName.setWrapText(true);
         unitName.setMaxWidth(Double.MAX_VALUE);
-        unitName.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label unitSummary = new Label(buildUnitSummary(item));
+        unitSummary.getStyleClass().add("game-army-unit-summary");
+        if (item.isDestroyed()) {
+            unitSummary.getStyleClass().add("game-army-unit-summary-destroyed");
+        }
+        unitSummary.setWrapText(true);
+
+        CheckBox battleShockBox = new CheckBox("Battle-shocked");
+        battleShockBox.getStyleClass().add("game-checkbox");
+        battleShockBox.setSelected(item.getUnit().isBattleShocked());
+        battleShockBox.setDisable(item.isDestroyed());
+        battleShockBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
+            item.getUnit().setBattleShocked(newValue);
+            if (onStateChanged != null) {
+                onStateChanged.run();
+            }
+            if (getListView() != null) {
+                getListView().refresh();
+            }
+        });
+
+        Label currentOcLabel = new Label("Current OC: " + item.getUnit().getCurrentOc());
+        currentOcLabel.getStyleClass().add("game-army-unit-summary");
+        currentOcLabel.setWrapText(true);
+        if (item.getUnit().isBattleShocked()) {
+            currentOcLabel.getStyleClass().add("game-army-unit-summary-battleshocked");
+        }
+
+        Region statusSpacer = new Region();
+        HBox.setHgrow(statusSpacer, Priority.ALWAYS);
+        HBox statusRow = new HBox(10, battleShockBox, statusSpacer, currentOcLabel);
+        statusRow.setAlignment(Pos.CENTER_LEFT);
 
         Region spacer = new Region();
         HBox.setHgrow(unitName, Priority.ALWAYS);
@@ -67,8 +124,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         }
 
         if (!item.getRangedWeapons().isEmpty()) {
-            Label title = new Label("Ranged Weapons");
-            title.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            Label title = buildSectionTitle("Ranged Weapons");
             detailBox.getChildren().add(title);
 
             for (WeaponProfile row : item.getRangedWeapons()) {
@@ -77,8 +133,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         }
 
         if (!item.getMeleeWeapons().isEmpty()) {
-            Label title = new Label("Melee Weapons");
-            title.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            Label title = buildSectionTitle("Melee Weapons");
             detailBox.getChildren().add(title);
 
             for (WeaponProfile row : item.getMeleeWeapons()) {
@@ -86,27 +141,36 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
             }
         }
 
-        root.getChildren().addAll(header, detailBox);
+        root.getChildren().addAll(header, unitSummary, statusRow, detailBox);
         setGraphic(root);
+    }
+
+    private Label buildSectionTitle(String text) {
+        Label title = new Label(text);
+        title.getStyleClass().add("game-army-section-title");
+        return title;
     }
 
     private VBox buildSubUnitBox(UnitModelInstance sub) {
         Label name = new Label(sub.getModelName());
+        name.getStyleClass().add("game-army-model-name");
         name.setWrapText(true);
-        name.setStyle("-fx-font-size: 13px;");
+        if (sub.isDestroyed()) {
+            name.getStyleClass().add("game-army-model-name-destroyed");
+        }
 
         TextField hpField = new TextField(String.valueOf(sub.getCurrentHp()));
-        hpField.setPrefWidth(60);
-        hpField.setStyle("-fx-font-size: 13px;");
+        hpField.getStyleClass().add("game-army-hp-field");
+        hpField.setPrefWidth(64);
         hpField.setOnAction(e -> syncHpField(sub, hpField));
-        hpField.focusedProperty().addListener((obs, oldV, newV) -> {
-            if (!newV) {
+        hpField.focusedProperty().addListener((obs, oldValue, focused) -> {
+            if (!focused) {
                 syncHpField(sub, hpField);
             }
         });
 
         Label hpLabel = new Label("HP");
-        hpLabel.setStyle("-fx-font-size: 13px;");
+        hpLabel.getStyleClass().add("game-army-inline-label");
 
         Region spacer = new Region();
         HBox.setHgrow(name, Priority.ALWAYS);
@@ -116,11 +180,18 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         topRow.setAlignment(Pos.CENTER_LEFT);
 
         Label statRow = new Label(buildSubUnitStatText(sub));
+        statRow.getStyleClass().add("game-army-model-stats");
         statRow.setWrapText(true);
-        statRow.setStyle("-fx-font-size: 13px;");
+        if (sub.isDestroyed()) {
+            statRow.getStyleClass().add("game-army-model-stats-destroyed");
+        }
 
         VBox box = new VBox(3, topRow, statRow);
         box.setPadding(new Insets(2, 0, 2, 20));
+        box.getStyleClass().add("game-army-model-card");
+        if (sub.isDestroyed()) {
+            box.getStyleClass().add("game-army-model-card-destroyed");
+        }
         return box;
     }
 
@@ -130,7 +201,16 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         } catch (Exception ignored) {
         }
 
+        GameArmyUnitVM currentItem = getItem();
+        if (currentItem != null) {
+            ArmyListStateService.reconcileUnitState(currentItem.getUnit());
+        }
+
         hpField.setText(String.valueOf(sub.getCurrentHp()));
+
+        if (onStateChanged != null) {
+            onStateChanged.run();
+        }
 
         if (getListView() != null) {
             getListView().refresh();
@@ -139,12 +219,12 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
 
     private VBox buildWeaponBox(WeaponProfile row, boolean melee) {
         Label name = new Label(row.name());
+        name.getStyleClass().add("game-army-weapon-name");
         name.setWrapText(true);
         name.setMaxWidth(Double.MAX_VALUE);
-        name.setStyle("-fx-font-size: 13px;");
 
         Label count = new Label("x" + row.count());
-        count.setStyle("-fx-font-size: 13px;");
+        count.getStyleClass().add("game-army-weapon-count");
 
         Region spacer = new Region();
         HBox.setHgrow(name, Priority.ALWAYS);
@@ -161,12 +241,27 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
                         + "   AP: " + safe(row.ap())
                         + "   D: " + safe(row.d())
         );
+        statRow.getStyleClass().add("game-army-weapon-stats");
         statRow.setWrapText(true);
-        statRow.setStyle("-fx-font-size: 13px;");
 
         VBox box = new VBox(3, topRow, statRow);
         box.setPadding(new Insets(2, 0, 2, 20));
+        box.getStyleClass().add("game-army-weapon-card");
         return box;
+    }
+
+    private String buildUnitSummary(GameArmyUnitVM item) {
+        String status = item.isDestroyed()
+                ? "Destroyed"
+                : item.getUnit().isBattleShocked() ? "Battle-shocked" : "Active";
+
+        if (!item.isDestroyed() && item.getUnit().isBelowHalfStrength()) {
+            status += " | Below Half-strength";
+        }
+
+        return "Models Alive: " + item.getAliveModelCount()
+                + "/" + item.getSubUnits().size()
+                + "   Status: " + status;
     }
 
     private String buildSubUnitStatText(UnitModelInstance sub) {

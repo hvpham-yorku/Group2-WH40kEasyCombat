@@ -1,7 +1,5 @@
 package eecs2311.group2.wh40k_easycombat.service.calculations;
 
-import eecs2311.group2.wh40k_easycombat.service.game.DiceService;
-
 public class ShootingCalculations {
 
     private static DiceService diceService = new DiceService();
