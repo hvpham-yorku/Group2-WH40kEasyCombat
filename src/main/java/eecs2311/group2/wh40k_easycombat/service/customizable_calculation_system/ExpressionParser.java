@@ -20,7 +20,7 @@ public class ExpressionParser {
 
     private Expression parseLogicalOr() {
         Expression left = parseLogicalAnd();
-        while (match("OR")) {
+        while (match("||")) {
             Expression right = parseLogicalAnd();
             left = new LogicalExpr(left, right, OpCode.OR);
         }
@@ -30,7 +30,7 @@ public class ExpressionParser {
     // 优先级 5: 逻辑 AND
     private Expression parseLogicalAnd() {
         Expression left = parseComparison();
-        while (match("AND")) {
+        while (match("&&")) {
             Expression right = parseComparison();
             left = new LogicalExpr(left, right, OpCode.AND);
         }

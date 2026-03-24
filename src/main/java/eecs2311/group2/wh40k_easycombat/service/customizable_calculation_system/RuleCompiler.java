@@ -1,6 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system;
 
 import eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system.expr.*;
+
 import java.util.*;
 import java.util.regex.*;
 
@@ -10,9 +11,16 @@ public class RuleCompiler {
     private static final Pattern ROLL_RE = Pattern.compile("roll\\s+(.+?)\\s*->\\s*(\\w+)");
     private static final Pattern FILTER_RE = Pattern.compile("filter\\s+(\\w+)\\s+\\((.+?)\\)\\s*->\\s*(\\w+)");
     private static final Pattern COUNT_RE = Pattern.compile("count\\s+(\\w+)\\s*->\\s*(\\w+)");
+    private static final Pattern REROLL_RE = Pattern.compile("reroll\\s+(\\w+)\\s+\\((.+?)\\)\\s*->\\s*(\\w+)");
+    private static final Pattern KEEP_PATTERN = Pattern.compile("keep_(high|low)\\s+(\\w+)\\s+(\\d+)\\s*->\\s*(\\w+)");
+    // fixed 1 2 3 -> poolName
+    private static final Pattern FIXED_RE = Pattern.compile("fixed\\s+(.+?)\\s*->\\s*(\\w+)");
+    private static final Pattern MULTI_MERGE_RE = Pattern.compile("merge\\s+((?:\\w+\\s+)+)->\\s*(\\w+)");
+    private static final Pattern SUM_RE = Pattern.compile("sum\\s+(\\w+)\\s*->\\s*(\\w+)");
 
     // 2. 逻辑控制
     private static final Pattern IF_RE = Pattern.compile("if\\s+(?:\\((.*)\\)|(.*))");
+    private static final Pattern WHILE_RE = Pattern.compile("while\\s+(?:\\((.*)\\)|(.*))");
 
     // 3. 自增自减
     private static final Pattern AUTO_INC_DEC_RE = Pattern.compile("(\\w+)\\s*(\\+\\+|--)");
@@ -23,7 +31,6 @@ public class RuleCompiler {
     // 5. 流式赋值 (expr -> var)，排除掉前面的 roll/filter/count
     private static final Pattern FLOW_ASSIGN_RE = Pattern.compile("(.+?)\\s*->\\s*(\\w+)");
 
-    private static final Pattern WHILE_RE = Pattern.compile("while\\s+(?:\\((.*)\\)|(.*))");
 
     public CompiledRule compile(String ruleName, String source) {
         List<Instruction> code = new ArrayList<>();
@@ -40,18 +47,27 @@ public class RuleCompiler {
             // 1. 基础指令 (带关键字)
             if (line.startsWith("roll")) {
                 handleRoll(line, code);
+            } else if (line.startsWith("reroll")) {
+                handleReroll(line, code);
             } else if (line.startsWith("filter")) {
                 handleFilter(line, code);
             } else if (line.startsWith("count")) {
                 handleCount(line, code);
+            } else if (line.startsWith("keep_")) {
+                handleKeep(line, code);
+            } else if (line.startsWith("fixed")) {
+                handleFixed(line, code);
+            } else if (line.startsWith("merge")) {
+                handleMultiMerge(line, code);
+            } else if (line.startsWith("sum")) {
+                handleSum(line, code);
             }
             // 2. 逻辑控制
             else if (line.startsWith("if")) {
                 handleIf(line, code, ifStack);
             } else if (line.equals("endif")) {
                 handleEndIf(code, ifStack);
-            }
-            else if (line.startsWith("while")) {
+            } else if (line.startsWith("while")) {
                 handleWhile(line, code, whileStack);
             } else if (line.equals("endwhile")) {
                 handleEndWhile(code, whileStack);
@@ -70,6 +86,14 @@ public class RuleCompiler {
             }
             // --- 优先级分发结束 ---
         }
+
+        if (!ifStack.isEmpty()) {
+            throw new RuntimeException("Syntax Error: Missing 'endif' for " + ifStack.size() + " block(s)");
+        }
+        if (!whileStack.isEmpty()) {
+            throw new RuntimeException("Syntax Error: Missing 'endwhile' for " + whileStack.size() + " block(s)");
+        }
+
         return new CompiledRule(ruleName, code);
     }
 
@@ -79,7 +103,9 @@ public class RuleCompiler {
             Instruction ins = new Instruction(OpCode.ROLL_POOL);
             ins.expr = new ExpressionParser(m.group(1)).parse();
             code.add(ins);
-            code.add(new Instruction(OpCode.STORE) {{ name = m.group(2); }});
+            code.add(new Instruction(OpCode.STORE) {{
+                name = m.group(2);
+            }});
         }
     }
 
@@ -90,18 +116,53 @@ public class RuleCompiler {
             ins.poolName = m.group(1);
             ins.expr = new ExpressionParser(m.group(2)).parse();
             code.add(ins);
-            code.add(new Instruction(OpCode.STORE) {{ name = m.group(3); }});
+            code.add(new Instruction(OpCode.STORE) {{
+                name = m.group(3);
+            }});
+        }
+    }
+
+    private void handleReroll(String line, List<Instruction> code) {
+        Matcher m = REROLL_RE.matcher(line);
+        if (m.find()) {
+            Instruction ins = new Instruction(OpCode.REROLL_POOL);
+            ins.poolName = m.group(1); // 原始池名
+            ins.expr = new ExpressionParser(m.group(2)).parse(); // 重投条件
+            code.add(ins);
+
+            Instruction store = new Instruction(OpCode.STORE);
+            store.name = m.group(3); // 结果池名
+            code.add(store);
         }
     }
 
     private void handleCount(String line, List<Instruction> code) {
         Matcher m = COUNT_RE.matcher(line);
         if (m.find()) {
-            code.add(new Instruction(OpCode.COUNT_POOL) {{ poolName = m.group(1); }});
-            code.add(new Instruction(OpCode.STORE) {{ name = m.group(2); }});
+            code.add(new Instruction(OpCode.COUNT_POOL) {{
+                poolName = m.group(1);
+            }});
+            code.add(new Instruction(OpCode.STORE) {{
+                name = m.group(2);
+            }});
         }
     }
 
+    private void handleFixed(String line, List<Instruction> code) {
+        Matcher m = FIXED_RE.matcher(line);
+        if (m.find()) {
+            // 指令 A: 创建固定池子并压栈
+            Instruction ins = new Instruction(OpCode.FIXED_POOL);
+            // 我们把数字字符串 "1 2 3" 传给指令，VM 负责解析
+            ins.name = m.group(1).trim();
+            code.add(ins);
+
+            // 指令 B: 弹出栈顶并存入变量
+            Instruction store = new Instruction(OpCode.STORE);
+            store.name = m.group(2); // 变量名，例如 "newPool"
+            code.add(store);
+        }
+    }
     private void handleIf(String line, List<Instruction> code, Deque<Integer> stack) {
         Matcher m = IF_RE.matcher(line);
         if (m.find()) {
@@ -214,6 +275,58 @@ public class RuleCompiler {
 
             Instruction store = new Instruction(OpCode.STORE);
             store.name = varName;
+            code.add(store);
+        }
+    }
+
+    // example：keep_high raw_pool 3 -> best_pool
+    private void handleKeep(String line, List<Instruction> code) {
+        Matcher m = KEEP_PATTERN.matcher(line);
+        if (m.find()) {
+            String type = m.group(1); // "high" 或 "low"
+            OpCode op = type.equals("high") ? OpCode.KEEP_HIGH : OpCode.KEEP_LOW;
+
+            // 指令 A: 执行保留逻辑，并将结果压入栈
+            Instruction inst = new Instruction(op);
+            inst.poolName = m.group(2);                 // 源池子名
+            inst.value = Integer.parseInt(m.group(3));  // 保留数量
+            code.add(inst);
+
+            // 指令 B: 从栈顶弹出结果，存入目标变量
+            Instruction store = new Instruction(OpCode.STORE);
+            store.name = m.group(4);                    // 目标变量名 (-> 后面那个)
+            code.add(store);
+        }
+    }
+
+    private void handleMultiMerge(String line, List<Instruction> code) {
+        Matcher m = MULTI_MERGE_RE.matcher(line);
+        if (m.find()) {
+            String poolsPart = m.group(1).trim(); // "p1 p2 p3"
+            String target = m.group(2);
+
+            Instruction ins = new Instruction(OpCode.MERGE_POOL);
+            // 将所有源池子名存入 name，中间用空格隔开
+            ins.name = poolsPart;
+            code.add(ins);
+
+            Instruction store = new Instruction(OpCode.STORE);
+            store.name = target;
+            code.add(store);
+        }
+    }
+
+    private void handleSum(String line, List<Instruction> code) {
+        Matcher m = SUM_RE.matcher(line);
+        if (m.find()) {
+            // 指令 A: 执行求和并将 Double 结果压入栈
+            Instruction ins = new Instruction(OpCode.SUM_POOL);
+            ins.poolName = m.group(1); // 源池子名
+            code.add(ins);
+
+            // 指令 B: 从栈顶弹出结果，存入目标变量
+            Instruction store = new Instruction(OpCode.STORE);
+            store.name = m.group(2);   // 目标变量名
             code.add(store);
         }
     }

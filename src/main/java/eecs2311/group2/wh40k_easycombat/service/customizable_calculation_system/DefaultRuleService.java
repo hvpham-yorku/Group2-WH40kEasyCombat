@@ -27,6 +27,10 @@ public class DefaultRuleService implements RuleService {
 
     @Override
     public RuleResult run(String ruleName, ExecutionContext ctx, boolean traceEnabled) {
+        if(!rules.containsKey(ruleName)){
+            return RuleResult.failure("The rule [" + ruleName + "] doesn't exist.");
+        }
+
         RuleResult result = RuleResult.success();
         ctx.setResult(result);
 

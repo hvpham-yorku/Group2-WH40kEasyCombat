@@ -2,6 +2,8 @@ package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system
 
 import eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system.DicePool;
 
+import java.util.Optional;
+
 public abstract class BaseBinaryExpr implements Expression {
     protected final Expression left;
     protected final Expression right;
@@ -24,6 +26,7 @@ public abstract class BaseBinaryExpr implements Expression {
 
     protected boolean asBool(Object obj) {
         if (obj instanceof Boolean b) return b;
+        if (obj instanceof Number) return ((Number) obj).doubleValue() != 0.0; // 兼容 1.0 为真, 0.0 为假
         throw new RuntimeException("can't treat " + obj + " as boolean");
     }
 }

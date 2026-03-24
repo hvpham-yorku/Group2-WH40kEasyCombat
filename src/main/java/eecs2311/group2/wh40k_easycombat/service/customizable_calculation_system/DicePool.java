@@ -22,4 +22,8 @@ public class DicePool {
     public int size() {
         return dice.size();
     }
+
+    public int sum() {
+        return dice.stream().mapToInt(Integer::intValue).sum();
+    }
 }

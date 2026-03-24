@@ -32,9 +32,13 @@ public enum OpCode {
     EVAL_EXPR,
 
     // game rule instructions
-    ROLL,
     ROLL_POOL,
     FILTER_POOL,
     REROLL_POOL,
     COUNT_POOL,
+    KEEP_HIGH,
+    KEEP_LOW,
+    FIXED_POOL,
+    MERGE_POOL,
+    SUM_POOL
 }
