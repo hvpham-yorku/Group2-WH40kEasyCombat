@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system;
+package eecs2311.group2.wh40k_easycombat.service.vm;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,20 +1,15 @@
-package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system;
+package eecs2311.group2.wh40k_easycombat.service.vm;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 public class DefaultRuleService implements RuleService {
 
     private final Map<String, CompiledRule> rules = new HashMap<>();
-
-    private final Map<EventType, List<CompiledRule>> eventRules = new HashMap<>();
 
     private final RuleVM vm;
 
@@ -26,37 +21,22 @@ public class DefaultRuleService implements RuleService {
     }
 
     @Override
-    public RuleResult run(String ruleName, ExecutionContext ctx, boolean traceEnabled) {
+    public RuleResult run(String ruleName, ExecutionContext ctx) {
         if(!rules.containsKey(ruleName)){
             return RuleResult.failure("The rule [" + ruleName + "] doesn't exist.");
-        }
-
-        RuleResult result = RuleResult.success();
-        ctx.setResult(result);
-
-        if (traceEnabled) {
-            ctx.setTrace(new ExecutionTrace());
         }
 
         CompiledRule rule = rules.get(ruleName);
 
         try {
             vm.execute(rule, ctx);
-            return result;
-        } catch (Exception e) {
+            return RuleResult.success(ctx);
+        } catch (DSLException e) {
+            // Catch our custom domain-specific exception
             return RuleResult.failure(e.getMessage());
-        }
-    }
-
-    @Override
-    public void fire(EventType event, ExecutionContext ctx) {
-
-        List<CompiledRule> list = eventRules.get(event);
-
-        if (list == null) return;
-
-        for (CompiledRule rule : list) {
-            vm.execute(rule, ctx);
+        } catch (Exception e) {
+            // Catch any other unexpected system exceptions
+            return RuleResult.failure("Unexpected System Error: " + e.getMessage());
         }
     }
 
@@ -98,11 +78,5 @@ public class DefaultRuleService implements RuleService {
 
     private void loadRule(CompiledRule rule) {
         rules.put(rule.getName(), rule);
-
-        if (rule.getEvent() != null) {
-            eventRules
-                    .computeIfAbsent(rule.getEvent(), k -> new ArrayList<>())
-                    .add(rule);
-        }
     }
 }

@@ -1,6 +1,6 @@
-package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system;
+package eecs2311.group2.wh40k_easycombat.service.vm;
 
-import eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system.expr.Expression;
+import eecs2311.group2.wh40k_easycombat.service.vm.expr.Expression;
 
 public class Instruction {
 
@@ -14,6 +14,9 @@ public class Instruction {
     public int target;
 
     public Expression expr;
+
+    public int lineNum;
+    public String lineLiteral;
 
     public Instruction() {}
     public Instruction(OpCode op) { this.op = op; }

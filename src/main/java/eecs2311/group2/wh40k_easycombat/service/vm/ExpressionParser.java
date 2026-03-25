@@ -1,6 +1,6 @@
-package eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system;
+package eecs2311.group2.wh40k_easycombat.service.vm;
 
-import eecs2311.group2.wh40k_easycombat.service.customizable_calculation_system.expr.*;
+import eecs2311.group2.wh40k_easycombat.service.vm.expr.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,6 @@ public class ExpressionParser {
         this.tokens = tokenize(input);
     }
 
-    // 优先级 6: 逻辑 OR
     public Expression parse() {
         return parseLogicalOr();
     }
@@ -27,7 +26,6 @@ public class ExpressionParser {
         return left;
     }
 
-    // 优先级 5: 逻辑 AND
     private Expression parseLogicalAnd() {
         Expression left = parseComparison();
         while (match("&&")) {
@@ -37,7 +35,6 @@ public class ExpressionParser {
         return left;
     }
 
-    // 优先级 4: 比较运算
     private Expression parseComparison() {
         Expression left = parseAdditive();
         String[] ops = {">=", ">", "<=", "<", "=="};
@@ -52,7 +49,6 @@ public class ExpressionParser {
         return left;
     }
 
-    // 优先级 3: 加减
     private Expression parseAdditive() {
         Expression left = parseMultiplicative();
         while (true) {
@@ -63,7 +59,6 @@ public class ExpressionParser {
         return left;
     }
 
-    // 优先级 2: 乘除
     private Expression parseMultiplicative() {
         Expression left = parseUnary();
         while (true) {
@@ -74,42 +69,35 @@ public class ExpressionParser {
         return left;
     }
 
-    // 优先级 1: 一元运算 (!, -)
     private Expression parseUnary() {
         if (match("!")) return new UnaryExpr(parseUnary(), OpCode.NOT);
         if (match("-")) return new UnaryExpr(parseUnary(), OpCode.NEG);
         return parsePrimary();
     }
 
-    // 优先级 0: 原子项 (数字, 变量, 属性, 括号)
     private Expression parsePrimary() {
         String token = tokens.get(pos++);
 
-        // 1. 处理布尔常量 (必须在处理变量之前)
         if (token.equalsIgnoreCase("true")) return new ConstExpr(true);
         if (token.equalsIgnoreCase("false")) return new ConstExpr(false);
 
-        // 2. 处理数字
         if (token.matches("\\d+")) return new ConstExpr(Integer.parseInt(token));
 
-        // 3. 处理括号
         if (token.equals("(")) {
-            Expression expr = parse(); // 重新开始逻辑链
+            Expression expr = parse();
             match(")");
             return expr;
         }
 
-        // 4. 处理属性 (attacker.BS)
         if (token.contains(".")) {
             String[] parts = token.split("\\.");
             return new PropertyExpr(parts[0], parts[1]);
         }
 
-        // 5. 剩下的才当做变量名/池名
         return new VarExpr(token);
     }
 
-    // --- 工具方法 ---
+    // tools
     private boolean match(String expected) {
         if (pos < tokens.size() && tokens.get(pos).equalsIgnoreCase(expected)) {
             pos++;
@@ -126,7 +114,6 @@ public class ExpressionParser {
     }
 
     private List<String> tokenize(String input) {
-        // 使用正则在符号前后加空格，然后按空格切分
         String spaced = input.replaceAll("([()+\\-*/!]|>=|<=|==|>|<|AND|OR)", " $1 ");
         return Arrays.asList(spaced.trim().split("\\s+"));
     }
