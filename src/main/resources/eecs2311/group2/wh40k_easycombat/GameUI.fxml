@@ -31,37 +31,31 @@
             </padding>
 
             <children>
-                <BorderPane minWidth="280.0" styleClass="game-player-blue" HBox.hgrow="ALWAYS">
+                <VBox minWidth="280.0" spacing="8.0" styleClass="game-player-blue" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
-                    <left>
-                        <VBox alignment="CENTER_LEFT" spacing="8.0" BorderPane.alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="blueFactionLabel" text="FactionName" wrapText="true">
+                            <font>
+                                <Font name="System Bold" size="22.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
-                                <Label fx:id="blueFactionLabel" text="FactionName" wrapText="true">
+                                <Label text="Phase">
                                     <font>
-                                        <Font name="System Bold" size="22.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Label>
-                                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                    <children>
-                                        <Label text="Phase">
-                                            <font>
-                                                <Font size="15.0" />
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="bluePhaseLabel" text="Phase">
-                                            <font>
-                                                <Font size="18.0" />
-                                            </font>
-                                        </Label>
-                                    </children>
-                                </HBox>
+                                <Label fx:id="bluePhaseLabel" text="Command (Active)">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
                             </children>
-                        </VBox>
-                    </left>
-                    <right>
-                        <VBox alignment="CENTER" spacing="4.0" BorderPane.alignment="CENTER_RIGHT">
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
                                 <Label text="Victory Points">
                                     <font>
@@ -74,11 +68,11 @@
                                     </font>
                                 </Label>
                             </children>
-                        </VBox>
-                    </right>
-                </BorderPane>
+                        </HBox>
+                    </children>
+                </VBox>
 
-                <VBox alignment="CENTER" minWidth="180.0" prefWidth="220.0" spacing="6.0" styleClass="game-round-panel">
+                <VBox alignment="CENTER" minWidth="220.0" prefWidth="260.0" spacing="8.0" styleClass="game-round-panel">
                     <padding>
                         <Insets top="16.0" right="12.0" bottom="16.0" left="12.0" />
                     </padding>
@@ -96,12 +90,31 @@
                     </children>
                 </VBox>
 
-                <BorderPane minWidth="280.0" styleClass="game-player-red" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_RIGHT" minWidth="280.0" spacing="8.0" styleClass="game-player-red" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
-                    <left>
-                        <VBox alignment="CENTER" spacing="4.0" BorderPane.alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="redFactionLabel" text="FactionName" wrapText="true">
+                            <font>
+                                <Font name="System Bold" size="22.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                            <children>
+                                <Label text="Phase">
+                                    <font>
+                                        <Font size="15.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="redPhaseLabel" text="Command">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="8.0">
                             <children>
                                 <Label text="Victory Points">
                                     <font>
@@ -114,34 +127,9 @@
                                     </font>
                                 </Label>
                             </children>
-                        </VBox>
-                    </left>
-                    <right>
-                        <VBox alignment="CENTER_RIGHT" spacing="8.0" BorderPane.alignment="CENTER_RIGHT">
-                            <children>
-                                <Label fx:id="redFactionLabel" text="FactionName" wrapText="true">
-                                    <font>
-                                        <Font name="System Bold" size="22.0" />
-                                    </font>
-                                </Label>
-                                <HBox alignment="CENTER_RIGHT" spacing="8.0">
-                                    <children>
-                                        <Label text="Phase">
-                                            <font>
-                                                <Font size="15.0" />
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="redPhaseLabel" text="Phase">
-                                            <font>
-                                                <Font size="18.0" />
-                                            </font>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                    </right>
-                </BorderPane>
+                        </HBox>
+                    </children>
+                </VBox>
             </children>
         </HBox>
     </top>
@@ -183,7 +171,7 @@
                                         <Region HBox.hgrow="ALWAYS" />
                                         <Button fx:id="blueSubButton" mnemonicParsing="false" onMouseClicked="#blueClickSub"
                                                 prefHeight="36.0" prefWidth="40.0" styleClass="wh-btn" text="-" />
-                                        <Label fx:id="blueCPLabel" text="1">
+                                        <Label fx:id="blueCPLabel" text="2">
                                             <font>
                                                 <Font name="System Bold" size="28.0" />
                                             </font>
@@ -276,7 +264,7 @@
                                     </font>
                                 </Label>
 
-                                <Label text="Virtual Dice">
+                                <Label text="Manual Dice">
                                     <font>
                                         <Font size="20.0" />
                                     </font>
@@ -290,16 +278,16 @@
                                     </children>
                                 </HBox>
 
-                                <TextArea fx:id="virtuaDiceBox" minHeight="0.0" prefHeight="280.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
+                                <TextArea fx:id="virtuaDiceBox" minHeight="0.0" prefHeight="320.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
 
-                                <CheckBox fx:id="autoBattleCheckBox" mnemonicParsing="false" styleClass="game-checkbox" text="Auto Battle">
+                                <CheckBox fx:id="autoBattleCheckBox" mnemonicParsing="false" onAction="#openAutoBattle" styleClass="game-checkbox" text="Auto Battle">
                                     <font>
                                         <Font size="15.0" />
                                     </font>
                                 </CheckBox>
 
-                                <Button fx:id="nextRoundButton" mnemonicParsing="false" onMouseClicked="#nextRound"
-                                        prefHeight="58.0" prefWidth="220.0" styleClass="wh-btn, wh-btn-primary" text="Next Round">
+                                <Button fx:id="nextPhaseButton" mnemonicParsing="false" onAction="#nextPhase"
+                                        prefHeight="58.0" prefWidth="220.0" styleClass="wh-btn, wh-btn-primary" text="Next Phase">
                                     <font>
                                         <Font size="22.0" />
                                     </font>

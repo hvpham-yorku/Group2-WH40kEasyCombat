@@ -12,9 +12,11 @@ public class GameArmyUnitVM {
 
     private final UnitInstance unit;
     private final BooleanProperty expanded = new SimpleBooleanProperty(false);
+    private int displayOrder;
 
     public GameArmyUnitVM(UnitInstance unit) {
         this.unit = unit == null ? new UnitInstance("", "") : unit;
+        this.displayOrder = 0;
     }
 
     public UnitInstance getUnit() {
@@ -39,5 +41,25 @@ public class GameArmyUnitVM {
 
     public BooleanProperty expandedProperty() {
         return expanded;
+    }
+
+    public boolean isDestroyed() {
+        return unit.isDestroyed();
+    }
+
+    public boolean hasDestroyedModels() {
+        return getSubUnits().stream().anyMatch(UnitModelInstance::isDestroyed);
+    }
+
+    public int getAliveModelCount() {
+        return unit.getAliveModelCount();
+    }
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = Math.max(0, displayOrder);
     }
 }
