@@ -1,6 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.service.vm;
 
-import eecs2311.group2.wh40k_easycombat.service.game.DiceService;
+import eecs2311.group2.wh40k_easycombat.service.calculations.DiceService;
 
 import java.util.*;
 
