@@ -1,0 +1,12 @@
+# input variable: number (int)
+# output variables: hit_pool (DicePool)
+# output variables: hits (int)
+
+# 1. roll number of D6
+roll number -> dice_pool
+
+# 2. filter out the dice greater than bs
+filter dice_pool (@ >= bs) -> hit_pool
+
+# 3. count
+count hit_pool -> hits
