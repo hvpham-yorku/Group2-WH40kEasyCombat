@@ -276,4 +276,65 @@ public class VMServiceTest {
                 "Error should specify which property was missing");
         System.out.println("Captured Expected Error: " + result.getError());
     }
+
+    @Test
+    @DisplayName("Management: Get Loaded Rules List")
+    void testGetLoadedRules() {
+        // 1. Initially, it might have rules from other tests, or be empty
+        // We load two specific new rules
+        String r1 = "1 -> a";
+        String r2 = "2 -> b";
+
+        VMService.loadRule("AlphaRule", r1);
+        VMService.loadRule("BetaRule", r2);
+
+        // 2. Get the set of names
+        java.util.Set<String> loadedRules = VMService.getLoadedRules();
+
+        // 3. Verify they exist in the set
+        assertTrue(loadedRules.contains("AlphaRule"), "AlphaRule should be in the list");
+        assertTrue(loadedRules.contains("BetaRule"), "BetaRule should be in the list");
+
+        System.out.println("Current Loaded Rules: " + loadedRules);
+    }
+
+    @Test
+    @DisplayName("Management: Remove a Loaded Rule")
+    void testRemoveRule() {
+        String script = "10 -> val";
+        String name = "TemporaryRule";
+        VMService.loadRule(name, script);
+
+        assertTrue(VMService.getLoadedRules().contains(name));
+
+        VMService.removeLoadedRule(name);
+
+        assertFalse(VMService.getLoadedRules().contains(name), "Rule should have been removed from the set");
+
+        RuleResult result = VMService.run(name, ctx);
+
+        assertFalse(result.isSuccess(), "Running a removed rule should return a failure result");
+        assertTrue(result.getError().contains("doesn't exist") || result.getError().contains("not found"),
+                "Error message should indicate the rule is missing");
+
+        System.out.println("Successfully blocked execution: " + result.getError());
+    }
+
+    @Test
+    @DisplayName("Management: Overwriting an existing rule")
+    void testOverwriteRule() {
+        VMService.loadRule("VersionRule", "1 -> v");
+        RuleResult res1 = VMService.run("VersionRule", ctx);
+
+        assertTrue(res1.isSuccess());
+        assertEquals(1, ((Number)res1.getValue("v")).intValue());
+
+        VMService.loadRule("VersionRule", "2 -> v");
+
+        ctx = new RuleContext();
+        RuleResult res2 = VMService.run("VersionRule", ctx);
+
+        assertTrue(res2.isSuccess(), "Overwritten rule should still run successfully");
+        assertEquals(2.0, ((Number)res2.getValue("v")).doubleValue(), "Rule logic should be updated to Version 2");
+    }
 }

@@ -1,6 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service.vm;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public class VMService {
     private static final RuleCompiler compiler = new RuleCompiler();
@@ -23,5 +24,13 @@ public class VMService {
 
     public static RuleResult run(String ruleName, RuleContext ctx){
         return service.run(ruleName, new ExecutionContext(ctx));
+    }
+
+    public static Set<String> getLoadedRules(){
+        return service.getLoadedRules();
+    }
+
+    public static void removeLoadedRule(String ruleName){
+        service.removeRule(ruleName);
     }
 }
