@@ -546,6 +546,8 @@ public class GameUIController {
             stage.initModality(Modality.WINDOW_MODAL);
             stage.setTitle("Auto Battle");
             stage.setScene(new Scene(root));
+            stage.setMinWidth(1100.0);
+            stage.setMinHeight(680.0);
             stage.showAndWait();
 
             refreshArmyViews();
