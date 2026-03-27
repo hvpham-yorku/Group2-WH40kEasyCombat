@@ -6,7 +6,8 @@ import java.util.*;
 
 public class RuleVM {
 
-    public void execute(CompiledRule rule, ExecutionContext ctx) {
+    @SuppressWarnings("incomplete-switch")
+	public void execute(CompiledRule rule, ExecutionContext ctx) {
         List<Instruction> code = rule.getInstructions();
         Deque<Object> stack = new ArrayDeque<>();
         int pc = 0;

@@ -3,8 +3,6 @@ package eecs2311.group2.wh40k_easycombat;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Arrays;
-
 import eecs2311.group2.wh40k_easycombat.db.Database;
 import eecs2311.group2.wh40k_easycombat.service.vm.VMService;
 import eecs2311.group2.wh40k_easycombat.util.CsvToSqliteImporter;

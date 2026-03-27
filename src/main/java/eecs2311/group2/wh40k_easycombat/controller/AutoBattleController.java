@@ -9,6 +9,7 @@ import eecs2311.group2.wh40k_easycombat.model.combat.FightPhaseState;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamage;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamageStepResult;
 import eecs2311.group2.wh40k_easycombat.model.combat.ResolvedAttack;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
 import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
@@ -296,7 +297,28 @@ public class AutoBattleController {
         boolean charged = attackingPlayer == Player.ATTACKER ? blueChargedCheckBox.isSelected() : redChargedCheckBox.isSelected();
         boolean eligible = attackingPlayer == Player.ATTACKER ? blueEligibleFightCheckBox.isSelected() : redEligibleFightCheckBox.isSelected();
         int resolvedBearerCount = battleMode == AutoBattleMode.FIGHT ? 0 : bearerCount;
-        return new AttackKeywordContext(resolvedBearerCount, withinHalfRangeCheckBox.isSelected(), remainedStationaryCheckBox.isSelected(), false, false, charged, eligible, targetHasCoverCheckBox.isSelected(), blastLegalCheckBox.isSelected(), false, "", targetInfantryCheckBox.isSelected(), targetVehicleCheckBox.isSelected(), targetMonsterCheckBox.isSelected(), targetCharacterCheckBox.isSelected(), targetPsykerCheckBox.isSelected());
+        return new AttackKeywordContext(
+                resolvedBearerCount,
+                withinHalfRangeCheckBox.isSelected(),
+                remainedStationaryCheckBox.isSelected(),
+                false,
+                false,
+                charged,
+                eligible,
+                targetHasCoverCheckBox.isSelected(),
+                blastLegalCheckBox.isSelected(),
+                false,
+                "",
+                targetInfantryCheckBox.isSelected(),
+                targetVehicleCheckBox.isSelected(),
+                targetMonsterCheckBox.isSelected(),
+                targetCharacterCheckBox.isSelected(),
+                targetPsykerCheckBox.isSelected(),
+                0,
+                0,
+                EditorRerollType.NONE,
+                EditorRerollType.NONE
+        );
     }
 
     private void logResolution(Player attackerSide, String attackerUnitName, String defenderUnitName, AutoBattleResolution resolution) {

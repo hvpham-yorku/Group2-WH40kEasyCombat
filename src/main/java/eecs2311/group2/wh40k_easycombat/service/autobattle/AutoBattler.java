@@ -2,6 +2,7 @@ package eecs2311.group2.wh40k_easycombat.service.autobattle;
 
 import eecs2311.group2.wh40k_easycombat.model.combat.AttackResult;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamage;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
@@ -65,25 +66,27 @@ public class AutoBattler {
 
         for (int attackIndex = 1; attackIndex <= attacks; attackIndex++) {
             boolean autoHit = keywords.torrent();
-            int hitModifier = (!selectedWeapon.melee() && keywords.heavy() && context.remainedStationary()) ? 1 : 0;
-            int hitRoll = 0;
+            @SuppressWarnings("unused")
+			int hitRoll = 0;
+            boolean criticalHit = false;
 
             if (!autoHit) {
-                DieRoll roll = rollD6Detailed(dice);
-                hitRoll = roll.value();
-                if (!scoresHit(hitRoll, hitModifier, parseRequiredValue(selectedWeapon.skill()))) {
-                    rollLog.add("Attack " + attackIndex + ": hit roll " + hitRoll
-                            + formatModifier(hitModifier) + " against " + selectedWeapon.skill() + " -> miss.");
+                HitAttempt hitAttempt = resolveHitAttempt(
+                        attackIndex,
+                        selectedWeapon,
+                        keywords,
+                        context,
+                        dice,
+                        rollLog
+                );
+                if (!hitAttempt.success()) {
                     continue;
                 }
-
-                rollLog.add("Attack " + attackIndex + ": hit roll " + hitRoll
-                        + formatModifier(hitModifier) + " against " + selectedWeapon.skill() + " -> hit.");
+                hitRoll = hitAttempt.finalRoll();
+                criticalHit = hitAttempt.critical();
             } else {
                 rollLog.add("Attack " + attackIndex + ": TORRENT -> automatic hit.");
             }
-
-            boolean criticalHit = !autoHit && hitRoll == 6;
 
             int generatedHits = 1;
             if (criticalHit && !isBlank(keywords.sustainedHitsBonus())) {
@@ -251,6 +254,7 @@ public class AutoBattler {
         }
 
         int woundModifier = (keywords.lance() && context.bearerChargedThisTurn()) ? 1 : 0;
+        woundModifier += context.customWoundModifier();
 
         DieRoll woundRoll = rollD6Detailed(dice);
         boolean criticalWound = isCriticalWound(woundRoll.value(), keywords, context);
@@ -264,21 +268,64 @@ public class AutoBattler {
         rollLog.add(attemptLabel + ": wound roll " + woundRoll.value()
                 + formatModifier(woundModifier) + " -> failed wound.");
 
-        if (keywords.twinLinked()) {
+        boolean canRerollFromRule = shouldRerollWound(context.woundRerollType(), woundRoll.value(), woundModifier, weapon, defender, context, criticalWound);
+        boolean canRerollFromWeapon = keywords.twinLinked();
+
+        if (canRerollFromRule || canRerollFromWeapon) {
             DieRoll reroll = rollD6Detailed(dice);
             boolean rerollCritical = isCriticalWound(reroll.value(), keywords, context);
+            String rerollSource = canRerollFromWeapon && canRerollFromRule
+                    ? "available wound reroll"
+                    : canRerollFromWeapon
+                    ? "TWIN-LINKED reroll"
+                    : "custom wound reroll";
 
             if (scoresWound(reroll.value(), woundModifier, weapon, defender, context, rerollCritical)) {
-                rollLog.add(attemptLabel + ": TWIN-LINKED reroll " + reroll.value()
+                rollLog.add(attemptLabel + ": " + rerollSource + " " + reroll.value()
                         + formatModifier(woundModifier) + " -> wound" + (rerollCritical ? " (critical)." : "."));
                 return new WoundAttempt(true, rerollCritical);
             }
 
-            rollLog.add(attemptLabel + ": TWIN-LINKED reroll " + reroll.value()
+            rollLog.add(attemptLabel + ": " + rerollSource + " " + reroll.value()
                     + formatModifier(woundModifier) + " -> failed wound.");
         }
 
         return new WoundAttempt(false, false);
+    }
+
+    private HitAttempt resolveHitAttempt(
+            int attackIndex,
+            WeaponProfile weapon,
+            WeaponKeywordsService keywords,
+            AttackKeywordContext context,
+            DiceService dice,
+            List<String> rollLog
+    ) {
+        int hitModifier = (!weapon.melee() && keywords.heavy() && context.remainedStationary()) ? 1 : 0;
+        hitModifier += context.customHitModifier();
+
+        DieRoll firstRoll = rollD6Detailed(dice);
+        int requiredSkill = parseRequiredValue(weapon.skill());
+        boolean hit = scoresHit(firstRoll.value(), hitModifier, requiredSkill);
+
+        if (hit) {
+            rollLog.add("Attack " + attackIndex + ": hit roll " + firstRoll.value()
+                    + formatModifier(hitModifier) + " against " + weapon.skill() + " -> hit.");
+            return new HitAttempt(true, firstRoll.value() == 6, firstRoll.value());
+        }
+
+        rollLog.add("Attack " + attackIndex + ": hit roll " + firstRoll.value()
+                + formatModifier(hitModifier) + " against " + weapon.skill() + " -> miss.");
+
+        if (!shouldRerollHit(context.hitRerollType(), firstRoll.value(), hitModifier, requiredSkill)) {
+            return new HitAttempt(false, false, firstRoll.value());
+        }
+
+        DieRoll reroll = rollD6Detailed(dice);
+        boolean rerolledHit = scoresHit(reroll.value(), hitModifier, requiredSkill);
+        rollLog.add("Attack " + attackIndex + ": custom hit reroll " + reroll.value()
+                + formatModifier(hitModifier) + " against " + weapon.skill() + " -> " + (rerolledHit ? "hit." : "miss."));
+        return new HitAttempt(rerolledHit, reroll.value() == 6, reroll.value());
     }
 
     private SaveAttempt resolveSaveAttempt(
@@ -369,6 +416,34 @@ public class AutoBattler {
             AttackKeywordContext context
     ) {
         return unmodifiedWoundRoll == 6 || keywords.antiTriggers(context, unmodifiedWoundRoll);
+    }
+
+    private boolean shouldRerollHit(EditorRerollType rerollType, int roll, int modifier, int requiredSkill) {
+        if (rerollType == null || rerollType == EditorRerollType.NONE) {
+            return false;
+        }
+        if (rerollType == EditorRerollType.ONES) {
+            return roll == 1;
+        }
+        return !scoresHit(roll, modifier, requiredSkill);
+    }
+
+    private boolean shouldRerollWound(
+            EditorRerollType rerollType,
+            int roll,
+            int modifier,
+            WeaponProfile weapon,
+            UnitInstance defender,
+            AttackKeywordContext context,
+            boolean criticalWound
+    ) {
+        if (rerollType == null || rerollType == EditorRerollType.NONE) {
+            return false;
+        }
+        if (rerollType == EditorRerollType.ONES) {
+            return roll == 1;
+        }
+        return !scoresWound(roll, modifier, weapon, defender, context, criticalWound);
     }
 
     private UnitModelInstance referenceTargetModel(
@@ -533,6 +608,9 @@ public class AutoBattler {
     }
 
     private record WoundAttempt(boolean success, boolean critical) {
+    }
+
+    private record HitAttempt(boolean success, boolean critical, int finalRoll) {
     }
 
     private record SaveAttempt(boolean saved) {

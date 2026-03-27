@@ -133,10 +133,10 @@
                                                 mnemonicParsing="false"
                                                 onMouseClicked="#clickAddButton"
                                                 prefHeight="34.0"
-                                                prefWidth="76.0"
+                                                prefWidth="120.0"
                                                 styleClass="wh-btn"
-                                                text="Add"
-                                                visible="false" />
+                                                text="Custom Rules"
+                                                visible="true" />
                                     </children>
                                 </HBox>
                             </children>

@@ -1,184 +1,292 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eecs2311.group2.wh40k_easycombat.controller.RuleEditorController">
-   <right>
-      <VBox prefHeight="600.0" prefWidth="264.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Unit Keyword Selection" textAlignment="CENTER">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <TableView fx:id="unitKeywordTable" prefHeight="160.0" prefWidth="200.0">
-              <columns>
-                <TableColumn fx:id="keywords" editable="false" prefWidth="262" text="Keywords" />
-              </columns>
-            </TableView>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Button fx:id="unitKeywordAddButton" mnemonicParsing="false" onMouseClicked="#keywordAdd" prefHeight="40.0" prefWidth="264.0" text="ADD" />
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Button fx:id="unitKeywordDeleteButton" mnemonicParsing="false" onMouseClicked="#keywordDelete" prefHeight="40.0" prefWidth="264.0" text="Delete" />
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="10.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="279.0" text="Edit or Add Weapon" textAlignment="CENTER">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="264.0" textAlignment="CENTER" />
-            <Button fx:id="weaponAddButton" mnemonicParsing="false" onMouseClicked="#addWeapon" prefHeight="40.0" prefWidth="264.0" text="Edit or ADD" />
-         </children>
-      </VBox>
-   </right>
-   <center>
-      <AnchorPane prefHeight="600.0" prefWidth="758.0" BorderPane.alignment="CENTER">
-         <children>
-            <TextField fx:id="unitNametxtBox" layoutX="103.0" layoutY="31.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="14.0" layoutY="36.0" text="Unit Name:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Label layoutX="37.0" layoutY="79.0" text="Faction:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <ComboBox fx:id="factionCBbox" layoutX="103.0" layoutY="77.0" prefHeight="23.0" prefWidth="188.0" />
-            <TableView fx:id="rangedWeaponTable" layoutX="10.0" layoutY="229.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
-               <columns>
-                  <TableColumn fx:id="rName" editable="false" prefWidth="160.0" text="Ranged Weapons" />
-                  <TableColumn fx:id="rK" editable="false" prefWidth="100.0" text="Keywords" />
-                  <TableColumn fx:id="rRange" editable="false" prefWidth="60.0" text="Range" />
-                  <TableColumn fx:id="rA" editable="false" prefWidth="60.0" text="A" />
-                  <TableColumn fx:id="rBS" editable="false" prefWidth="60.0" text="BS" />
-                  <TableColumn fx:id="rS" editable="false" prefWidth="60.0" text="S" />
-                  <TableColumn fx:id="rAP" editable="false" prefWidth="60.0" text="AP" />
-                  <TableColumn fx:id="rD" editable="false" prefWidth="60.0" text="D" />
-               </columns>
-            </TableView>
-            <TableView fx:id="meleeWeaponTable" layoutX="10.0" layoutY="379.0" prefHeight="141.0" prefWidth="620.0" tableMenuButtonVisible="true">
-               <columns>
-                  <TableColumn fx:id="mName" editable="false" prefWidth="168.0" text="Melee Weapons" />
-                  <TableColumn fx:id="mK" editable="false" prefWidth="150.0" text="Keywords" />
-                  <TableColumn fx:id="mA" editable="false" prefWidth="60.0" text="A" />
-                  <TableColumn fx:id="mWS" editable="false" prefWidth="60.0" text="WS" />
-                  <TableColumn fx:id="mS" editable="false" prefWidth="60.0" text="S" />
-                  <TableColumn fx:id="mAP" editable="false" prefWidth="60.0" text="AP" />
-                  <TableColumn fx:id="mD" editable="false" minWidth="2.0" prefWidth="60.0" text="D" />
-               </columns>
-            </TableView>
-            <Button fx:id="saveButton" layoutX="570.0" layoutY="533.0" mnemonicParsing="false" onMouseClicked="#save" prefHeight="30.0" prefWidth="60.0" text="Save" />
-            <Button fx:id="cancelButton" layoutX="495.0" layoutY="533.0" mnemonicParsing="false" onMouseClicked="#cancel" prefHeight="30.0" prefWidth="60.0" text="Cancel" />
-            <Label layoutX="40.0" layoutY="127.0" text="Points:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="pointtxtBox" layoutX="103.0" layoutY="123.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <TextArea fx:id="keywordTextbox" editable="false" layoutX="448.0" layoutY="59.0" prefHeight="81.0" prefWidth="280.0" />
-            <Label layoutX="564.0" layoutY="26.0" text="Key Words">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Button fx:id="abilityButton" layoutX="13.0" layoutY="533.0" mnemonicParsing="false" onMouseClicked="#abilitySetting" prefHeight="30.0" prefWidth="179.0" text="Ability settings" />
-            <Label layoutX="33.0" layoutY="187.0" text="M">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="mBox" layoutX="60.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="144.0" layoutY="187.0" text="T">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="tBox" layoutX="171.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="252.0" layoutY="187.0" text="SV">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="svBox" layoutX="279.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="360.0" layoutY="187.0" text="W">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="wBox" layoutX="387.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="456.0" layoutY="187.0" text="LD">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="ldBox" layoutX="483.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="555.0" layoutY="187.0" text="OC">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="ocBOX" layoutX="582.0" layoutY="177.0" prefHeight="40.0" prefWidth="49.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <Label layoutX="316.0" layoutY="60.0" text="Invulnerable Save" wrapText="true">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <TextField fx:id="isvBox" layoutX="350.0" layoutY="89.0" prefHeight="40.0" prefWidth="49.0" text="0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
-            <ComboBox fx:id="categoryCBbox" layoutX="324.0" layoutY="536.0" prefWidth="150.0" />
-            <Label layoutX="247.0" layoutY="538.0" text="Category:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-         </children>
-      </AnchorPane>
-   </center>
+<BorderPane prefHeight="860.0"
+            prefWidth="1480.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.RuleEditorController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="14.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
+            </padding>
+            <children>
+                <Label text="Custom Rule Editor">
+                    <font>
+                        <Font name="System Bold" size="28.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="statusLabel" text="Create or edit passive custom rules for Auto Battle." wrapText="true" />
+            </children>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox prefWidth="330.0" spacing="12.0" styleClass="game-side-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Label text="Saved Rules">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <ListView fx:id="rulesListView" prefHeight="640.0" VBox.vgrow="ALWAYS" />
+                <Button fx:id="newRuleButton"
+                        maxWidth="1.7976931348623157E308"
+                        mnemonicParsing="false"
+                        onAction="#newRule"
+                        styleClass="wh-btn, wh-btn-primary"
+                        text="New Rule" />
+                <Button fx:id="deleteRuleButton"
+                        maxWidth="1.7976931348623157E308"
+                        mnemonicParsing="false"
+                        onAction="#deleteRule"
+                        styleClass="wh-btn"
+                        text="Delete Selected Rule" />
+                <Button fx:id="backButton"
+                        maxWidth="1.7976931348623157E308"
+                        mnemonicParsing="false"
+                        onAction="#back"
+                        styleClass="wh-btn"
+                        text="Back To Datasheets" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="16.0" styleClass="game-center-panel">
+                    <padding>
+                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="helperLabel"
+                               style="-fx-font-size: 14px;"
+                               text="Passive rules auto-apply in Auto Battle whenever their phase, attack type and conditions match the current attack."
+                               wrapText="true" />
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Identity">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Rule Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Rule Type" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="typeComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="0" />
+
+                                        <Label text="Activation" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="activationModeComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="1"
+                                                  GridPane.rowIndex="1" />
+                                        <Label text="Phase" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="phaseComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="1" />
+
+                                        <Label text="Attack Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ComboBox fx:id="attackTypeComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="1"
+                                                  GridPane.rowIndex="2" />
+                                        <CheckBox fx:id="enabledCheckBox"
+                                                  styleClass="game-checkbox"
+                                                  text="Enabled"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="2" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Who This Rule Matches">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Attacker Name Contains" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="attackerUnitNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Defender Name Contains" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <TextField fx:id="defenderUnitNameField" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                        <Label text="Attacker Required Keyword" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField fx:id="attackerKeywordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Defender Required Keyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <TextField fx:id="defenderKeywordField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Conditions">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <HBox spacing="22.0" fillHeight="true">
+                                    <children>
+                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <CheckBox fx:id="requireHalfRangeCheckBox" styleClass="game-checkbox" text="Require Within Half Range" />
+                                                <CheckBox fx:id="requireStationaryCheckBox" styleClass="game-checkbox" text="Require Remained Stationary" />
+                                                <CheckBox fx:id="requireChargedCheckBox" styleClass="game-checkbox" text="Require Charged This Turn" />
+                                                <CheckBox fx:id="requireTargetCoverCheckBox" styleClass="game-checkbox" text="Require Target Has Cover" />
+                                            </children>
+                                        </VBox>
+                                        <Separator orientation="VERTICAL" />
+                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <CheckBox fx:id="requireInfantryCheckBox" styleClass="game-checkbox" text="Require Target Infantry" />
+                                                <CheckBox fx:id="requireVehicleCheckBox" styleClass="game-checkbox" text="Require Target Vehicle" />
+                                                <CheckBox fx:id="requireMonsterCheckBox" styleClass="game-checkbox" text="Require Target Monster" />
+                                                <CheckBox fx:id="requireCharacterCheckBox" styleClass="game-checkbox" text="Require Target Character" />
+                                                <CheckBox fx:id="requirePsykerCheckBox" styleClass="game-checkbox" text="Require Target Psyker" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Effects Applied To The Attack">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Hit Modifier" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="hitModifierField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Wound Modifier" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <TextField fx:id="woundModifierField" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                        <Label text="Attacks Modifier" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField fx:id="attacksModifierField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Damage Modifier" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <TextField fx:id="damageModifierField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                        <Label text="AP Modifier" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField fx:id="apModifierField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Extra Weapon Keywords" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                        <TextField fx:id="extraKeywordsField" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                                        <Label text="Hit Re-roll" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <ComboBox fx:id="hitRerollComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="1"
+                                                  GridPane.rowIndex="3" />
+                                        <Label text="Wound Re-roll" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                        <ComboBox fx:id="woundRerollComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="3" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Notes">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="notesTextArea"
+                                          prefHeight="140.0"
+                                          wrapText="true"
+                                          VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <children>
+                                <Button fx:id="saveRuleButton"
+                                        mnemonicParsing="false"
+                                        onAction="#saveRule"
+                                        styleClass="wh-btn, wh-btn-primary"
+                                        text="Save Rule" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
 </BorderPane>

@@ -1,159 +1,293 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleActivationMode;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleAttackType;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRulePhase;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleType;
+import eecs2311.group2.wh40k_easycombat.service.editor.RuleEditorService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
 import java.io.IOException;
+import java.util.List;
 
 public class RuleEditorController {
+    @FXML private ListView<EditorRuleDefinition> rulesListView;
+    @FXML private Label statusLabel;
+    @FXML private Label helperLabel;
 
-    // ======================= Buttons ====================================
-    @FXML private Button abilityButton;
-    @FXML private Button cancelButton;
-    @FXML private Button saveButton;
-    @FXML private Button unitKeywordAddButton;
-    @FXML private Button unitKeywordDeleteButton;
-    @FXML private Button weaponAddButton;
+    @FXML private TextField nameField;
+    @FXML private ComboBox<EditorRuleType> typeComboBox;
+    @FXML private ComboBox<EditorRuleActivationMode> activationModeComboBox;
+    @FXML private ComboBox<EditorRulePhase> phaseComboBox;
+    @FXML private ComboBox<EditorRuleAttackType> attackTypeComboBox;
+    @FXML private CheckBox enabledCheckBox;
 
-    // ======================= ComboBox ===================================
-    // was: ComboBox<Factions>
-    @FXML private ComboBox<?> factionCBbox;
-    @FXML private ComboBox<String> categoryCBbox;
+    @FXML private TextField attackerUnitNameField;
+    @FXML private TextField defenderUnitNameField;
+    @FXML private TextField attackerKeywordField;
+    @FXML private TextField defenderKeywordField;
 
-    // ======================= Keyword Area ===============================
-    @FXML private TextArea keywordTextbox;
+    @FXML private CheckBox requireHalfRangeCheckBox;
+    @FXML private CheckBox requireStationaryCheckBox;
+    @FXML private CheckBox requireChargedCheckBox;
+    @FXML private CheckBox requireTargetCoverCheckBox;
+    @FXML private CheckBox requireInfantryCheckBox;
+    @FXML private CheckBox requireVehicleCheckBox;
+    @FXML private CheckBox requireMonsterCheckBox;
+    @FXML private CheckBox requireCharacterCheckBox;
+    @FXML private CheckBox requirePsykerCheckBox;
 
-    // ======================= Unit Basic Inputs ==========================
-    @FXML private TextField unitNametxtBox;
-    @FXML private TextField pointtxtBox;
-    @FXML private TextField isvBox;
-    @FXML private TextField mBox;
-    @FXML private TextField ocBOX;
-    @FXML private TextField ldBox;
-    @FXML private TextField svBox;
-    @FXML private TextField tBox;
-    @FXML private TextField wBox;
+    @FXML private TextField hitModifierField;
+    @FXML private TextField woundModifierField;
+    @FXML private TextField attacksModifierField;
+    @FXML private TextField damageModifierField;
+    @FXML private TextField apModifierField;
+    @FXML private TextField extraKeywordsField;
+    @FXML private ComboBox<EditorRerollType> hitRerollComboBox;
+    @FXML private ComboBox<EditorRerollType> woundRerollComboBox;
+    @FXML private TextArea notesTextArea;
 
-    // ======================= Tables - Melee Weapon =======================
-    // was: TableView<MeleeWeapons>, TableColumn<MeleeWeapons,...>
-    @FXML private TableView<?> meleeWeaponTable;
-    @FXML private TableColumn<?, ?> mName;
-    @FXML private TableColumn<?, ?> mA;
-    @FXML private TableColumn<?, ?> mWS;
-    @FXML private TableColumn<?, ?> mS;
-    @FXML private TableColumn<?, ?> mAP;
-    @FXML private TableColumn<?, ?> mD;
-    @FXML private TableColumn<?, ?> mK;
+    @FXML private Button newRuleButton;
+    @FXML private Button saveRuleButton;
+    @FXML private Button deleteRuleButton;
+    @FXML private Button backButton;
 
-    // ======================= Tables - Ranged Weapon =======================
-    // was: TableView<RangeWeapons>, TableColumn<RangeWeapons,...>
-    @FXML private TableView<?> rangedWeaponTable;
-    @FXML private TableColumn<?, ?> rName;
-    @FXML private TableColumn<?, ?> rRange;
-    @FXML private TableColumn<?, ?> rA;
-    @FXML private TableColumn<?, ?> rBS;
-    @FXML private TableColumn<?, ?> rS;
-    @FXML private TableColumn<?, ?> rAP;
-    @FXML private TableColumn<?, ?> rD;
-    @FXML private TableColumn<?, ?> rK;
+    private final RuleEditorService ruleEditorService = RuleEditorService.getInstance();
+    private final ObservableList<EditorRuleDefinition> ruleItems = FXCollections.observableArrayList();
 
-    // ======================= Tables - Unit Keyword =======================
-    // was: TableView<UnitKeywords>, TableColumn<UnitKeywords,String>
-    @FXML private TableView<?> unitKeywordTable;
-    @FXML private TableColumn<?, ?> keywords;
+    private String selectedRuleId;
 
     @FXML
     private void initialize() {
-        // ===== TEMP DISABLED: old DB loading & cache building =====
-        // data.loadAll();
-        // setupFactionCombo();
-        // setupCategoryComboBox();
-        // setupKeywordTable();
-        // setupWeaponTables();
-        //
-        // workingUnit = SelectedUnitContext.getSelectedUnit();
-        // if (workingUnit == null) setAddModeDefaults();
-        // else loadUnitToUI(workingUnit);
+        rulesListView.setItems(ruleItems);
+        rulesListView.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(EditorRuleDefinition item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    return;
+                }
 
-        // Keep UI safe defaults so FXML doesn't explode
-        if (categoryCBbox != null) {
-            categoryCBbox.getItems().setAll("CHARACTER", "INFANTRY", "VEHICLE");
-            categoryCBbox.getSelectionModel().select("INFANTRY");
+                setText(item.displayName()
+                        + "\n"
+                        + item.getType() + " | " + item.getPhase() + " | " + item.getAttackType());
+            }
+        });
+
+        typeComboBox.getItems().setAll(EditorRuleType.values());
+        activationModeComboBox.getItems().setAll(EditorRuleActivationMode.values());
+        phaseComboBox.getItems().setAll(EditorRulePhase.values());
+        attackTypeComboBox.getItems().setAll(EditorRuleAttackType.values());
+        hitRerollComboBox.getItems().setAll(EditorRerollType.values());
+        woundRerollComboBox.getItems().setAll(EditorRerollType.values());
+
+        rulesListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> showRule(newValue));
+        activationModeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> updateHelperText());
+
+        refreshRuleList(null);
+        if (ruleItems.isEmpty()) {
+            prepareNewRule();
+        } else {
+            rulesListView.getSelectionModel().selectFirst();
         }
-        if (keywordTextbox != null) keywordTextbox.clear();
-    }
-
-    // ======================= Navigation =======================
-
-    @FXML
-    void cancel(MouseEvent event) throws IOException {
-        // SelectedUnitContext.clear(); // TEMP DISABLED (may depend on old Units model)
-        FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/RulesUI.fxml",
-                1200.0, 800.0);
     }
 
     @FXML
-    void addWeapon(MouseEvent event) throws IOException {
-        // SelectedUnitContext.setSelectedUnit(buildDraftUnitFromUI()); // TEMP DISABLED
-        FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/WeaponEditor.fxml",
-                1200.0, 800.0);
+    private void newRule(ActionEvent event) {
+        prepareNewRule();
     }
 
     @FXML
-    void abilitySetting(MouseEvent event) throws IOException {
-        // SelectedUnitContext.setSelectedUnit(buildDraftUnitFromUI()); // TEMP DISABLED
-        FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/UnitAbility.fxml",
-                1000.0, 600.0);
-    }
+    private void saveRule(ActionEvent event) {
+        String name = safe(nameField.getText());
+        if (name.isBlank()) {
+            DialogHelper.showWarning("Missing Name", "Please give this custom rule a name.");
+            return;
+        }
 
-    // ======================= Keyword Add =======================
+        EditorRuleDefinition rule = new EditorRuleDefinition();
+        try {
+            rule.setId(selectedRuleId);
+            rule.setName(name);
+            rule.setType(typeComboBox.getValue());
+            rule.setActivationMode(activationModeComboBox.getValue());
+            rule.setPhase(phaseComboBox.getValue());
+            rule.setAttackType(attackTypeComboBox.getValue());
+            rule.setEnabled(enabledCheckBox.isSelected());
+            rule.setAttackerUnitNameContains(attackerUnitNameField.getText());
+            rule.setDefenderUnitNameContains(defenderUnitNameField.getText());
+            rule.setAttackerKeyword(attackerKeywordField.getText());
+            rule.setDefenderKeyword(defenderKeywordField.getText());
+            rule.setRequireWithinHalfRange(requireHalfRangeCheckBox.isSelected());
+            rule.setRequireRemainedStationary(requireStationaryCheckBox.isSelected());
+            rule.setRequireChargedThisTurn(requireChargedCheckBox.isSelected());
+            rule.setRequireTargetHasCover(requireTargetCoverCheckBox.isSelected());
+            rule.setRequireTargetInfantry(requireInfantryCheckBox.isSelected());
+            rule.setRequireTargetVehicle(requireVehicleCheckBox.isSelected());
+            rule.setRequireTargetMonster(requireMonsterCheckBox.isSelected());
+            rule.setRequireTargetCharacter(requireCharacterCheckBox.isSelected());
+            rule.setRequireTargetPsyker(requirePsykerCheckBox.isSelected());
+            rule.setHitModifier(parseInt(hitModifierField));
+            rule.setWoundModifier(parseInt(woundModifierField));
+            rule.setAttacksModifier(parseInt(attacksModifierField));
+            rule.setDamageModifier(parseInt(damageModifierField));
+            rule.setApModifier(parseInt(apModifierField));
+            rule.setExtraWeaponKeywords(extraKeywordsField.getText());
+            rule.setHitReroll(hitRerollComboBox.getValue());
+            rule.setWoundReroll(woundRerollComboBox.getValue());
+            rule.setNotes(notesTextArea.getText());
+        } catch (IllegalArgumentException ex) {
+            DialogHelper.showWarning("Invalid Number", ex.getMessage());
+            return;
+        }
+
+        EditorRuleDefinition saved = ruleEditorService.saveRule(rule);
+        refreshRuleList(saved.getId());
+        statusLabel.setText("Saved custom rule: " + saved.getName());
+    }
 
     @FXML
-    void keywordAdd(MouseEvent event) {
-        // TEMP DISABLED (depends on old UnitKeywords model & DB cache)
-        showWarning("Temporarily Disabled",
-                "Keyword selection is disabled until controller is rewired to new CSV-based tables.");
+    private void deleteRule(ActionEvent event) {
+        if (selectedRuleId == null || selectedRuleId.isBlank()) {
+            DialogHelper.showWarning("No Rule Selected", "Select a saved rule before deleting it.");
+            return;
+        }
+        if (!DialogHelper.confirmYesNo("Delete Rule", "Delete the selected custom rule?")) {
+            return;
+        }
+
+        boolean removed = ruleEditorService.deleteRule(selectedRuleId);
+        if (!removed) {
+            DialogHelper.showWarning("Delete Failed", "The selected rule could not be deleted.");
+            return;
+        }
+
+        refreshRuleList(null);
+        if (ruleItems.isEmpty()) {
+            prepareNewRule();
+        } else {
+            rulesListView.getSelectionModel().selectFirst();
+        }
+        statusLabel.setText("Deleted custom rule.");
     }
-    
 
     @FXML
-    void keywordDelete(MouseEvent event) {
-
+    private void back(ActionEvent event) throws IOException {
+        FixedAspectView.switchResponsiveTo(
+                (Node) event.getSource(),
+                "/eecs2311/group2/wh40k_easycombat/Datasheets.fxml",
+                1080.0,
+                700.0,
+                1320.0,
+                820.0
+        );
     }
 
-    // ======================= Save =======================
+    private void refreshRuleList(String selectedId) {
+        List<EditorRuleDefinition> loaded = ruleEditorService.getRules();
+        ruleItems.setAll(loaded);
 
-    @FXML
-    void save(MouseEvent event) {
-        // TEMP DISABLED (depends on old Units model + old service layer)
-        showWarning("Temporarily Disabled",
-                "Save is disabled until RuleEditor is migrated to new database schema.");
+        if (selectedId == null || selectedId.isBlank()) {
+            return;
+        }
+
+        for (EditorRuleDefinition rule : ruleItems) {
+            if (selectedId.equals(rule.getId())) {
+                rulesListView.getSelectionModel().select(rule);
+                return;
+            }
+        }
     }
 
-    // ======================= UI Helpers =======================
-
-    private void showWarning(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        DialogHelper.styleAlert(a);
-        a.showAndWait();
+    private void prepareNewRule() {
+        selectedRuleId = null;
+        showRule(new EditorRuleDefinition());
+        rulesListView.getSelectionModel().clearSelection();
+        deleteRuleButton.setDisable(true);
+        statusLabel.setText("Creating a new custom rule.");
     }
 
-    @SuppressWarnings("unused")
-    private void showError(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        DialogHelper.styleAlert(a);
-        a.showAndWait();
+    private void showRule(EditorRuleDefinition rule) {
+        EditorRuleDefinition current = rule == null ? new EditorRuleDefinition() : rule;
+        selectedRuleId = current.getId();
+        deleteRuleButton.setDisable(rule == null);
+
+        nameField.setText(current.getName());
+        typeComboBox.setValue(current.getType());
+        activationModeComboBox.setValue(current.getActivationMode());
+        phaseComboBox.setValue(current.getPhase());
+        attackTypeComboBox.setValue(current.getAttackType());
+        enabledCheckBox.setSelected(current.isEnabled());
+        attackerUnitNameField.setText(current.getAttackerUnitNameContains());
+        defenderUnitNameField.setText(current.getDefenderUnitNameContains());
+        attackerKeywordField.setText(current.getAttackerKeyword());
+        defenderKeywordField.setText(current.getDefenderKeyword());
+        requireHalfRangeCheckBox.setSelected(current.isRequireWithinHalfRange());
+        requireStationaryCheckBox.setSelected(current.isRequireRemainedStationary());
+        requireChargedCheckBox.setSelected(current.isRequireChargedThisTurn());
+        requireTargetCoverCheckBox.setSelected(current.isRequireTargetHasCover());
+        requireInfantryCheckBox.setSelected(current.isRequireTargetInfantry());
+        requireVehicleCheckBox.setSelected(current.isRequireTargetVehicle());
+        requireMonsterCheckBox.setSelected(current.isRequireTargetMonster());
+        requireCharacterCheckBox.setSelected(current.isRequireTargetCharacter());
+        requirePsykerCheckBox.setSelected(current.isRequireTargetPsyker());
+        hitModifierField.setText(String.valueOf(current.getHitModifier()));
+        woundModifierField.setText(String.valueOf(current.getWoundModifier()));
+        attacksModifierField.setText(String.valueOf(current.getAttacksModifier()));
+        damageModifierField.setText(String.valueOf(current.getDamageModifier()));
+        apModifierField.setText(String.valueOf(current.getApModifier()));
+        extraKeywordsField.setText(current.getExtraWeaponKeywords());
+        hitRerollComboBox.setValue(current.getHitReroll());
+        woundRerollComboBox.setValue(current.getWoundReroll());
+        notesTextArea.setText(current.getNotes());
+
+        updateHelperText();
+        if (rule != null) {
+            statusLabel.setText("Editing custom rule: " + current.getName());
+        }
+    }
+
+    private void updateHelperText() {
+        EditorRuleActivationMode mode = activationModeComboBox.getValue();
+        if (mode == EditorRuleActivationMode.MANUAL) {
+            helperLabel.setText("Manual rules are saved now, but they will not auto-apply in Auto Battle until the future game-start/manual-use UI is added.");
+            return;
+        }
+
+        helperLabel.setText("Passive rules auto-apply in Auto Battle whenever their phase, attack type and conditions match the current attack.");
+    }
+
+    private int parseInt(TextField field) {
+        String raw = safe(field == null ? "" : field.getText());
+        if (raw.isBlank() || "-".equals(raw)) {
+            return 0;
+        }
+
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Please enter a whole number in every numeric modifier field.", ex);
+        }
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value.trim();
     }
 }
