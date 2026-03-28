@@ -2,7 +2,9 @@ package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.model.combat.BattleShockTestResult;
+import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
+import eecs2311.group2.wh40k_easycombat.service.BattleLogService;
 import eecs2311.group2.wh40k_easycombat.service.game.BattleShockService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.BattleShockUnitVM;
 import javafx.collections.FXCollections;
@@ -39,7 +41,10 @@ public class BattleShockController {
 
     private final ObservableList<BattleShockUnitVM> rows = FXCollections.observableArrayList();
     private final BattleShockService battleShockService = new BattleShockService();
+    private final BattleLogService battleLogService = BattleLogService.getInstance();
     private Runnable onStateChanged;
+    private int currentRound = 1;
+    private String currentFactionName = "Current Player";
 
     // When this page loads, initialize the Battle-shock table and button state.
     @FXML
@@ -66,6 +71,8 @@ public class BattleShockController {
             Runnable onStateChanged
     ) {
         this.onStateChanged = onStateChanged;
+        this.currentRound = round;
+        this.currentFactionName = factionName == null || factionName.isBlank() ? "Current Player" : factionName;
         rows.clear();
 
         if (units != null) {
@@ -127,6 +134,23 @@ public class BattleShockController {
         BattleShockTestResult result = battleShockService.rollBattleShockTest(row.getUnit());
         row.applyTestResult(result);
         battleShockTable.refresh();
+        battleLogService.logTurnEvent(
+                currentRound,
+                Phase.COMMAND,
+                null,
+                currentFactionName
+                        + " Battle-shock test: "
+                        + result.unitName()
+                        + " rolled "
+                        + result.rolls()
+                        + " = "
+                        + result.total()
+                        + " vs Ld "
+                        + result.leadership()
+                        + " -> "
+                        + (result.passed() ? "PASS" : "FAIL")
+                        + "."
+        );
         notifyStateChanged();
         updateButtons();
     }

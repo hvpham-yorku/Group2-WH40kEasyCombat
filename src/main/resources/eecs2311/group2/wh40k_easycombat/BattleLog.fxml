@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="760.0"
+            prefWidth="1080.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.BattleLogController">
+
+    <top>
+        <VBox spacing="10.0" styleClass="game-round-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Label fx:id="headerLabel" text="Battle Log">
+                    <font>
+                        <Font name="System Bold" size="28.0" />
+                    </font>
+                </Label>
+                <Label fx:id="summaryLabel" text="Total Entries: 0" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="12.0" styleClass="game-center-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <TextArea fx:id="battleLogArea"
+                          prefHeight="620.0"
+                          styleClass="game-textarea"
+                          wrapText="true"
+                          VBox.vgrow="ALWAYS" />
+            </children>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="0.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="refreshButton"
+                        mnemonicParsing="false"
+                        onAction="#refreshLog"
+                        prefHeight="40.0"
+                        prefWidth="110.0"
+                        styleClass="wh-btn"
+                        text="Refresh" />
+                <Button fx:id="closeButton"
+                        mnemonicParsing="false"
+                        onAction="#closeWindow"
+                        prefHeight="40.0"
+                        prefWidth="110.0"
+                        styleClass="wh-btn, wh-btn-primary"
+                        text="Close" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

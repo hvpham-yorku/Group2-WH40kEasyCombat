@@ -15,6 +15,7 @@ import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.BattleLogService;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AttackKeywordContext;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleMode;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleService;
@@ -64,7 +65,9 @@ public class AutoBattleController {
     private final ObservableList<GameArmyUnitVM> blueUnits = FXCollections.observableArrayList();
     private final ObservableList<GameArmyUnitVM> redUnits = FXCollections.observableArrayList();
     private final AutoBattleService autoBattleService = new AutoBattleService();
+    private final BattleLogService battleLogService = BattleLogService.getInstance();
     private AutoBattleMode battleMode = AutoBattleMode.SHOOTING;
+    private int currentRound = 1;
     private Phase currentPhase = Phase.COMMAND;
     private Player activeTurnPlayer = Player.ATTACKER;
     private FightPhaseState fightPhaseState = FightPhaseState.complete("No units are currently marked eligible to fight.");
@@ -95,8 +98,9 @@ public class AutoBattleController {
         rollLogBox.setEditable(false);
     }
 
-    public void setBattleContext(AutoBattleMode mode, Phase phase, Player activePlayer, String blueName, List<GameArmyUnitVM> blueArmyUnits, String redName, List<GameArmyUnitVM> redArmyUnits) {
+    public void setBattleContext(AutoBattleMode mode, int round, Phase phase, Player activePlayer, String blueName, List<GameArmyUnitVM> blueArmyUnits, String redName, List<GameArmyUnitVM> redArmyUnits) {
         battleMode = mode == null ? AutoBattleMode.SHOOTING : mode;
+        currentRound = round <= 0 ? 1 : round;
         currentPhase = phase == null ? Phase.COMMAND : phase;
         activeTurnPlayer = activePlayer == null ? Player.ATTACKER : activePlayer;
         lastFightPlayer = null;
@@ -358,6 +362,32 @@ public class AutoBattleController {
             rollLogBox.appendText("==================================================\n" + attack.label() + " - " + attack.weaponName() + "\n");
             for (String line : result.rollLog()) rollLogBox.appendText(line + "\n");
             rollLogBox.appendText("\n");
+
+            StringBuilder summary = new StringBuilder();
+            summary.append(label(attackerSide))
+                    .append(" ")
+                    .append(attackerUnitName)
+                    .append(" resolved ")
+                    .append(attack.label())
+                    .append(" with ")
+                    .append(attack.weaponName())
+                    .append(" against ")
+                    .append(defenderUnitName)
+                    .append(": attacks ")
+                    .append(result.attacks())
+                    .append(", hits ")
+                    .append(result.hits())
+                    .append(", wounds ")
+                    .append(result.wounds())
+                    .append(", unsaved ")
+                    .append(result.unsaved())
+                    .append(", pending damage ")
+                    .append(result.totalDamage())
+                    .append(".");
+            if (!result.notes().isEmpty()) {
+                summary.append(" Notes: ").append(String.join(" ", result.notes()));
+            }
+            battleLogService.logTurnEvent(currentRound, currentPhase, attackerSide, summary.toString());
         }
         if (totalPendingCount > 0) {
             battle.append("Pending Allocation:\n- Unsaved attacks waiting for defender choice: ").append(totalPendingCount).append("\n- Total pending damage across those attacks: ").append(totalPendingDamage).append("\n\n");
@@ -389,6 +419,40 @@ public class AutoBattleController {
         }
         battle.append("\n");
         battleResultBox.appendText(battle.toString());
+
+        if (currentPendingSession != null) {
+            StringBuilder summary = new StringBuilder();
+            summary.append(label(opposite(currentPendingSession.attackingPlayer())))
+                    .append(" allocated ")
+                    .append(result.resolvedDamage() == null ? "pending damage" : result.resolvedDamage().displayLabel())
+                    .append(" to ")
+                    .append(result.targetModelName())
+                    .append(": applied ")
+                    .append(result.appliedDamage())
+                    .append(" damage");
+            if (result.wastedDamage() > 0) {
+                summary.append(", ").append(result.wastedDamage()).append(" overflow lost");
+            }
+            summary.append(".");
+            if (result.targetDestroyed()) {
+                summary.append(" Target model destroyed.");
+            }
+            if (casualty.newlyDestroyedModels() > 0) {
+                summary.append(" Destroyed models finalized: ")
+                        .append(String.join(", ", casualty.destroyedModelNames()))
+                        .append(".");
+            }
+            if (casualty.defenderDestroyed()) {
+                summary.append(" Defender unit destroyed.");
+            } else if (!result.sessionComplete()) {
+                summary.append(" Remaining pending attacks: ")
+                        .append(result.remainingPendingCount())
+                        .append(", remaining pending damage: ")
+                        .append(result.remainingPendingDamage())
+                        .append(".");
+            }
+            battleLogService.logTurnEvent(currentRound, currentPhase, opposite(currentPendingSession.attackingPlayer()), summary.toString());
+        }
     }
 
     private boolean hasPendingDamage() { return currentPendingSession != null && currentPendingSession.hasPendingDamage(); }
