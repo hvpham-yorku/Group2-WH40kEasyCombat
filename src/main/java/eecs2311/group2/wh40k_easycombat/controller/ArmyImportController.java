@@ -15,6 +15,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.util.function.Consumer;
+
 public class ArmyImportController {
 
     @FXML private TableView<ArmySavedRowVM> armyTable;
@@ -24,6 +26,8 @@ public class ArmyImportController {
 
     private GameUIController parentController;
     private GameUIController.ArmySide targetSide;
+    private Consumer<GameArmyImportVM> importConsumer;
+    private int maxAllowedPoints;
 
     @FXML
     private void initialize() {
@@ -34,6 +38,15 @@ public class ArmyImportController {
     public void setImportContext(GameUIController parentController, GameUIController.ArmySide targetSide) {
         this.parentController = parentController;
         this.targetSide = targetSide;
+        this.importConsumer = null;
+        this.maxAllowedPoints = 0;
+    }
+
+    public void setImportContext(Consumer<GameArmyImportVM> importConsumer, int maxAllowedPoints) {
+        this.parentController = null;
+        this.targetSide = null;
+        this.importConsumer = importConsumer;
+        this.maxAllowedPoints = Math.max(0, maxAllowedPoints);
     }
 
     private void setupTable() {
@@ -65,7 +78,18 @@ public class ArmyImportController {
         }
 
         if (parentController == null || targetSide == null) {
-            DialogHelper.showWarning("Import Error", "Import target is not set.");
+            if (importConsumer == null) {
+                DialogHelper.showWarning("Import Error", "Import target is not set.");
+                return;
+            }
+        }
+
+        if (maxAllowedPoints > 0 && selected.points() > maxAllowedPoints) {
+            DialogHelper.showWarning(
+                    "Army Too Large",
+                    "This army has " + selected.points() + " points, which is above the selected battle size limit of "
+                            + maxAllowedPoints + "."
+            );
             return;
         }
 
@@ -76,7 +100,11 @@ public class ArmyImportController {
                 return;
             }
 
-            parentController.acceptImportedArmy(targetSide, data);
+            if (importConsumer != null) {
+                importConsumer.accept(data);
+            } else {
+                parentController.acceptImportedArmy(targetSide, data);
+            }
 
             Stage stage = (Stage) importButton.getScene().getWindow();
             stage.close();

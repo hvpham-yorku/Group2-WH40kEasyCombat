@@ -26,10 +26,10 @@ public class MainUIController {
     void startBtn(MouseEvent event) throws IOException {
         FixedAspectView.switchResponsiveTo(
                 (Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/GameUI.fxml",
-                1024.0,
-                680.0,
-                1500.0,
+                "/eecs2311/group2/wh40k_easycombat/GameSetup.fxml",
+                1080.0,
+                720.0,
+                1440.0,
                 900.0
         );
     }

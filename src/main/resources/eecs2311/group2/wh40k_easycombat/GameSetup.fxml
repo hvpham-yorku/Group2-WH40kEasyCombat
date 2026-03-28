@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="900.0"
+            prefWidth="1380.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.GameSetupController">
+
+    <top>
+        <VBox spacing="8.0" styleClass="setup-header-bar" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="0.0" left="18.0" />
+            </padding>
+            <children>
+                <Label text="Game Setup">
+                    <font>
+                        <Font name="System Bold" size="30.0" />
+                    </font>
+                </Label>
+                <Label text="Import both armies, choose the battle size, missions and round limit before entering the battle screen." wrapText="true" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="game-panel-scroll" BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18.0">
+                    <padding>
+                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                    </padding>
+                    <children>
+                        <GridPane hgap="18.0" vgap="18.0">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS" />
+                                <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS" />
+                            </columnConstraints>
+                            <children>
+                                <VBox spacing="12.0" styleClass="game-player-blue" GridPane.columnIndex="0">
+                                    <padding>
+                                        <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
+                                    </padding>
+                                    <children>
+                                        <Label text="Blue Army">
+                                            <font>
+                                                <Font name="System Bold" size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="blueArmyLabel" text="No Blue army imported" wrapText="true" />
+                                        <Label fx:id="blueArmyPointsLabel" text="0 pts" />
+                                        <Button fx:id="blueImportButton"
+                                                mnemonicParsing="false"
+                                                onAction="#importBlueArmy"
+                                                styleClass="wh-btn"
+                                                text="Import Blue Army" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="12.0" styleClass="game-player-red" GridPane.columnIndex="1">
+                                    <padding>
+                                        <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
+                                    </padding>
+                                    <children>
+                                        <Label text="Red Army">
+                                            <font>
+                                                <Font name="System Bold" size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="redArmyLabel" text="No Red army imported" wrapText="true" />
+                                        <Label fx:id="redArmyPointsLabel" text="0 pts" />
+                                        <Button fx:id="redImportButton"
+                                                mnemonicParsing="false"
+                                                onAction="#importRedArmy"
+                                                styleClass="wh-btn"
+                                                text="Import Red Army" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <VBox spacing="12.0" styleClass="game-center-panel">
+                            <padding>
+                                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                            </padding>
+                            <children>
+                                <Label text="Battle Setup">
+                                    <font>
+                                        <Font name="System Bold" size="20.0" />
+                                    </font>
+                                </Label>
+                                <GridPane hgap="12.0" vgap="12.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="32.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="18.0" />
+                                        <ColumnConstraints percentWidth="32.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Battle Size" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="battleSizeComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="1"
+                                                  GridPane.rowIndex="0" />
+                                        <Label text="Primary Mission" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="primaryMissionComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="0" />
+
+                                        <Label text="Max Rounds" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Spinner fx:id="roundSpinner"
+                                                 editable="true"
+                                                 maxWidth="1.7976931348623157E308"
+                                                 GridPane.columnIndex="1"
+                                                 GridPane.rowIndex="1" />
+                                        <CheckBox fx:id="customRulesCheckBox"
+                                                  styleClass="game-checkbox"
+                                                  text="Enable Custom Rules"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="1" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-center-panel">
+                            <padding>
+                                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                            </padding>
+                            <children>
+                                <Label text="Primary Mission Preview">
+                                    <font>
+                                        <Font name="System Bold" size="20.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="primaryPreviewTitleLabel"
+                                       styleClass="setup-preview-title"
+                                       text="No Primary Mission Selected"
+                                       wrapText="true" />
+                                <Label fx:id="primaryPreviewIntroLabel"
+                                       styleClass="setup-preview-intro"
+                                       text=""
+                                       wrapText="true" />
+                                <TextArea fx:id="primaryPreviewBodyTextArea"
+                                          editable="false"
+                                          prefHeight="220.0"
+                                          styleClass="game-textarea"
+                                          wrapText="true" />
+                            </children>
+                        </VBox>
+
+                        <GridPane hgap="18.0" vgap="18.0">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS" />
+                                <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS" />
+                            </columnConstraints>
+                            <children>
+                                <VBox spacing="12.0" styleClass="game-side-panel" GridPane.columnIndex="0">
+                                    <padding>
+                                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                    </padding>
+                                    <children>
+                                        <Label text="Blue Secondary Missions">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Choose Fixed Missions to lock in two cards now, or Draw In Game to use the tactical draw button during the battle." wrapText="true" />
+                                        <Label text="Mode" />
+                                        <ComboBox fx:id="blueMissionModeComboBox" maxWidth="1.7976931348623157E308" />
+                                        <Label text="Fixed Mission 1" />
+                                        <ComboBox fx:id="blueMissionOneComboBox" maxWidth="1.7976931348623157E308" />
+                                        <Label text="Fixed Mission 2" />
+                                        <ComboBox fx:id="blueMissionTwoComboBox" maxWidth="1.7976931348623157E308" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="12.0" styleClass="game-side-panel" GridPane.columnIndex="1">
+                                    <padding>
+                                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                    </padding>
+                                    <children>
+                                        <Label text="Red Secondary Missions">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Choose Fixed Missions to lock in two cards now, or Draw In Game to use the tactical draw button during the battle." wrapText="true" />
+                                        <Label text="Mode" />
+                                        <ComboBox fx:id="redMissionModeComboBox" maxWidth="1.7976931348623157E308" />
+                                        <Label text="Fixed Mission 1" />
+                                        <ComboBox fx:id="redMissionOneComboBox" maxWidth="1.7976931348623157E308" />
+                                        <Label text="Fixed Mission 2" />
+                                        <ComboBox fx:id="redMissionTwoComboBox" maxWidth="1.7976931348623157E308" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="0.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="backButton"
+                        mnemonicParsing="false"
+                        onAction="#back"
+                        styleClass="wh-btn"
+                        text="Back" />
+                <Button fx:id="startBattleButton"
+                        mnemonicParsing="false"
+                        onAction="#startBattle"
+                        styleClass="wh-btn, wh-btn-primary"
+                        text="Start Battle" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

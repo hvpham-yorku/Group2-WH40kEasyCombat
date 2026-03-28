@@ -7,19 +7,27 @@ import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
 import eecs2311.group2.wh40k_easycombat.model.combat.PhaseAdvanceResult;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
+import eecs2311.group2.wh40k_easycombat.model.instance.GameSetupConfig;
 import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
+import eecs2311.group2.wh40k_easycombat.model.mission.MissionCard;
+import eecs2311.group2.wh40k_easycombat.model.mission.MissionResolution;
+import eecs2311.group2.wh40k_easycombat.model.mission.SecondaryMissionMode;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleMode;
 import eecs2311.group2.wh40k_easycombat.service.calculations.DiceService;
 import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.service.game.BattleShockService;
+import eecs2311.group2.wh40k_easycombat.service.game.GameSetupService;
 import eecs2311.group2.wh40k_easycombat.service.game.GameTurnService;
+import eecs2311.group2.wh40k_easycombat.service.mission.MissionService;
+import eecs2311.group2.wh40k_easycombat.service.mission.MissionSessionService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyImportVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameStrategyVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.MissionEntryVM;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,10 +38,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
@@ -42,6 +52,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class GameUIController {
@@ -56,9 +67,12 @@ public class GameUIController {
     @FXML private ListView<GameArmyUnitVM> blueArmyList;
     @FXML private Label blueCPLabel;
     @FXML private Button blueCheckMissionButton;
+    @FXML private Button blueDrawMissionButton;
     @FXML private Label blueFactionLabel;
-    @FXML private Button blueImportButton;
-    @FXML private TableView<?> blueMissionTable;
+    @FXML private TableView<MissionEntryVM> blueMissionTable;
+    @FXML private TableColumn<MissionEntryVM, String> blueMissionName;
+    @FXML private TableColumn<MissionEntryVM, String> blueMissionState;
+    @FXML private TableColumn<MissionEntryVM, String> blueMissionMode;
     @FXML private Label bluePhaseLabel;
     @FXML private Button bluePlusButton;
     @FXML private Button blueSelectButton;
@@ -70,9 +84,12 @@ public class GameUIController {
     @FXML private ListView<GameArmyUnitVM> redArmyList;
     @FXML private Label redCPLabel;
     @FXML private Button redCheckMissionButton;
+    @FXML private Button redDrawMissionButton;
     @FXML private Label redFactionLabel;
-    @FXML private Button redImportButton;
-    @FXML private TableView<?> redMissionTable;
+    @FXML private TableView<MissionEntryVM> redMissionTable;
+    @FXML private TableColumn<MissionEntryVM, String> redMissionName;
+    @FXML private TableColumn<MissionEntryVM, String> redState;
+    @FXML private TableColumn<MissionEntryVM, String> redMissionMode;
     @FXML private Label redPhaseLabel;
     @FXML private Button redPlusButton;
     @FXML private Button redSelectButton;
@@ -87,27 +104,41 @@ public class GameUIController {
     @FXML private Button rollButton;
 
     @FXML private Label missionNameLabel;
+    @FXML private Label primaryMissionStateLabel;
     @FXML private Label roundLabel;
+    @FXML private Label winnerLabel;
 
     @FXML private TextArea virtuaDiceBox;
+    @FXML private ComboBox<Integer> virtualDiceSuccessComboBox;
     @FXML private Spinner<Integer> virtuaDiceSpinner;
 
     private final ObservableList<GameArmyUnitVM> blueArmyUnits = FXCollections.observableArrayList();
     private final ObservableList<GameArmyUnitVM> redArmyUnits = FXCollections.observableArrayList();
     private final ObservableList<GameStrategyVM> blueStrategies = FXCollections.observableArrayList();
     private final ObservableList<GameStrategyVM> redStrategies = FXCollections.observableArrayList();
+    private final ObservableList<MissionEntryVM> blueMissionEntries = FXCollections.observableArrayList();
+    private final ObservableList<MissionEntryVM> redMissionEntries = FXCollections.observableArrayList();
 
     private final GameTurnService turnService = new GameTurnService();
     private final DiceService manualDiceService = new DiceService();
     private final BattleShockService battleShockService = new BattleShockService();
     private final EditorEffectRuntimeService editorEffectRuntimeService = EditorEffectRuntimeService.getInstance();
+    private final MissionService missionService = MissionService.getInstance();
+    private final MissionSessionService missionSessionService = MissionSessionService.getInstance();
+    private final GameSetupService gameSetupService = GameSetupService.getInstance();
+
+    private MissionEntryVM primaryMissionEntry;
+    private int maxRounds = 5;
+    private boolean gameOver = false;
 
     @FXML
     private void initialize() {
         setupArmyLists();
         setupStrategyLists();
+        setupMissionViews();
         setupManualDice();
         initializePhaseState();
+        applySetupConfig();
 
         if (nextRoundButton != null) {
             nextRoundButton.setManaged(false);
@@ -141,10 +172,17 @@ public class GameUIController {
 
     @FXML
     void blueAbandonClicked(MouseEvent event) {
+        abandonSelectedMission(ArmySide.BLUE);
     }
 
     @FXML
     void blueCheckClicked(MouseEvent event) {
+        openSelectedSecondaryMission(ArmySide.BLUE);
+    }
+
+    @FXML
+    void blueDrawClicked(MouseEvent event) {
+        drawSecondaryMissions(ArmySide.BLUE);
     }
 
     @FXML
@@ -158,21 +196,23 @@ public class GameUIController {
     }
 
     @FXML
-    void blueImport(MouseEvent event) {
-        openImportWindow(ArmySide.BLUE, blueImportButton);
-    }
-
-    @FXML
     void blueSelect(MouseEvent event) {
         useSelectedStrategy(ArmySide.BLUE);
     }
 
     @FXML
     void redAbandonClicked(MouseEvent event) {
+        abandonSelectedMission(ArmySide.RED);
     }
 
     @FXML
     void redCheckClicked(MouseEvent event) {
+        openSelectedSecondaryMission(ArmySide.RED);
+    }
+
+    @FXML
+    void redDrawClicked(MouseEvent event) {
+        drawSecondaryMissions(ArmySide.RED);
     }
 
     @FXML
@@ -183,11 +223,6 @@ public class GameUIController {
     @FXML
     void redClickSub(MouseEvent event) {
         applyRoundState(RoundManager.addRedCp(readRoundState(), -1));
-    }
-
-    @FXML
-    void redImport(MouseEvent event) {
-        openImportWindow(ArmySide.RED, redImportButton);
     }
 
     @FXML
@@ -229,17 +264,23 @@ public class GameUIController {
         int diceCount = virtuaDiceSpinner == null || virtuaDiceSpinner.getValue() == null
                 ? 1
                 : Math.max(1, virtuaDiceSpinner.getValue());
+        int successThreshold = virtualDiceSuccessComboBox == null || virtualDiceSuccessComboBox.getValue() == null
+                ? 4
+                : Math.max(1, virtualDiceSuccessComboBox.getValue());
 
         manualDiceService.rollDice(diceCount);
 
         List<Integer> results = manualDiceService.getResults();
-        int total = results.stream().mapToInt(Integer::intValue).sum();
+        int successCount = (int) results.stream()
+                .filter(result -> result != null && result >= successThreshold)
+                .count();
 
         StringBuilder sb = new StringBuilder();
         sb.append("Rolled ").append(diceCount).append("D6");
+        sb.append(" | Success on ").append(successThreshold).append("+");
         sb.append(" -> ");
         sb.append(results);
-        sb.append(" | Total: ").append(total);
+        sb.append(" | Successes: ").append(successCount);
         sb.append("\n");
 
         if (virtuaDiceBox != null) {
@@ -248,7 +289,20 @@ public class GameUIController {
     }
 
     @FXML
+    void clearDiceLog(MouseEvent event) {
+        if (virtuaDiceBox != null) {
+            virtuaDiceBox.clear();
+            virtuaDiceBox.setText("Manual dice log ready.\n");
+        }
+    }
+
+    @FXML
     private void nextPhase(ActionEvent event) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
         if (!DialogHelper.confirmYesNo("Next Phase", "Advance to the next phase?")) {
             return;
         }
@@ -259,19 +313,31 @@ public class GameUIController {
                 turnService.getCurrentPhase(),
                 turnService.getActivePlayer()
         );
+        if (turnService.getCurrentRound() > maxRounds) {
+            finishBattle();
+            return;
+        }
+
         if (result.awardedCommandPoint()) {
             addCommandPoint(result.commandPointRecipient());
+            missionSessionService.startTurn(result.commandPointRecipient());
         }
 
         syncTurnUi();
         blueArmyList.refresh();
         redArmyList.refresh();
+        refreshMissionTablesFromSession();
         maybeOpenBattleShockWindow();
     }
 
     @FXML
     private void openAutoBattle(ActionEvent event) {
         autoBattleCheckBox.setSelected(false);
+
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
 
         if (blueArmyUnits.isEmpty() || redArmyUnits.isEmpty()) {
             DialogHelper.showWarning(
@@ -309,9 +375,25 @@ public class GameUIController {
         redStrategyList.setCellFactory(v -> new GameStrategyCell());
     }
 
+    private void setupMissionViews() {
+        blueMissionTable.setItems(blueMissionEntries);
+        redMissionTable.setItems(redMissionEntries);
+
+        blueMissionName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        blueMissionState.setCellValueFactory(cell -> cell.getValue().stateProperty());
+        blueMissionMode.setCellValueFactory(cell -> cell.getValue().modeProperty());
+        redMissionName.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        redState.setCellValueFactory(cell -> cell.getValue().stateProperty());
+        redMissionMode.setCellValueFactory(cell -> cell.getValue().modeProperty());
+    }
+
     private void setupManualDice() {
         if (virtuaDiceSpinner != null) {
             virtuaDiceSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 40, 1));
+        }
+        if (virtualDiceSuccessComboBox != null) {
+            virtualDiceSuccessComboBox.getItems().setAll(2, 3, 4, 5, 6);
+            virtualDiceSuccessComboBox.getSelectionModel().select(Integer.valueOf(4));
         }
 
         if (virtuaDiceBox != null) {
@@ -323,6 +405,8 @@ public class GameUIController {
     private void initializePhaseState() {
         turnService.reset();
         editorEffectRuntimeService.clearAll();
+        gameOver = false;
+        maxRounds = 5;
 
         if (blueCPLabel != null) {
             blueCPLabel.setText("1");
@@ -332,7 +416,9 @@ public class GameUIController {
         }
 
         addCommandPoint(turnService.getActivePlayer());
+        missionSessionService.startTurn(turnService.getActivePlayer());
         syncTurnUi();
+        updateWinnerLabel();
     }
 
     private void syncTurnUi() {
@@ -346,6 +432,16 @@ public class GameUIController {
 
         if (redPhaseLabel != null) {
             redPhaseLabel.setText(turnService.phaseLabelFor(Player.DEFENDER));
+        }
+
+        updateWinnerLabel();
+        updateSecondaryMissionButtons();
+
+        if (nextPhaseButton != null) {
+            nextPhaseButton.setDisable(gameOver);
+        }
+        if (autoBattleCheckBox != null) {
+            autoBattleCheckBox.setDisable(gameOver);
         }
     }
 
@@ -361,28 +457,12 @@ public class GameUIController {
         listView.refresh();
     }
 
-    private void openImportWindow(ArmySide side, Button sourceButton) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/eecs2311/group2/wh40k_easycombat/ArmyImport.fxml")
-            );
-            Parent root = loader.load();
-
-            ArmyImportController controller = loader.getController();
-            controller.setImportContext(this, side);
-
-            Stage stage = new Stage();
-            stage.initOwner(sourceButton.getScene().getWindow());
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Import Army");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-        } catch (Exception e) {
-            DialogHelper.showError("Open Import Page Error", e);
-        }
-    }
-
     private void useSelectedStrategy(ArmySide side) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
         GameStrategyVM selected = getSelectedStrategy(side);
         StratagemUseManager.UseResult result = StratagemUseManager.useStrategy(
                 toBattleSide(side),
@@ -464,6 +544,138 @@ public class GameUIController {
         return side == ArmySide.BLUE
                 ? blueStrategyList.getSelectionModel().getSelectedItem()
                 : redStrategyList.getSelectionModel().getSelectedItem();
+    }
+
+    private void openSelectedSecondaryMission(ArmySide side) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
+        MissionEntryVM selected = getSelectedMission(side);
+        if (selected == null || selected.getMissionCard() == null) {
+            DialogHelper.showWarning("No Mission Selected", "Please select one secondary mission first.");
+            return;
+        }
+
+        if ("Completed".equalsIgnoreCase(selected.getState())) {
+            DialogHelper.showInfo("Mission Already Completed", "That tactical mission has already been completed.");
+            return;
+        }
+
+        Player owningPlayer = toPlayer(side);
+        MissionResolution resolution = openMissionCardWindow(
+                (side == ArmySide.BLUE ? "Blue" : "Red") + " Secondary Mission",
+                selected.getMissionCard(),
+                owningPlayer,
+                false,
+                missionSessionService.modeFor(owningPlayer) == SecondaryMissionMode.FIXED
+                        ? "Keep Fixed Mission"
+                        : "Keep Active"
+        );
+
+        if (resolution.decision().isClosed()) {
+            return;
+        }
+
+        if (resolution.decision().isCompleted()) {
+            addVictoryPoints(owningPlayer, resolution.vpAwarded());
+            if (missionSessionService.modeFor(owningPlayer) == SecondaryMissionMode.TACTICAL) {
+                missionSessionService.complete(owningPlayer, selected.getName());
+            }
+        }
+
+        refreshMissionTablesFromSession();
+    }
+
+    private void abandonSelectedMission(ArmySide side) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
+        if (toPlayer(side) != turnService.getActivePlayer()) {
+            DialogHelper.showWarning(
+                    "Wrong Turn",
+                    "You can only abandon tactical missions during that army's current turn."
+            );
+            return;
+        }
+
+        MissionEntryVM selected = getSelectedMission(side);
+        if (selected == null) {
+            DialogHelper.showWarning("No Mission Selected", "Please select one secondary mission first.");
+            return;
+        }
+        if ("Completed".equalsIgnoreCase(selected.getState())) {
+            DialogHelper.showWarning("Cannot Abandon", "Completed missions are kept in the log and cannot be abandoned.");
+            return;
+        }
+        if (!DialogHelper.confirmYesNo("Abandon Mission", "Mark \"" + selected.getName() + "\" as abandoned?")) {
+            return;
+        }
+
+        if (!missionSessionService.abandon(toPlayer(side), selected.getName())) {
+            DialogHelper.showWarning("Cannot Abandon", "That mission cannot be abandoned right now.");
+            return;
+        }
+
+        if (missionSessionService.grantAbandonCpIfAvailable(toPlayer(side))) {
+            addCommandPoint(toPlayer(side));
+            DialogHelper.showInfo(
+                    "Mission Abandoned",
+                    (side == ArmySide.BLUE ? "Blue" : "Red")
+                            + " gained 1 CP for the first mission abandoned this turn."
+            );
+        }
+
+        refreshMissionTablesFromSession();
+    }
+
+    private MissionEntryVM getSelectedMission(ArmySide side) {
+        return getMissionTable(side).getSelectionModel().getSelectedItem();
+    }
+
+    private TableView<MissionEntryVM> getMissionTable(ArmySide side) {
+        return side == ArmySide.BLUE ? blueMissionTable : redMissionTable;
+    }
+
+    private void drawSecondaryMissions(ArmySide side) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
+        if (toPlayer(side) != turnService.getActivePlayer()) {
+            DialogHelper.showWarning(
+                    "Wrong Turn",
+                    "You can only draw tactical secondary missions during that army's current turn."
+            );
+            return;
+        }
+
+        Player player = toPlayer(side);
+        int drawCount = missionSessionService.drawCountFor(player);
+        if (drawCount <= 0) {
+            DialogHelper.showInfo(
+                    "No Draw Available",
+                    (side == ArmySide.BLUE ? "Blue" : "Red")
+                            + " has already drawn two tactical missions this turn."
+            );
+            return;
+        }
+
+        missionSessionService.drawFor(player);
+        refreshMissionTablesFromSession();
+
+        DialogHelper.showInfo(
+                "Secondary Missions Drawn",
+                (side == ArmySide.BLUE ? "Blue" : "Red")
+                        + " drew "
+                        + drawCount
+                        + " secondary mission"
+                        + (drawCount == 1 ? "." : "s.")
+        );
     }
 
     private Label getCpLabel(ArmySide side) {
@@ -627,6 +839,143 @@ public class GameUIController {
         }
     }
 
+    private void applySetupConfig() {
+        GameSetupConfig config = gameSetupService.getCurrentConfig();
+        if (config == null) {
+            List<MissionCard> primaryMissions = missionService.getPrimaryMissions();
+            if (!primaryMissions.isEmpty()) {
+                primaryMissionEntry = new MissionEntryVM(primaryMissions.get(0));
+                missionNameLabel.setText(primaryMissionEntry.getName());
+                primaryMissionStateLabel.setText("State: Active");
+            }
+
+            missionSessionService.initialize(null);
+            missionSessionService.startTurn(turnService.getActivePlayer());
+            refreshMissionTablesFromSession();
+            return;
+        }
+
+        maxRounds = config.maxRounds();
+        ruleApplyState(config.customRulesEnabled());
+
+        acceptImportedArmy(ArmySide.BLUE, config.blueArmy());
+        acceptImportedArmy(ArmySide.RED, config.redArmy());
+
+        primaryMissionEntry = new MissionEntryVM(config.primaryMission());
+        primaryMissionEntry.setState("Active");
+        missionNameLabel.setText(primaryMissionEntry.getName());
+        primaryMissionStateLabel.setText("State: Active");
+
+        missionSessionService.initialize(config);
+        missionSessionService.startTurn(turnService.getActivePlayer());
+        refreshMissionTablesFromSession();
+    }
+
+    private void ruleApplyState(boolean enabled) {
+        eecs2311.group2.wh40k_easycombat.service.editor.RuleEditorService.getInstance().setAutoApplyEnabled(enabled);
+    }
+
+    private void refreshMissionTablesFromSession() {
+        blueMissionEntries.setAll(missionSessionService.activeEntriesFor(Player.ATTACKER));
+        redMissionEntries.setAll(missionSessionService.activeEntriesFor(Player.DEFENDER));
+
+        if (!blueMissionEntries.isEmpty()) {
+            blueMissionTable.getSelectionModel().selectFirst();
+        }
+        if (!redMissionEntries.isEmpty()) {
+            redMissionTable.getSelectionModel().selectFirst();
+        }
+
+        updateSecondaryMissionButtons();
+    }
+
+    private void updateSecondaryMissionButtons() {
+        boolean blueFixed = missionSessionService.modeFor(Player.ATTACKER) == SecondaryMissionMode.FIXED;
+        boolean redFixed = missionSessionService.modeFor(Player.DEFENDER) == SecondaryMissionMode.FIXED;
+        boolean blueActiveTurn = turnService.getActivePlayer() == Player.ATTACKER;
+        boolean redActiveTurn = turnService.getActivePlayer() == Player.DEFENDER;
+        int blueDrawCount = missionSessionService.drawCountFor(Player.ATTACKER);
+        int redDrawCount = missionSessionService.drawCountFor(Player.DEFENDER);
+
+        if (blueDrawMissionButton != null) {
+            blueDrawMissionButton.setText(
+                    blueFixed
+                            ? "Fixed Missions"
+                            : (blueDrawCount == 1 ? "Draw 1 Mission" : "Draw " + blueDrawCount + " Missions")
+            );
+            blueDrawMissionButton.setDisable(
+                    blueFixed || !blueActiveTurn || !missionSessionService.canDraw(Player.ATTACKER) || gameOver
+            );
+        }
+        if (redDrawMissionButton != null) {
+            redDrawMissionButton.setText(
+                    redFixed
+                            ? "Fixed Missions"
+                            : (redDrawCount == 1 ? "Draw 1 Mission" : "Draw " + redDrawCount + " Missions")
+            );
+            redDrawMissionButton.setDisable(
+                    redFixed || !redActiveTurn || !missionSessionService.canDraw(Player.DEFENDER) || gameOver
+            );
+        }
+        if (blueAbandonMissionButton != null) {
+            blueAbandonMissionButton.setDisable(blueFixed || !blueActiveTurn || blueMissionEntries.isEmpty() || gameOver);
+        }
+        if (redAbandonMissionButton != null) {
+            redAbandonMissionButton.setDisable(redFixed || !redActiveTurn || redMissionEntries.isEmpty() || gameOver);
+        }
+        if (blueCheckMissionButton != null) {
+            blueCheckMissionButton.setDisable(blueMissionEntries.isEmpty() || gameOver);
+        }
+        if (redCheckMissionButton != null) {
+            redCheckMissionButton.setDisable(redMissionEntries.isEmpty() || gameOver);
+        }
+        if (blueSelectButton != null) {
+            blueSelectButton.setDisable(gameOver);
+        }
+        if (redSelectButton != null) {
+            redSelectButton.setDisable(gameOver);
+        }
+    }
+
+    @FXML
+    private void openPrimaryMission(ActionEvent event) {
+        if (gameOver) {
+            DialogHelper.showInfo("Battle Over", winnerText());
+            return;
+        }
+
+        if (primaryMissionEntry == null || primaryMissionEntry.getMissionCard() == null) {
+            DialogHelper.showWarning("No Primary Mission", "No primary mission card is currently loaded.");
+            return;
+        }
+
+        MissionResolution resolution = openMissionCardWindow(
+                "Shared Primary Mission",
+                primaryMissionEntry.getMissionCard(),
+                Player.ATTACKER,
+                true,
+                "Keep Active"
+        );
+
+        if (resolution.decision().isClosed()) {
+            return;
+        }
+
+        if (resolution.decision().isCompleted()) {
+            addVictoryPoints(resolution.awardedPlayer(), resolution.vpAwarded());
+            if (primaryMissionStateLabel != null) {
+                primaryMissionStateLabel.setText(
+                        "Last Award: " + playerLabel(resolution.awardedPlayer()) + " +" + resolution.vpAwarded() + " VP"
+                );
+            }
+            return;
+        }
+
+        if (primaryMissionStateLabel != null) {
+            primaryMissionStateLabel.setText("State: Active");
+        }
+    }
+
     private List<GameArmyUnitVM> unitsFor(ArmySide side) {
         return side == ArmySide.BLUE ? List.copyOf(blueArmyUnits) : List.copyOf(redArmyUnits);
     }
@@ -665,5 +1014,114 @@ public class GameUIController {
             DialogHelper.showError("Open Stratagem Target Error", e);
             return null;
         }
+    }
+
+    private MissionResolution openMissionCardWindow(
+            String contextLabel,
+            MissionCard missionCard,
+            Player defaultAwardedPlayer,
+            boolean allowPlayerSelection,
+            String keepButtonText
+    ) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/eecs2311/group2/wh40k_easycombat/MissionCard.fxml")
+            );
+            Parent root = loader.load();
+
+            MissionCardController controller = loader.getController();
+            controller.setContext(
+                    contextLabel,
+                    missionCard,
+                    defaultAwardedPlayer,
+                    allowPlayerSelection,
+                    keepButtonText
+            );
+
+            Stage stage = new Stage();
+            stage.initOwner(nextPhaseButton.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle(missionCard == null ? "Mission Card" : missionCard.title());
+            stage.setScene(new Scene(root));
+            stage.setMinWidth(860.0);
+            stage.setMinHeight(760.0);
+            stage.showAndWait();
+
+            return controller.getResolution();
+        } catch (Exception e) {
+            DialogHelper.showError("Open Mission Card Error", e);
+            return MissionResolution.closed();
+        }
+    }
+
+    private void addVictoryPoints(Player player, int vp) {
+        if (vp <= 0) {
+            updateWinnerLabel();
+            return;
+        }
+
+        Label target = player == Player.DEFENDER ? redVPLabel : blueVPLabel;
+        if (target != null) {
+            target.setText(String.valueOf(parseInt(target.getText()) + vp));
+        }
+        updateWinnerLabel();
+    }
+
+    private void updateWinnerLabel() {
+        if (winnerLabel == null) {
+            return;
+        }
+
+        if (gameOver) {
+            winnerLabel.setText(winnerText());
+            return;
+        }
+
+        int blueVp = parseInt(blueVPLabel == null ? null : blueVPLabel.getText());
+        int redVp = parseInt(redVPLabel == null ? null : redVPLabel.getText());
+
+        if (blueVp == redVp) {
+            winnerLabel.setText("Current Score: Tied at " + blueVp + " VP");
+            return;
+        }
+
+        boolean blueLeading = blueVp > redVp;
+        winnerLabel.setText(
+                "Current Leader: "
+                        + (blueLeading ? "Blue" : "Red")
+                        + " ("
+                        + (blueLeading ? blueVp : redVp)
+                        + "-"
+                        + (blueLeading ? redVp : blueVp)
+                        + ")"
+        );
+    }
+
+    private void finishBattle() {
+        gameOver = true;
+        syncTurnUi();
+        DialogHelper.showInfo("Battle Over", winnerText());
+    }
+
+    private String winnerText() {
+        int blueVp = parseInt(blueVPLabel == null ? null : blueVPLabel.getText());
+        int redVp = parseInt(redVPLabel == null ? null : redVPLabel.getText());
+
+        if (blueVp == redVp) {
+            return "Battle Over. The game is a draw at " + blueVp + " VP each.";
+        }
+
+        boolean blueWon = blueVp > redVp;
+        return String.format(
+                Locale.ROOT,
+                "Battle Over. %s wins %d to %d VP.",
+                blueWon ? "Blue" : "Red",
+                blueWon ? blueVp : redVp,
+                blueWon ? redVp : blueVp
+        );
+    }
+
+    private String playerLabel(Player player) {
+        return player == Player.DEFENDER ? "Red" : "Blue";
     }
 }
