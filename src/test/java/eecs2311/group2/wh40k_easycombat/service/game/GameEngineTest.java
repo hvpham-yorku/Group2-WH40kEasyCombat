@@ -316,7 +316,7 @@ class GameEngineTest {
                     1, false, false, false, false, false,
                     true, // attackerIsEligibleToFight
                     false, false, false, "",
-                    false, false, false, false, false);
+                    false, false, false, false, false, 0, 0, null, null);
             AttackResult result = engine.performBattle(
                     getDefenderUnitId(), getAttackerUnitId(), "Combat Knife", ctx);
             assertTrue(result.resolved());

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="620.0"
+            prefWidth="860.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.EditorStratagemTargetController">
+
+    <top>
+        <VBox spacing="8.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="0.0" left="18.0" />
+            </padding>
+            <children>
+                <Label fx:id="titleLabel" text="Stratagem Target">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="subtitleLabel" text="Choose one affected unit." wrapText="true" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="16.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <VBox spacing="10.0" styleClass="game-side-panel" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+                    <children>
+                        <Label text="Triggered Effects">
+                            <font>
+                                <Font name="System Bold" size="18.0" />
+                            </font>
+                        </Label>
+                        <TextArea fx:id="rulesTextArea" prefHeight="420.0" wrapText="true" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="10.0" styleClass="game-side-panel" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+                    <children>
+                        <Label text="Affected Unit">
+                            <font>
+                                <Font name="System Bold" size="18.0" />
+                            </font>
+                        </Label>
+                        <ListView fx:id="unitListView" prefHeight="420.0" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="0.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="cancelButton"
+                        mnemonicParsing="false"
+                        onAction="#cancel"
+                        styleClass="wh-btn"
+                        text="Cancel" />
+                <Button fx:id="applyButton"
+                        mnemonicParsing="false"
+                        onAction="#applySelection"
+                        styleClass="wh-btn, wh-btn-primary"
+                        text="Apply To Unit" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

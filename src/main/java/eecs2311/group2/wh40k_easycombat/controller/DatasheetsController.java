@@ -271,12 +271,23 @@ public class DatasheetsController implements Initializable {
 
     @FXML
     void clickAddButton(MouseEvent event) {
-        // TODO
+        try {
+            FixedAspectView.switchResponsiveTo(
+                    (Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                    1100.0,
+                    760.0,
+                    1480.0,
+                    900.0
+            );
+        } catch (IOException e) {
+            DialogHelper.showError("Open Rule Editor Failed", e);
+        }
     }
 
     @FXML
     void clickEditButton(MouseEvent event) {
-        // TODO
+        clickAddButton(event);
     }
 
     @FXML

@@ -2,6 +2,7 @@ package eecs2311.group2.wh40k_easycombat.cell;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import javafx.geometry.Insets;
@@ -18,6 +19,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
+    private final EditorEffectRuntimeService effectRuntimeService = EditorEffectRuntimeService.getInstance();
 
     private final Runnable onStateChanged;
 
@@ -115,6 +117,13 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         HBox header = new HBox(8, expandButton, unitName, spacer);
         header.setAlignment(Pos.CENTER_LEFT);
 
+        String activeEffectsText = buildActiveEffectsText(item);
+        Label activeEffectsLabel = new Label(activeEffectsText);
+        activeEffectsLabel.getStyleClass().add("game-army-unit-summary");
+        activeEffectsLabel.setWrapText(true);
+        activeEffectsLabel.setManaged(!activeEffectsText.isBlank());
+        activeEffectsLabel.setVisible(!activeEffectsText.isBlank());
+
         VBox detailBox = new VBox(6);
         detailBox.visibleProperty().bind(item.expandedProperty());
         detailBox.managedProperty().bind(item.expandedProperty());
@@ -141,7 +150,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
             }
         }
 
-        root.getChildren().addAll(header, unitSummary, statusRow, detailBox);
+        root.getChildren().addAll(header, unitSummary, statusRow, activeEffectsLabel, detailBox);
         setGraphic(root);
     }
 
@@ -277,6 +286,18 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         }
 
         return text;
+    }
+
+    private String buildActiveEffectsText(GameArmyUnitVM item) {
+        if (item == null || item.getUnit() == null) {
+            return "";
+        }
+
+        return effectRuntimeService.activeEffectsForUnit(item.getUnit().getInstanceId()).stream()
+                .map(effect -> effect.ruleName() + " [" + effect.duration() + "]")
+                .reduce((left, right) -> left + " | " + right)
+                .map(text -> "Active Effects: " + text)
+                .orElse("");
     }
 
     private String safe(String s) {

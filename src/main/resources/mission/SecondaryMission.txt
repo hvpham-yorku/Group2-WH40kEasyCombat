@@ -1,0 +1,334 @@
+Secondary Mission
+BEHIND ENEMY LINES
+Your orders are clear: break through the enemy and cut off their escape routes.
+
+When Drawn: If it is the first battle round, you can draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+One unit from your army (excluding AIRCRAFT and Battle-shocked units) is wholly within your opponent’s deployment zone.		
+3VP
+OR
+Two or more units from your army (excluding AIRCRAFT and Battle-shocked units) are wholly within your opponent’s deployment zone.		
+4VP
+
+
+
+Secondary Mission
+BRING IT DOWN
+The opposing army contains numerous heavily armoured units. You must prioritise their destruction.
+
+When Drawn: If there are no enemy MONSTER or VEHICLE units on the battlefield, you can discard this card and draw a new Secondary Mission card.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active (if you are using Fixed Missions).		
+Each time an enemy MONSTER or VEHICLE unit is destroyed.		FIXED
+2VP
++
+The total of the Wounds characteristics of the models in that destroyed unit was 15+ (at its Starting Strength).		FIXED
++2VP
+(CUMULATIVE)
++
+The total of the Wounds characteristics of the models in that destroyed unit was 20+ (at its Starting Strength).		FIXED
++2VP
+(CUMULATIVE)
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of either player’s turn (if you are using Tactical Missions).		
+One or more enemy MONSTER or VEHICLE units were destroyed this turn.		TACTICAL
+4VP
+
+
+
+Secondary Mission
+STORM HOSTILE OBJECTIVE
+You must dominate the field of battle. Storm every site of tactical import and leave the foe with no place to hide.
+
+When Drawn: If it is the first battle round, you can draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+You control one or more objective markers that were controlled by your opponent at the start of the turn.		
+4VP
+OR
+SECOND BATTLE ROUND ONWARDS		VICTORY POINTS
+WHEN: End of your turn.		
+Your opponent did not control any objective markers at the start of the turn, and you control one or more objective markers that you did not control at the start of the turn.		
+4VP
+
+
+
+Secondary Mission
+DEFEND STRONGHOLD
+You are charged with the defence of a critical objective. It must not be permitted to fall into enemy hands.
+
+When Drawn: If it is the first battle round, draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.
+
+SECOND BATTLE ROUND ONWARDS		VICTORY POINTS
+WHEN: End of your opponent’s turn or the end of the battle (whichever comes first).		
+You control one or more objective markers in your deployment zone.		
+3VP
+
+
+
+Secondary Mission
+ENGAGE ON ALL FRONTS
+This area is of extreme importance. You are to lead an immediate all-out assault to capture it and deny it to our enemy for good.
+
+When Drawn: If one or more units from your army (excluding AIRCRAFT and Battle-shocked units) are wholly within a table quarter, and those units are more than 6" away from the centre of the battlefield, you have a presence in that table quarter.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+You have a presence in two table quarters.		
+1VP
+OR
+You have a presence in three table quarters.		
+2VP
+OR
+You have a presence in four table quarters.		
+4VP
+
+
+
+Secondary Mission
+MARKED FOR DEATH
+You have been ordered to eliminate specific enemy assets to ensure victory, no matter how insignificant they may seem.
+
+When Drawn: Your opponent must select three units from their army on the battlefield. If there are only one or two units from their army on the battlefield, they must select those units. The selected units are your Alpha Target units. You can then select one unit from your opponent’s army on the battlefield to be your Gamma Target unit. If there are no units from their army on the battlefield, discard this card and draw a new Secondary Mission card.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of either player’s turn.		
+One or more of your Alpha Target units were destroyed (or removed from the battlefield for any other reason) this turn.		
+5VP
+OR
+None of your Alpha Target units were destroyed (or removed from the battlefield for any other reason) this turn, but your Gamma Target unit was destroyed (or removed from the battlefield for any other reason) this turn.		
+2VP
+
+
+
+Secondary Mission
+ESTABLISH LOCUS
+You must guide allied forces onto the battlefield by any means necessary; this objective must be completed swiftly to pave the road to victory.
+
+ESTABLISH LOCUS (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One unit from your army.
+
+COMPLETES: End of your turn, if that unit is within your opponent’s deployment zone or within 6" of the centre of the battlefield.
+
+IF COMPLETED: Your unit establishes a locus.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+Your unit established a locus this turn and is within 6" of the centre of the battlefield.		
+2VP
+OR
+Your unit established a locus this turn and is within your opponent’s deployment zone.		
+4VP
+
+
+
+Secondary Mission
+SECURE NO MAN’S LAND
+You must advance swiftly into no man’s land and seize it before the enemy can, lest they take control of the entire battlefield.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+You control one objective marker in No Man’s Land.		
+2VP
+OR
+You control two or more objective markers in No Man’s Land.		
+5VP
+
+
+
+Secondary Mission
+SABOTAGE
+This region is replete with strategic assets or supply caches vital to your foe. See to it that they are reduced to just so much flaming wreckage.
+
+SABOTAGE (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One unit from your army that is within a terrain feature and not within your deployment zone.
+
+COMPLETES: End of your opponent’s next turn or the end of the battle (whichever comes first), if your unit is on the battlefield.
+
+IF COMPLETED: Your unit commits sabotage.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your opponent’s turn or the end of the battle (whichever comes first).		
+Your unit committed sabotage this turn and is not within your opponent’s deployment zone.		
+3VP
+OR
+Your unit committed sabotage this turn and is within your opponent’s deployment zone.		
+6VP
+
+
+
+Secondary Mission
+CLEANSE
+Your forces have identified a series of tainted objectives in this area; these locations must be purified.
+
+CLEANSE (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One or more units from your army within range of an objective marker that is not within your deployment zone.
+
+COMPLETES: End of your turn, if the unit performing this Action is still within range of the same objective marker and you control that objective marker.
+
+IF COMPLETED: That objective marker is cleansed by your army.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.			
+One objective marker was cleansed by your army this turn.		
+2VP
+OR
+Two or more objective markers were cleansed by your army this turn.		FIXED
+4VP
+TACTICAL
+5VP
+
+
+
+Secondary Mission
+AREA DENIAL
+It is critical that this area is dominated. No enemy vanguard or guerrilla units can be allowed to disrupt your plans.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+One or more units from your army (excluding AIRCRAFT and Battle-shocked units) are within 3" of the centre of the battlefield, and there are no enemy units within 3" of the centre of the battlefield.		
+2VP
+OR
+One or more units from your army (excluding AIRCRAFT and Battle-shocked units) are within 3" of the centre of the battlefield, and there are no enemy units within 6" of the centre of the battlefield.		
+5VP
+
+
+
+Secondary Mission
+ASSASSINATION
+The enemy looks to their champions for courage. You must identify and eliminate such targets with extreme prejudice.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active (if you are using Fixed Missions).		
+Each time an enemy CHARACTER model with a Wounds characteristic of 4 or higher is destroyed.		FIXED
+4VP
+Each time an enemy CHARACTER model with a Wounds characteristic of less than 4 is destroyed.		FIXED
+3VP
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of either player’s turn (if you are using Tactical Missions).		
+One or more enemy CHARACTER models were destroyed this turn.		TACTICAL
+5VP
+OR
+All enemy CHARACTER models have been destroyed during the battle.		TACTICAL
+5VP
+
+
+
+Secondary Mission
+RECOVER ASSETS
+You must locate and reclaim scattered strategic assets.
+
+When Drawn: If you are playing an Incursion mission, or if there are fewer than three units from your army on the battlefield, you can discard this card and draw a new Secondary Mission card.
+
+RECOVER ASSETS (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: Two or more units from your army, if each of those units is wholly within a different one of the following areas: your deployment zone; No Man’s Land; your opponent’s deployment zone.
+
+COMPLETES: End of your turn, if either two or three of those units are on the battlefield.
+
+IF COMPLETED: Those units recover assets.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn or the end of the battle (whichever comes first).		
+Two of your units recovered assets this turn.		
+3VP
+OR
+Three or more of your units recovered assets this turn.		
+5VP
+
+
+
+Secondary Mission
+NO PRISONERS
+Show no mercy. Exterminate your enemies.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active (if you are using Fixed Missions).		
+Each time an enemy Bodyguard unit or enemy non-CHARACTER unit is destroyed.		FIXED
+2VP
+(UP TO 5VP)
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active (if you are using Tactical Missions).		
+Each time an enemy unit is destroyed.		TACTICAL
+2VP
+(UP TO 5VP)
+
+
+
+Secondary Mission
+A TEMPTING TARGET
+An opportunity to seize a valuable asset has been identified, but the enemy are likely to use it as bait in a trap. Move to secure the site, but be wary of enemy ambushes.
+
+When Drawn: Your opponent must select one objective in No Man’s Land to be your Tempting Target objective marker.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of either player’s turn.		
+You control your Tempting Target objective marker.		
+5VP
+
+
+
+Secondary Mission
+CULL THE HORDE
+The enemy come forth in teeming masses. Their ranks must be thinned if the day is to be won.
+
+When Drawn: If there are no enemy units on the battlefield that satisfy the condition below, you can discard this card and draw a new Secondary Mission card.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active (if you are using Fixed Missions).		
+Each time an enemy INFANTRY unit with a Starting Strength of 13+ (including Attached units) is destroyed.		FIXED
+5VP
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of either player’s turn (if you are using Tactical Missions).		
+One or more enemy INFANTRY units with a Starting Strength of 13+ (including Attached units) were destroyed this turn.		TACTICAL
+5VP
+
+
+
+Secondary Mission
+EXTEND BATTLE LINES
+The battleground is conquered one yard at a time. Lead your forces forward and establish a strong presence in the area.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+You control one or more objective markers within your deployment zone and one or more objective markers within No Man’s Land.		
+4VP
+OR
+You control one or more objective markers within No Man’s Land.		
+2VP
+
+
+
+Secondary Mission
+OVERWHELMING FORCE
+You must scour the enemy from the face of the battlefield.
+
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: While this card is active.		
+Each time an enemy unit that started the turn within range of an objective marker is destroyed.		
+3VP
+(UP TO 5VP)
+Designer’s Note: Destroyed Leader and Bodyguard units count separately for the purposes of scoring this Secondary Mission, provided that Attached unit started the turn within range of an objective marker.
+
+
+
+Secondary Mission
+DISPLAY OF MIGHT
+Intimidation is the most potent of weapons. Degrade the combat abilities of your opponent to demonstrate your superiority and erode enemy morale.
+
+When Drawn: If it is the first battle round, draw a new Secondary Mission card and shuffle this card back into your Secondary Mission deck.
+ANY BATTLE ROUND		VICTORY POINTS
+WHEN: End of your turn.		
+There are more units from your army than from your opponent’s army wholly within No Man’s Land.		
+4VP

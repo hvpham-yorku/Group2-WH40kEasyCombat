@@ -6,11 +6,13 @@ import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
 import eecs2311.group2.wh40k_easycombat.model.combat.PhaseAdvanceResult;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
 import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleMode;
 import eecs2311.group2.wh40k_easycombat.service.calculations.DiceService;
+import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.service.game.BattleShockService;
 import eecs2311.group2.wh40k_easycombat.service.game.GameTurnService;
@@ -98,6 +100,7 @@ public class GameUIController {
     private final GameTurnService turnService = new GameTurnService();
     private final DiceService manualDiceService = new DiceService();
     private final BattleShockService battleShockService = new BattleShockService();
+    private final EditorEffectRuntimeService editorEffectRuntimeService = EditorEffectRuntimeService.getInstance();
 
     @FXML
     private void initialize() {
@@ -117,6 +120,7 @@ public class GameUIController {
             return;
         }
 
+        editorEffectRuntimeService.clearAll();
         ArmyListStateService.initializeDisplayOrder(data.units());
 
         if (side == ArmySide.BLUE) {
@@ -250,6 +254,11 @@ public class GameUIController {
         }
 
         PhaseAdvanceResult result = turnService.advancePhase(blueUnitInstances(), redUnitInstances());
+        editorEffectRuntimeService.clearExpiredEffects(
+                turnService.getCurrentRound(),
+                turnService.getCurrentPhase(),
+                turnService.getActivePlayer()
+        );
         if (result.awardedCommandPoint()) {
             addCommandPoint(result.commandPointRecipient());
         }
@@ -313,6 +322,7 @@ public class GameUIController {
 
     private void initializePhaseState() {
         turnService.reset();
+        editorEffectRuntimeService.clearAll();
 
         if (blueCPLabel != null) {
             blueCPLabel.setText("1");
@@ -374,7 +384,6 @@ public class GameUIController {
 
     private void useSelectedStrategy(ArmySide side) {
         GameStrategyVM selected = getSelectedStrategy(side);
-
         StratagemUseManager.UseResult result = StratagemUseManager.useStrategy(
                 toBattleSide(side),
                 selected == null ? null : selected.getStrategy(),
@@ -386,12 +395,69 @@ public class GameUIController {
             return;
         }
 
-        if (!DialogHelper.confirmYesNo("Confirm Stratagem", "Use stratagem \"" + result.title() + "\"?")) {
+        List<EditorRuleDefinition> matchingRules =
+                editorEffectRuntimeService.matchingStratagemRules(selected == null ? null : selected.getStrategy());
+
+        String confirmText = "Use stratagem \"" + result.title() + "\"?";
+        if (!matchingRules.isEmpty()) {
+            confirmText += "\n\nThis will also trigger "
+                    + matchingRules.size()
+                    + " custom rule"
+                    + (matchingRules.size() == 1 ? "" : "s")
+                    + " and prompt you to choose one affected unit.";
+        }
+
+        if (!DialogHelper.confirmYesNo("Confirm Stratagem", confirmText)) {
             return;
         }
 
+        GameArmyUnitVM targetedUnit = null;
+        if (!matchingRules.isEmpty()) {
+            List<GameArmyUnitVM> candidates = unitsFor(side).stream()
+                    .filter(vm -> vm != null && !vm.isDestroyed())
+                    .collect(Collectors.toList());
+
+            if (candidates.isEmpty()) {
+                DialogHelper.showWarning(
+                        "No Valid Unit",
+                        "This stratagem has matching custom effects, but there is no living unit to receive them."
+                );
+                return;
+            }
+
+            targetedUnit = openStratagemTargetWindow(side, selected.getName(), matchingRules, candidates);
+            if (targetedUnit == null) {
+                return;
+            }
+        }
+
         getCpLabel(side).setText(result.nextCpText());
-        DialogHelper.showInfo(result.title(), result.message());
+
+        List<String> activatedLabels = List.of();
+        if (targetedUnit != null && selected != null) {
+            activatedLabels = editorEffectRuntimeService.activateStratagemRules(
+                            selected.getStrategy(),
+                            targetedUnit.getUnit(),
+                            toPlayer(side),
+                            turnService.getActivePlayer(),
+                            turnService.getCurrentPhase(),
+                            turnService.getCurrentRound()
+                    ).stream()
+                    .map(effect -> effect.displayName())
+                    .collect(Collectors.toList());
+        }
+
+        StringBuilder info = new StringBuilder(result.message());
+        if (!activatedLabels.isEmpty()) {
+            info.append("\n\nAffected Unit: ").append(targetedUnit.getUnitName());
+            info.append("\nActivated Effects:");
+            for (String label : activatedLabels) {
+                info.append("\n- ").append(label);
+            }
+        }
+
+        DialogHelper.showInfo(result.title(), info.toString());
+        refreshArmyViews();
     }
 
     private GameStrategyVM getSelectedStrategy(ArmySide side) {
@@ -408,6 +474,10 @@ public class GameUIController {
         return side == ArmySide.BLUE
                 ? StratagemUseManager.BattleSide.BLUE
                 : StratagemUseManager.BattleSide.RED;
+    }
+
+    private Player toPlayer(ArmySide side) {
+        return side == ArmySide.BLUE ? Player.ATTACKER : Player.DEFENDER;
     }
 
     private RoundManager.RoundState readRoundState() {
@@ -554,6 +624,46 @@ public class GameUIController {
             syncTurnUi();
         } catch (Exception e) {
             DialogHelper.showError("Open Auto Battle Error", e);
+        }
+    }
+
+    private List<GameArmyUnitVM> unitsFor(ArmySide side) {
+        return side == ArmySide.BLUE ? List.copyOf(blueArmyUnits) : List.copyOf(redArmyUnits);
+    }
+
+    private GameArmyUnitVM openStratagemTargetWindow(
+            ArmySide side,
+            String stratagemName,
+            List<EditorRuleDefinition> matchingRules,
+            List<GameArmyUnitVM> candidates
+    ) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/eecs2311/group2/wh40k_easycombat/EditorStratagemTarget.fxml")
+            );
+            Parent root = loader.load();
+
+            EditorStratagemTargetController controller = loader.getController();
+            controller.setContext(
+                    side == ArmySide.BLUE ? "Blue" : "Red",
+                    stratagemName,
+                    matchingRules,
+                    candidates
+            );
+
+            Stage stage = new Stage();
+            stage.initOwner(nextPhaseButton.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Choose Stratagem Target");
+            stage.setScene(new Scene(root));
+            stage.setMinWidth(760.0);
+            stage.setMinHeight(520.0);
+            stage.showAndWait();
+
+            return controller.getSelectedUnit();
+        } catch (Exception e) {
+            DialogHelper.showError("Open Stratagem Target Error", e);
+            return null;
         }
     }
 }
