@@ -7,7 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -19,8 +19,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="860.0"
-            prefWidth="1480.0"
+<BorderPane prefHeight="900.0"
+            prefWidth="1520.0"
             styleClass="game-root"
             stylesheets="@application.css"
             xmlns="http://javafx.com/javafx/21"
@@ -33,29 +33,29 @@
                 <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
             </padding>
             <children>
-                <Label text="Custom Rule Editor">
+                <Label text="Custom Rule Editor (VM)">
                     <font>
                         <Font name="System Bold" size="28.0" />
                     </font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="statusLabel" text="Create or edit enabled custom rules for Auto Battle." wrapText="true" />
+                <Label fx:id="statusLabel" text="Create or edit VM-backed custom rules." wrapText="true" />
             </children>
         </HBox>
     </top>
 
     <left>
-        <VBox prefWidth="330.0" spacing="12.0" styleClass="game-side-panel" BorderPane.alignment="CENTER">
+        <VBox prefWidth="340.0" spacing="12.0" styleClass="game-side-panel" BorderPane.alignment="CENTER">
             <padding>
                 <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
             </padding>
             <children>
-                <Label text="Saved Rules">
+                <Label text="Rule Library">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
-                <ListView fx:id="rulesListView" prefHeight="640.0" VBox.vgrow="ALWAYS" />
+                <ListView fx:id="rulesListView" prefHeight="680.0" VBox.vgrow="ALWAYS" />
                 <Button fx:id="newRuleButton"
                         maxWidth="1.7976931348623157E308"
                         mnemonicParsing="false"
@@ -86,12 +86,9 @@
                         <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
                     </padding>
                     <children>
-                        <Label fx:id="helperLabel"
-                               style="-fx-font-size: 14px;"
-                               text="Enabled custom rules auto-apply in Auto Battle whenever their phase, attack type and bindings match. If a triggering stratagem name is set, using that stratagem will prompt for one affected unit and apply the rule for the chosen duration."
-                               wrapText="true" />
+                        <Label fx:id="helperLabel" style="-fx-font-size: 14px;" wrapText="true" />
 
-                        <VBox spacing="12.0" styleClass="game-side-panel">
+                        <VBox fx:id="identityCard" spacing="12.0" styleClass="game-side-panel">
                             <padding>
                                 <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
                             </padding>
@@ -112,25 +109,16 @@
                                         <Label text="Rule Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                         <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                         <Label text="Rule Type" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                        <ComboBox fx:id="typeComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="3"
-                                                  GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="typeComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                                        <Label text="Activation" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <ComboBox fx:id="activationModeComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="1"
-                                                  GridPane.rowIndex="1" />
-                                        <Label text="Phase" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                        <ComboBox fx:id="phaseComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="3"
-                                                  GridPane.rowIndex="1" />
+                                        <Label text="Phase" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="phaseComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Attack Type" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="attackTypeComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                                        <Label text="Attack Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                        <ComboBox fx:id="attackTypeComboBox"
-                                                  maxWidth="1.7976931348623157E308"
+                                        <CheckBox fx:id="optionalActivationCheckBox"
+                                                  styleClass="game-checkbox"
+                                                  text="Optional Activation In Auto Battle"
                                                   GridPane.columnIndex="1"
                                                   GridPane.rowIndex="2" />
                                         <CheckBox fx:id="enabledCheckBox"
@@ -143,7 +131,7 @@
                             </children>
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="game-side-panel">
+                        <VBox fx:id="matchCard" spacing="12.0" styleClass="game-side-panel">
                             <padding>
                                 <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
                             </padding>
@@ -166,46 +154,49 @@
                                         <Label text="Defender Name Contains" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                         <TextField fx:id="defenderUnitNameField" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                                        <Label text="Attacker Required Keyword" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <TextField fx:id="attackerKeywordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <Label text="Defender Required Keyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                        <TextField fx:id="defenderKeywordField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <Label text="Weapon Name Contains" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField fx:id="weaponNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Attacker Keyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <TextField fx:id="attackerKeywordField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                                        <Label text="Attacker Skill Contains" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                        <TextField fx:id="attackerAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                        <Label text="Defender Skill Contains" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                        <TextField fx:id="defenderAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <Label text="Defender Keyword" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField fx:id="defenderKeywordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Attacker Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                        <TextField fx:id="attackerAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-                                        <Label text="Attacker Faction Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                        <TextField fx:id="attackerFactionAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                        <Label text="Defender Faction Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                        <TextField fx:id="defenderFactionAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <Label text="Defender Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField fx:id="defenderAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Attacker Faction Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                        <TextField fx:id="attackerFactionAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
-                                        <Label text="Attacker Detachment Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                        <TextField fx:id="attackerDetachmentAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                        <Label text="Defender Detachment Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                        <TextField fx:id="defenderDetachmentAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <Label text="Defender Faction Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField fx:id="defenderFactionAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Attacker Detachment Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                        <TextField fx:id="attackerDetachmentAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="4" />
 
-                                        <Label text="Attacker Faction Contains" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                        <TextField fx:id="attackerFactionField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                        <Label text="Defender Faction Contains" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                        <TextField fx:id="defenderFactionField" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                        <Label text="Defender Detachment Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField fx:id="defenderDetachmentAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Label text="Attacker Faction Contains" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                        <TextField fx:id="attackerFactionField" GridPane.columnIndex="3" GridPane.rowIndex="5" />
 
-                                        <Label text="Attacker Detachment Contains" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                                        <TextField fx:id="attackerDetachmentField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                                        <Label text="Defender Detachment Contains" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                                        <TextField fx:id="defenderDetachmentField" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                                        <Label text="Defender Faction Contains" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <TextField fx:id="defenderFactionField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                        <Label text="Attacker Detachment Contains" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                        <TextField fx:id="attackerDetachmentField" GridPane.columnIndex="3" GridPane.rowIndex="6" />
 
-                                        <Label text="Attacker Enhancement Contains" GridPane.columnIndex="0" GridPane.rowIndex="7" />
-                                        <TextField fx:id="attackerEnhancementField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                        <Label text="Defender Enhancement Contains" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-                                        <TextField fx:id="defenderEnhancementField" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                                        <Label text="Defender Detachment Contains" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                        <TextField fx:id="defenderDetachmentField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                        <Label text="Attacker Enhancement Contains" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                        <TextField fx:id="attackerEnhancementField" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+
+                                        <Label text="Defender Enhancement Contains" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                        <TextField fx:id="defenderEnhancementField" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                                     </children>
                                 </GridPane>
                             </children>
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="game-side-panel">
+                        <VBox fx:id="stratagemCard" spacing="12.0" styleClass="game-side-panel">
                             <padding>
                                 <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
                             </padding>
@@ -226,56 +217,103 @@
                                         <Label text="Triggering Stratagem Contains" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                         <TextField fx:id="triggeringStratagemField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                         <Label text="Affected Unit Role" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                        <ComboBox fx:id="targetRoleComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="3"
-                                                  GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="targetRoleComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                                         <Label text="Bonus Duration" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <ComboBox fx:id="durationComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="1"
-                                                  GridPane.rowIndex="1" />
-                                        <Label text="Leave stratagem empty to make this a passive auto-applied rule."
+                                        <ComboBox fx:id="durationComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Leave the stratagem field empty to make this rule available as a passive or optional auto battle VM rule."
                                                wrapText="true"
                                                GridPane.columnIndex="2"
                                                GridPane.columnSpan="2"
                                                GridPane.rowIndex="1" />
+                                        <Label text="Enable Optional Activation if this rule should appear as a selectable ability during auto battle for matching units and weapons."
+                                               wrapText="true"
+                                               GridPane.columnIndex="0"
+                                               GridPane.columnSpan="4"
+                                               GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
                             </children>
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="game-side-panel">
+                        <VBox fx:id="visualLogicCard" spacing="12.0" styleClass="game-side-panel">
                             <padding>
                                 <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
                             </padding>
                             <children>
-                                <Label text="Conditions">
+                                <Label text="Visual VM Logic">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
-                                <HBox spacing="22.0" fillHeight="true">
+                                <Label text="Select the conditions that must all be true before this rule applies." wrapText="true" />
+                                <GridPane hgap="16.0" vgap="8.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="33.3" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="33.3" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="33.4" hgrow="ALWAYS" />
+                                    </columnConstraints>
                                     <children>
-                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <CheckBox fx:id="requireHalfRangeCheckBox" styleClass="game-checkbox" text="Require Within Half Range" />
-                                                <CheckBox fx:id="requireStationaryCheckBox" styleClass="game-checkbox" text="Require Remained Stationary" />
-                                                <CheckBox fx:id="requireChargedCheckBox" styleClass="game-checkbox" text="Require Charged This Turn" />
-                                                <CheckBox fx:id="requireTargetCoverCheckBox" styleClass="game-checkbox" text="Require Target Has Cover" />
-                                            </children>
-                                        </VBox>
-                                        <Separator orientation="VERTICAL" />
-                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <CheckBox fx:id="requireInfantryCheckBox" styleClass="game-checkbox" text="Require Target Infantry" />
-                                                <CheckBox fx:id="requireVehicleCheckBox" styleClass="game-checkbox" text="Require Target Vehicle" />
-                                                <CheckBox fx:id="requireMonsterCheckBox" styleClass="game-checkbox" text="Require Target Monster" />
-                                                <CheckBox fx:id="requireCharacterCheckBox" styleClass="game-checkbox" text="Require Target Character" />
-                                                <CheckBox fx:id="requirePsykerCheckBox" styleClass="game-checkbox" text="Require Target Psyker" />
-                                            </children>
-                                        </VBox>
+                                        <CheckBox fx:id="visualWithinHalfRangeCheckBox" styleClass="game-checkbox" text="Within Half Range" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <CheckBox fx:id="visualRemainedStationaryCheckBox" styleClass="game-checkbox" text="Remained Stationary" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <CheckBox fx:id="visualAdvancedThisTurnCheckBox" styleClass="game-checkbox" text="Advanced This Turn" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                                        <CheckBox fx:id="visualFellBackThisTurnCheckBox" styleClass="game-checkbox" text="Fell Back This Turn" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <CheckBox fx:id="visualChargedThisTurnCheckBox" styleClass="game-checkbox" text="Charged This Turn" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <CheckBox fx:id="visualAttackerCanFightCheckBox" styleClass="game-checkbox" text="Attacker Can Fight" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                                        <CheckBox fx:id="visualTargetHasCoverCheckBox" styleClass="game-checkbox" text="Target Has Cover" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <CheckBox fx:id="visualBlastIsLegalCheckBox" styleClass="game-checkbox" text="Blast Is Legal" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <CheckBox fx:id="visualTargetInfantryCheckBox" styleClass="game-checkbox" text="Target Is Infantry" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                                        <CheckBox fx:id="visualTargetVehicleCheckBox" styleClass="game-checkbox" text="Target Is Vehicle" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <CheckBox fx:id="visualTargetMonsterCheckBox" styleClass="game-checkbox" text="Target Is Monster" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <CheckBox fx:id="visualTargetCharacterCheckBox" styleClass="game-checkbox" text="Target Is Character" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                                        <CheckBox fx:id="visualTargetPsykerCheckBox" styleClass="game-checkbox" text="Target Is Psyker" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    </children>
+                                </GridPane>
+
+                                <Label text="Choose the values this rule writes into the VM outputs." wrapText="true" />
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="16.0" />
+                                        <ColumnConstraints percentWidth="17.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="16.0" />
+                                        <ColumnConstraints percentWidth="17.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="16.0" />
+                                        <ColumnConstraints percentWidth="18.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Hit Mod" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Spinner fx:id="visualHitModifierSpinner" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Wound Mod" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <Spinner fx:id="visualWoundModifierSpinner" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <Label text="Attacks Mod" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+                                        <Spinner fx:id="visualAttacksModifierSpinner" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+
+                                        <Label text="Damage Mod" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Spinner fx:id="visualDamageModifierSpinner" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="AP Mod" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <Spinner fx:id="visualApModifierSpinner" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <Label text="Hit Reroll" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="visualHitRerollComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+
+                                        <Label text="Wound Reroll" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ComboBox fx:id="visualWoundRerollComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Weapon Keywords" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                        <TextField fx:id="visualKeywordsField" promptText="Example: ASSAULT, LANCE" GridPane.columnIndex="3" GridPane.columnSpan="3" GridPane.rowIndex="2" />
+                                    </children>
+                                </GridPane>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                    <children>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="resetLogicButton"
+                                                mnemonicParsing="false"
+                                                onAction="#resetVisualLogic"
+                                                styleClass="wh-btn"
+                                                text="Reset Visual Logic" />
                                     </children>
                                 </HBox>
                             </children>
@@ -286,62 +324,16 @@
                                 <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
                             </padding>
                             <children>
-                                <Label text="Effects Applied To The Attack">
+                                <Label text="Generated VM Script">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
-                                <GridPane hgap="12.0" vgap="10.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="20.0" />
-                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
-                                        <ColumnConstraints percentWidth="20.0" />
-                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label text="Hit Modifier" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                        <TextField fx:id="hitModifierField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                        <Label text="Wound Modifier" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                        <TextField fx:id="woundModifierField" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-
-                                        <Label text="Attacks Modifier" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <TextField fx:id="attacksModifierField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <Label text="Damage Modifier" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                        <TextField fx:id="damageModifierField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-
-                                        <Label text="AP Modifier" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                        <TextField fx:id="apModifierField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                        <Label text="Extra Weapon Keywords" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                        <TextField fx:id="extraKeywordsField" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-
-                                        <Label text="Hit Re-roll" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                        <ComboBox fx:id="hitRerollComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="1"
-                                                  GridPane.rowIndex="3" />
-                                        <Label text="Wound Re-roll" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                        <ComboBox fx:id="woundRerollComboBox"
-                                                  maxWidth="1.7976931348623157E308"
-                                                  GridPane.columnIndex="3"
-                                                  GridPane.rowIndex="3" />
-                                    </children>
-                                </GridPane>
-                            </children>
-                        </VBox>
-
-                        <VBox spacing="12.0" styleClass="game-side-panel">
-                            <padding>
-                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
-                            </padding>
-                            <children>
-                                <Label text="Notes">
-                                    <font>
-                                        <Font name="System Bold" size="18.0" />
-                                    </font>
-                                </Label>
-                                <TextArea fx:id="notesTextArea"
-                                          prefHeight="140.0"
-                                          wrapText="true"
+                                <Label fx:id="scriptHelpLabel" wrapText="true" />
+                                <TextArea fx:id="scriptTextArea"
+                                          prefHeight="320.0"
+                                          style="-fx-font-family: 'Consolas'; -fx-font-size: 13px;"
+                                          wrapText="false"
                                           VBox.vgrow="ALWAYS" />
                             </children>
                         </VBox>

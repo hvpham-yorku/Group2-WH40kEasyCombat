@@ -9,7 +9,9 @@ import eecs2311.group2.wh40k_easycombat.model.combat.FightPhaseState;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamage;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamageStepResult;
 import eecs2311.group2.wh40k_easycombat.model.combat.ResolvedAttack;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorActiveEffect;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
 import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
@@ -22,6 +24,8 @@ import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleService;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.FightPhaseOrderService;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.FightStep;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.PendingDamageSession;
+import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
+import eecs2311.group2.wh40k_easycombat.service.editor.EditorRuleApplicationService;
 import eecs2311.group2.wh40k_easycombat.service.game.*;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
 import javafx.collections.FXCollections;
@@ -29,10 +33,16 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AutoBattleController {
@@ -52,6 +62,8 @@ public class AutoBattleController {
 
     // ======================= Layout Boxes =======================
     @FXML private VBox shootingRulesBox, fightRulesBox, blueFightBox, redFightBox;
+    @FXML private FlowPane blueOptionalRulesPane, redOptionalRulesPane;
+    @FXML private Label blueOptionalRulesHintLabel, redOptionalRulesHintLabel;
 
     // ======================= CheckBoxes =======================
     @FXML private CheckBox withinHalfRangeCheckBox, remainedStationaryCheckBox, targetHasCoverCheckBox, blastLegalCheckBox;
@@ -65,7 +77,10 @@ public class AutoBattleController {
     private final ObservableList<GameArmyUnitVM> blueUnits = FXCollections.observableArrayList();
     private final ObservableList<GameArmyUnitVM> redUnits = FXCollections.observableArrayList();
     private final AutoBattleService autoBattleService = new AutoBattleService();
+    private final EditorRuleApplicationService editorRuleApplicationService = new EditorRuleApplicationService();
+    private final EditorEffectRuntimeService editorEffectRuntimeService = EditorEffectRuntimeService.getInstance();
     private final BattleLogService battleLogService = BattleLogService.getInstance();
+    private final Map<Player, Set<String>> pendingOptionalSelections = new EnumMap<>(Player.class);
     private AutoBattleMode battleMode = AutoBattleMode.SHOOTING;
     private int currentRound = 1;
     private Phase currentPhase = Phase.COMMAND;
@@ -74,9 +89,14 @@ public class AutoBattleController {
     private Player lastFightPlayer;
     private PendingDamageSession currentPendingSession;
 
+    private record OptionalRuleView(EditorRuleDefinition rule, boolean active) {
+    }
+
     // When this page loads, initialize all lists, controls and default log states for auto battle.
     @FXML
     private void initialize() {
+        pendingOptionalSelections.put(Player.ATTACKER, new LinkedHashSet<>());
+        pendingOptionalSelections.put(Player.DEFENDER, new LinkedHashSet<>());
         blueUnitList.setItems(blueUnits);
         redUnitList.setItems(redUnits);
         blueUnitList.setCellFactory(v -> new GameArmyUnitCell(() -> handleArmyStateChanged(Player.ATTACKER)));
@@ -88,8 +108,14 @@ public class AutoBattleController {
         redBearerCountSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 99, 1));
         blueUnitList.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> onUnitSelected(Player.ATTACKER, b));
         redUnitList.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> onUnitSelected(Player.DEFENDER, b));
-        blueWeaponCombo.valueProperty().addListener((o, a, b) -> syncSpinnerToWeapon(blueBearerCountSpinner, b));
-        redWeaponCombo.valueProperty().addListener((o, a, b) -> syncSpinnerToWeapon(redBearerCountSpinner, b));
+        blueWeaponCombo.valueProperty().addListener((o, a, b) -> {
+            syncSpinnerToWeapon(blueBearerCountSpinner, b);
+            refreshOptionalRulePane(Player.ATTACKER);
+        });
+        redWeaponCombo.valueProperty().addListener((o, a, b) -> {
+            syncSpinnerToWeapon(redBearerCountSpinner, b);
+            refreshOptionalRulePane(Player.DEFENDER);
+        });
         blueEligibleFightCheckBox.selectedProperty().addListener((o, a, b) -> updateSelectedFightState(Player.ATTACKER));
         redEligibleFightCheckBox.selectedProperty().addListener((o, a, b) -> updateSelectedFightState(Player.DEFENDER));
         blueChargedCheckBox.selectedProperty().addListener((o, a, b) -> updateSelectedFightState(Player.ATTACKER));
@@ -105,6 +131,8 @@ public class AutoBattleController {
         activeTurnPlayer = activePlayer == null ? Player.ATTACKER : activePlayer;
         lastFightPlayer = null;
         currentPendingSession = null;
+        pendingOptionalSelections.get(Player.ATTACKER).clear();
+        pendingOptionalSelections.get(Player.DEFENDER).clear();
         fightPhaseState = FightPhaseState.complete("No units are currently marked eligible to fight.");
         blueFactionLabel.setText(blank(blueName, "Attacker Army"));
         redFactionLabel.setText(blank(redName, "Defender Army"));
@@ -166,13 +194,36 @@ public class AutoBattleController {
         if (defenderVm == null) { DialogHelper.showWarning("No Target Selected", "Please select a target unit first."); return; }
         if (selectedWeapon == null) { DialogHelper.showWarning("No Weapon Selected", "Please select one weapon first."); return; }
         refreshFightState();
+
+        List<EditorRuleDefinition> selectedOptionalRules = selectedOptionalRulesForAttack(
+                attackerSide,
+                attackerVm.getUnit(),
+                defenderVm.getUnit(),
+                selectedWeapon
+        );
+        List<EditorActiveEffect> activatedOptionalRules = editorEffectRuntimeService.activateOptionalRulesForAttack(
+                selectedOptionalRules,
+                attackerVm.getUnit(),
+                defenderVm.getUnit(),
+                attackerSide,
+                activeTurnPlayer,
+                currentPhase,
+                currentRound
+        );
+
         AutoBattleResolution resolution = autoBattleService.resolve(
                 battleMode, activeTurnPlayer, attackerSide, attackerVm.getUnit(), defenderVm.getUnit(), selectedWeapon,
                 buildContext(attackerSide, bearerCount == null ? 0 : bearerCount), fightPhaseState
         );
-        if (!resolution.resolved()) { DialogHelper.showWarning("Attack Not Resolved", resolution.failureMessage()); return; }
+        if (!resolution.resolved()) {
+            editorEffectRuntimeService.deactivateEffects(activatedOptionalRules);
+            DialogHelper.showWarning("Attack Not Resolved", resolution.failureMessage());
+            return;
+        }
         if (battleMode == AutoBattleMode.FIGHT) lastFightPlayer = attackerSide;
         currentPendingSession = resolution.allocationSession() != null && resolution.allocationSession().hasPendingDamage() ? resolution.allocationSession() : null;
+        clearAppliedOptionalSelections(attackerSide, activatedOptionalRules);
+        logOptionalRuleActivations(attackerSide, attackerVm.getUnitName(), activatedOptionalRules);
         logResolution(attackerSide, attackerVm.getUnitName(), defenderVm.getUnitName(), resolution);
         refreshUi();
     }
@@ -185,6 +236,8 @@ public class AutoBattleController {
             loadWeapons(selectedVm, redWeaponCombo, redBearerCountSpinner, redWeaponHintLabel, redExtraAttackLabel);
             loadFightFlags(selectedVm, redEligibleFightCheckBox, redChargedCheckBox);
         }
+        refreshOptionalRulePane(Player.ATTACKER);
+        refreshOptionalRulePane(Player.DEFENDER);
     }
 
     private void refreshUi() {
@@ -196,6 +249,8 @@ public class AutoBattleController {
         updatePendingDamageUi();
         loadWeapons(blueUnitList.getSelectionModel().getSelectedItem(), blueWeaponCombo, blueBearerCountSpinner, blueWeaponHintLabel, blueExtraAttackLabel);
         loadWeapons(redUnitList.getSelectionModel().getSelectedItem(), redWeaponCombo, redBearerCountSpinner, redWeaponHintLabel, redExtraAttackLabel);
+        refreshOptionalRulePane(Player.ATTACKER);
+        refreshOptionalRulePane(Player.DEFENDER);
         blueUnitList.refresh();
         redUnitList.refresh();
     }
@@ -269,6 +324,140 @@ public class AutoBattleController {
                         + " | Select one living model below, then click Apply Pending Damage."
         );
         applyPendingDamageButton.setDisable(aliveModels.isEmpty());
+    }
+
+    private void refreshOptionalRulePane(Player side) {
+        FlowPane pane = side == Player.ATTACKER ? blueOptionalRulesPane : redOptionalRulesPane;
+        Label hintLabel = side == Player.ATTACKER ? blueOptionalRulesHintLabel : redOptionalRulesHintLabel;
+        pane.getChildren().clear();
+
+        GameArmyUnitVM attackerVm = side == Player.ATTACKER
+                ? blueUnitList.getSelectionModel().getSelectedItem()
+                : redUnitList.getSelectionModel().getSelectedItem();
+        GameArmyUnitVM defenderVm = side == Player.ATTACKER
+                ? redUnitList.getSelectionModel().getSelectedItem()
+                : blueUnitList.getSelectionModel().getSelectedItem();
+        WeaponProfile weapon = side == Player.ATTACKER ? blueWeaponCombo.getValue() : redWeaponCombo.getValue();
+
+        if (attackerVm == null || defenderVm == null || weapon == null) {
+            hintLabel.setText("Select a unit, weapon and target to see optional VM rules for this attack.");
+            pendingOptionalSelections.get(side).clear();
+            return;
+        }
+
+        List<OptionalRuleView> optionalRules = optionalRuleViewsForAttack(side, attackerVm.getUnit(), defenderVm.getUnit(), weapon);
+        if (optionalRules.isEmpty()) {
+            hintLabel.setText("No optional VM rules match the currently selected attack.");
+            pendingOptionalSelections.get(side).clear();
+            return;
+        }
+
+        Set<String> selectedIds = pendingOptionalSelections.get(side);
+        Set<String> allowedIds = optionalRules.stream()
+                .map(view -> view.rule().getId())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        selectedIds.retainAll(allowedIds);
+
+        for (OptionalRuleView view : optionalRules) {
+            CheckBox checkBox = new CheckBox(optionalRuleLabel(view));
+            checkBox.setWrapText(true);
+            checkBox.getStyleClass().add("game-checkbox");
+            checkBox.setDisable(view.active());
+            checkBox.setSelected(view.active() || selectedIds.contains(view.rule().getId()));
+            checkBox.selectedProperty().addListener((obs, oldValue, newValue) -> updateOptionalSelection(side, view.rule().getId(), newValue, view.active()));
+            pane.getChildren().add(checkBox);
+        }
+
+        hintLabel.setText("Select any optional rules you want to activate before resolving this attack. Active rules stay on the unit until their duration expires.");
+    }
+
+    private List<OptionalRuleView> optionalRuleViewsForAttack(
+            Player side,
+            UnitInstance attacker,
+            UnitInstance defender,
+            WeaponProfile weapon
+    ) {
+        List<OptionalRuleView> views = new ArrayList<>();
+        for (EditorRuleDefinition rule : editorRuleApplicationService.matchingOptionalRules(battleMode, attacker, defender, weapon)) {
+            boolean active = editorEffectRuntimeService.isRuleActiveForAttack(rule, attacker, defender);
+            views.add(new OptionalRuleView(rule, active));
+        }
+        return views;
+    }
+
+    private List<EditorRuleDefinition> selectedOptionalRulesForAttack(
+            Player side,
+            UnitInstance attacker,
+            UnitInstance defender,
+            WeaponProfile weapon
+    ) {
+        Set<String> selectedIds = pendingOptionalSelections.get(side);
+        if (selectedIds == null || selectedIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<EditorRuleDefinition> selectedRules = new ArrayList<>();
+        for (OptionalRuleView view : optionalRuleViewsForAttack(side, attacker, defender, weapon)) {
+            if (!view.active() && selectedIds.contains(view.rule().getId())) {
+                selectedRules.add(view.rule());
+            }
+        }
+        return List.copyOf(selectedRules);
+    }
+
+    private void updateOptionalSelection(Player side, String ruleId, boolean selected, boolean alreadyActive) {
+        if (alreadyActive || ruleId == null || ruleId.isBlank()) {
+            return;
+        }
+
+        Set<String> selections = pendingOptionalSelections.get(side);
+        if (selected) {
+            selections.add(ruleId);
+        } else {
+            selections.remove(ruleId);
+        }
+    }
+
+    private void clearAppliedOptionalSelections(Player side, List<EditorActiveEffect> activatedEffects) {
+        if (activatedEffects == null || activatedEffects.isEmpty()) {
+            return;
+        }
+
+        Set<String> selections = pendingOptionalSelections.get(side);
+        for (EditorActiveEffect effect : activatedEffects) {
+            if (effect != null) {
+                selections.remove(effect.ruleId());
+            }
+        }
+    }
+
+    private void logOptionalRuleActivations(Player side, String attackerUnitName, List<EditorActiveEffect> activatedEffects) {
+        if (activatedEffects == null || activatedEffects.isEmpty()) {
+            return;
+        }
+
+        String labels = activatedEffects.stream()
+                .map(EditorActiveEffect::displayName)
+                .collect(Collectors.joining(", "));
+        battleResultBox.appendText("Optional VM rules activated: " + labels + "\n\n");
+        battleLogService.logTurnEvent(
+                currentRound,
+                currentPhase,
+                side,
+                label(side) + " activated optional VM rules for " + attackerUnitName + ": " + labels + "."
+        );
+    }
+
+    private String optionalRuleLabel(OptionalRuleView view) {
+        StringBuilder label = new StringBuilder(blank(view.rule().getName(), "Custom Rule"));
+        String weaponFilter = blank(view.rule().getWeaponNameContains(), "");
+        if (!weaponFilter.isBlank()) {
+            label.append(" | weapon: ").append(weaponFilter);
+        }
+        if (view.active()) {
+            label.append(" (Active)");
+        }
+        return label.toString();
     }
 
     private void loadWeapons(GameArmyUnitVM vm, ComboBox<WeaponProfile> comboBox, Spinner<Integer> spinner, Label hintLabel, Label extraAttackLabel) {

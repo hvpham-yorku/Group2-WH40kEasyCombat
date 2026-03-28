@@ -1,16 +1,21 @@
 package eecs2311.group2.wh40k_easycombat.service.editor;
 
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
-import eecs2311.group2.wh40k_easycombat.repository.EditorRuleRepository;
+import eecs2311.group2.wh40k_easycombat.service.vm.RuleCompiler;
+import eecs2311.group2.wh40k_easycombat.service.vm.VMService;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RuleEditorService {
-    private static final RuleEditorService INSTANCE = new RuleEditorService(new EditorRuleRepository());
+    private static final String VM_RULE_PREFIX = "editor::";
+    private static final RuleEditorService INSTANCE = new RuleEditorService(new EditorRuleFileStore());
 
-    private final EditorRuleRepository repository;
+    private final RuleCompiler compiler = new RuleCompiler();
+    private final EditorRuleFileStore fileStore;
     private final List<EditorRuleDefinition> rules;
     private boolean autoApplyEnabled = true;
 
@@ -18,8 +23,8 @@ public class RuleEditorService {
         return INSTANCE;
     }
 
-    public RuleEditorService(EditorRuleRepository repository) {
-        this.repository = repository;
+    public RuleEditorService(EditorRuleFileStore fileStore) {
+        this.fileStore = fileStore;
         this.rules = new ArrayList<>();
         reload();
     }
@@ -33,14 +38,17 @@ public class RuleEditorService {
 
     public synchronized void reload() {
         rules.clear();
-        List<EditorRuleDefinition> loaded = repository.loadAll();
+        List<EditorRuleDefinition> loaded = fileStore.loadAll();
         if (loaded != null) {
             for (EditorRuleDefinition rule : loaded) {
                 if (rule != null) {
-                    rules.add(rule.copy());
+                    EditorRuleDefinition validated = rule.copy();
+                    validateRule(validated);
+                    rules.add(validated);
                 }
             }
         }
+        syncVmRules();
     }
 
     public synchronized EditorRuleDefinition saveRule(EditorRuleDefinition incoming) {
@@ -49,8 +57,9 @@ public class RuleEditorService {
         }
 
         EditorRuleDefinition saved = incoming.copy();
-        boolean replaced = false;
+        validateRule(saved);
 
+        boolean replaced = false;
         for (int i = 0; i < rules.size(); i++) {
             if (rules.get(i).getId().equals(saved.getId())) {
                 rules.set(i, saved);
@@ -63,7 +72,8 @@ public class RuleEditorService {
             rules.add(saved);
         }
 
-        persist();
+        fileStore.save(saved);
+        loadIntoVm(saved);
         return saved.copy();
     }
 
@@ -72,9 +82,20 @@ public class RuleEditorService {
             return false;
         }
 
+        EditorRuleDefinition removedRule = null;
+        for (EditorRuleDefinition rule : rules) {
+            if (ruleId.equals(rule.getId())) {
+                removedRule = rule;
+                break;
+            }
+        }
+
         boolean removed = rules.removeIf(rule -> ruleId.equals(rule.getId()));
         if (removed) {
-            persist();
+            fileStore.delete(ruleId);
+            if (removedRule != null) {
+                VMService.removeLoadedRule(removedRule.vmRuleName());
+            }
         }
         return removed;
     }
@@ -87,8 +108,39 @@ public class RuleEditorService {
         this.autoApplyEnabled = autoApplyEnabled;
     }
 
-    private void persist() {
-        repository.saveAll(rules.stream().map(EditorRuleDefinition::copy).toList());
+    private void validateRule(EditorRuleDefinition rule) {
+        String name = safe(rule == null ? "" : rule.getName());
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Rule name must not be blank.");
+        }
+
+        String script = rule == null ? "" : rule.getDslScript();
+        if (safe(script).isBlank()) {
+            throw new IllegalArgumentException("VM script must not be blank.");
+        }
+
+        try {
+            compiler.compile(rule.vmRuleName(), script);
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException("VM script is invalid: " + ex.getMessage(), ex);
+        }
+    }
+
+    private void syncVmRules() {
+        Set<String> loadedNames = new HashSet<>(VMService.getLoadedRules());
+        for (String loadedName : loadedNames) {
+            if (loadedName != null && loadedName.startsWith(VM_RULE_PREFIX)) {
+                VMService.removeLoadedRule(loadedName);
+            }
+        }
+
+        for (EditorRuleDefinition rule : rules) {
+            loadIntoVm(rule);
+        }
+    }
+
+    private void loadIntoVm(EditorRuleDefinition rule) {
+        VMService.loadRule(rule.vmRuleName(), rule.getDslScript());
     }
 
     private static String safe(String value) {

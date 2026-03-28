@@ -11,13 +11,15 @@ public record EditorRuleModifiers(
         String extraWeaponKeywords,
         EditorRerollType hitReroll,
         EditorRerollType woundReroll,
-        List<String> appliedRuleNames
+        List<String> appliedRuleNames,
+        List<String> errorMessages
 ) {
     public EditorRuleModifiers {
         extraWeaponKeywords = extraWeaponKeywords == null ? "" : extraWeaponKeywords.trim();
         hitReroll = hitReroll == null ? EditorRerollType.NONE : hitReroll;
         woundReroll = woundReroll == null ? EditorRerollType.NONE : woundReroll;
         appliedRuleNames = appliedRuleNames == null ? List.of() : List.copyOf(appliedRuleNames);
+        errorMessages = errorMessages == null ? List.of() : List.copyOf(errorMessages);
     }
 
     public static EditorRuleModifiers none() {
@@ -30,6 +32,7 @@ public record EditorRuleModifiers(
                 "",
                 EditorRerollType.NONE,
                 EditorRerollType.NONE,
+                List.of(),
                 List.of()
         );
     }
