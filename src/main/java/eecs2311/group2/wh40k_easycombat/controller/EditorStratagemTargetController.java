@@ -15,15 +15,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EditorStratagemTargetController {
+    // ======================= Labels and Text =======================
     @FXML private Label titleLabel;
     @FXML private Label subtitleLabel;
     @FXML private TextArea rulesTextArea;
+
+    // ======================= Unit Selection =======================
     @FXML private ListView<GameArmyUnitVM> unitListView;
+
+    // ======================= Buttons =======================
     @FXML private Button applyButton;
     @FXML private Button cancelButton;
 
     private GameArmyUnitVM selectedUnit;
 
+    // When this page loads, initialize the target unit list and default button state.
     @FXML
     private void initialize() {
         unitListView.setCellFactory(list -> new ListCell<>() {
@@ -71,12 +77,14 @@ public class EditorStratagemTargetController {
         return selectedUnit;
     }
 
+    // When click "Apply" button, confirm the selected unit as the stratagem target.
     @FXML
     private void applySelection() {
         selectedUnit = unitListView.getSelectionModel().getSelectedItem();
         closeWindow();
     }
 
+    // When click "Cancel" button, close the target selector without applying a unit.
     @FXML
     private void cancel() {
         selectedUnit = null;

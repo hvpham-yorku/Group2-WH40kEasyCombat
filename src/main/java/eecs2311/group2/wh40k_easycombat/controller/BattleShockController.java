@@ -20,14 +20,19 @@ import javafx.stage.Stage;
 import java.util.List;
 
 public class BattleShockController {
+    // ======================= Labels =======================
     @FXML private Label headerLabel;
     @FXML private Label summaryLabel;
+
+    // ======================= Battle-shock Table =======================
     @FXML private TableView<BattleShockUnitVM> battleShockTable;
     @FXML private TableColumn<BattleShockUnitVM, String> unitColumn;
     @FXML private TableColumn<BattleShockUnitVM, String> strengthColumn;
     @FXML private TableColumn<BattleShockUnitVM, Number> leadershipColumn;
     @FXML private TableColumn<BattleShockUnitVM, String> rollColumn;
     @FXML private TableColumn<BattleShockUnitVM, Boolean> battleShockedColumn;
+
+    // ======================= Buttons =======================
     @FXML private Button rollSelectedButton;
     @FXML private Button rollAllButton;
     @FXML private Button closeButton;
@@ -36,6 +41,7 @@ public class BattleShockController {
     private final BattleShockService battleShockService = new BattleShockService();
     private Runnable onStateChanged;
 
+    // When this page loads, initialize the Battle-shock table and button state.
     @FXML
     private void initialize() {
         battleShockTable.setItems(rows);
@@ -78,6 +84,7 @@ public class BattleShockController {
         updateButtons();
     }
 
+    // When click "Roll Selected" button, roll one Battle-shock test for the selected unit.
     @FXML
     private void rollSelected(ActionEvent event) {
         BattleShockUnitVM selected = battleShockTable.getSelectionModel().getSelectedItem();
@@ -93,6 +100,7 @@ public class BattleShockController {
         applyTest(selected);
     }
 
+    // When click "Roll All" button, roll Battle-shock tests for all pending units.
     @FXML
     private void rollAll(ActionEvent event) {
         for (BattleShockUnitVM row : rows) {
@@ -102,6 +110,7 @@ public class BattleShockController {
         }
     }
 
+    // When click "Close" button, confirm whether to leave with pending Battle-shock tests.
     @FXML
     private void closeWindow(ActionEvent event) {
         if (hasPendingRows() && !DialogHelper.confirmYesNo(

@@ -29,10 +29,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class RuleEditorController {
+    // ======================= Rule List =======================
     @FXML private ListView<EditorRuleDefinition> rulesListView;
     @FXML private Label statusLabel;
     @FXML private Label helperLabel;
 
+    // ======================= Basic Rule Fields =======================
     @FXML private TextField nameField;
     @FXML private ComboBox<EditorRuleType> typeComboBox;
     @FXML private ComboBox<EditorRuleActivationMode> activationModeComboBox;
@@ -40,6 +42,7 @@ public class RuleEditorController {
     @FXML private ComboBox<EditorRuleAttackType> attackTypeComboBox;
     @FXML private CheckBox enabledCheckBox;
 
+    // ======================= Binding Fields =======================
     @FXML private TextField attackerUnitNameField;
     @FXML private TextField defenderUnitNameField;
     @FXML private TextField attackerKeywordField;
@@ -60,6 +63,7 @@ public class RuleEditorController {
     @FXML private ComboBox<EditorRuleDuration> durationComboBox;
     @FXML private ComboBox<EditorRuleTargetRole> targetRoleComboBox;
 
+    // ======================= Condition CheckBoxes =======================
     @FXML private CheckBox requireHalfRangeCheckBox;
     @FXML private CheckBox requireStationaryCheckBox;
     @FXML private CheckBox requireChargedCheckBox;
@@ -70,6 +74,7 @@ public class RuleEditorController {
     @FXML private CheckBox requireCharacterCheckBox;
     @FXML private CheckBox requirePsykerCheckBox;
 
+    // ======================= Effect Fields =======================
     @FXML private TextField hitModifierField;
     @FXML private TextField woundModifierField;
     @FXML private TextField attacksModifierField;
@@ -80,6 +85,7 @@ public class RuleEditorController {
     @FXML private ComboBox<EditorRerollType> woundRerollComboBox;
     @FXML private TextArea notesTextArea;
 
+    // ======================= Buttons =======================
     @FXML private Button newRuleButton;
     @FXML private Button saveRuleButton;
     @FXML private Button deleteRuleButton;
@@ -90,6 +96,7 @@ public class RuleEditorController {
 
     private String selectedRuleId;
 
+    // When this page loads, initialize all editor controls and load saved custom rules.
     @FXML
     private void initialize() {
         rulesListView.setItems(ruleItems);
@@ -129,11 +136,13 @@ public class RuleEditorController {
         }
     }
 
+    // When click "New Rule" button, clear the editor and prepare a fresh custom rule.
     @FXML
     private void newRule(ActionEvent event) {
         prepareNewRule();
     }
 
+    // When click "Save Rule" button, validate the input and save the current custom rule.
     @FXML
     private void saveRule(ActionEvent event) {
         String name = safe(nameField.getText());
@@ -198,6 +207,7 @@ public class RuleEditorController {
         statusLabel.setText("Saved custom rule: " + saved.getName());
     }
 
+    // When click "Delete Rule" button, delete the selected custom rule.
     @FXML
     private void deleteRule(ActionEvent event) {
         if (selectedRuleId == null || selectedRuleId.isBlank()) {
@@ -223,6 +233,7 @@ public class RuleEditorController {
         statusLabel.setText("Deleted custom rule.");
     }
 
+    // When click "Back" button, return to the datasheets page.
     @FXML
     private void back(ActionEvent event) throws IOException {
         FixedAspectView.switchResponsiveTo(
