@@ -105,42 +105,50 @@
                         </padding>
 
                         <children>
-                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <VBox spacing="10.0">
                                 <children>
-                                    <Label styleClass="army-card-title" text="Current Army">
-                                        <font>
-                                            <Font name="System Bold" size="18.0" />
-                                        </font>
-                                    </Label>
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                        <children>
+                                            <Label styleClass="army-card-title" text="Current Army">
+                                                <font>
+                                                    <Font name="System Bold" size="18.0" />
+                                                </font>
+                                            </Label>
 
-                                    <Region HBox.hgrow="ALWAYS" />
+                                            <Region HBox.hgrow="ALWAYS" />
 
-                                    <Label styleClass="army-section-title" text="Battle Size">
-                                        <font>
-                                            <Font size="16.0" />
-                                        </font>
-                                    </Label>
+                                            <Label styleClass="army-section-title" text="Battle Size">
+                                                <font>
+                                                    <Font size="16.0" />
+                                                </font>
+                                            </Label>
 
-                                    <ComboBox fx:id="sizeCBbox"
-                                              prefHeight="36.0"
-                                              prefWidth="140.0"
-                                              promptText="2000"
-                                              styleClass="ds-combo" />
+                                            <ComboBox fx:id="sizeCBbox"
+                                                      prefHeight="36.0"
+                                                      prefWidth="140.0"
+                                                      promptText="2000"
+                                                      styleClass="ds-combo" />
+                                        </children>
+                                    </HBox>
 
-                                    <Button fx:id="importButton"
-                                            mnemonicParsing="false"
-                                            onMouseClicked="#importData"
-                                            prefHeight="40.0"
-                                            prefWidth="150.0"
-                                            styleClass="wh-btn"
-                                            text="Import From Clipboard"
-                                            wrapText="true">
-                                        <font>
-                                            <Font size="13.0" />
-                                        </font>
-                                    </Button>
+                                    <HBox alignment="CENTER_RIGHT">
+                                        <children>
+                                            <Button fx:id="importButton"
+                                                    mnemonicParsing="false"
+                                                    onMouseClicked="#importData"
+                                                    prefHeight="40.0"
+                                                    prefWidth="190.0"
+                                                    styleClass="wh-btn"
+                                                    text="Import From WH40K App"
+                                                    wrapText="true">
+                                                <font>
+                                                    <Font size="13.0" />
+                                                </font>
+                                            </Button>
+                                        </children>
+                                    </HBox>
                                 </children>
-                            </HBox>
+                            </VBox>
 
                             <ListView fx:id="armyList"
                                       minHeight="0.0"

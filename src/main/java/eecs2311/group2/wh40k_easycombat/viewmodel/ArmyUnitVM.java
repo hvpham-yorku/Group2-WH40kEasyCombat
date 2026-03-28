@@ -180,7 +180,7 @@ public class ArmyUnitVM {
     public void setWargearCount(int wargearId, int count) {
         for (WargearEntry wg : wargears) {
             if (wg.getAutoId() == wargearId) {
-                wg.setCount(Math.min(Math.max(0, count), modelCount.get()));
+                wg.setCount(Math.max(0, count));
                 return;
             }
         }

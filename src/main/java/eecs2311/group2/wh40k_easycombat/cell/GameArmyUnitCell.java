@@ -2,6 +2,7 @@ package eecs2311.group2.wh40k_easycombat.cell;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.BattleLogService;
 import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.GameArmyUnitVM;
@@ -20,6 +21,7 @@ import javafx.scene.layout.VBox;
 
 public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
     private final EditorEffectRuntimeService effectRuntimeService = EditorEffectRuntimeService.getInstance();
+    private final BattleLogService battleLogService = BattleLogService.getInstance();
 
     private final Runnable onStateChanged;
 
@@ -90,6 +92,12 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         battleShockBox.setDisable(item.isDestroyed());
         battleShockBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
             item.getUnit().setBattleShocked(newValue);
+            if (oldValue != newValue) {
+                battleLogService.log("Manual status change: "
+                        + item.getUnitName()
+                        + " is now "
+                        + (newValue ? "Battle-shocked." : "not Battle-shocked."));
+            }
             if (onStateChanged != null) {
                 onStateChanged.run();
             }
@@ -205,6 +213,7 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
     }
 
     private void syncHpField(UnitModelInstance sub, TextField hpField) {
+        int beforeHp = sub.getCurrentHp();
         try {
             sub.setCurrentHp(Integer.parseInt(hpField.getText().trim()));
         } catch (Exception ignored) {
@@ -216,6 +225,18 @@ public class GameArmyUnitCell extends ListCell<GameArmyUnitVM> {
         }
 
         hpField.setText(String.valueOf(sub.getCurrentHp()));
+
+        if (currentItem != null && beforeHp != sub.getCurrentHp()) {
+            battleLogService.log("Manual model update: "
+                    + currentItem.getUnitName()
+                    + " -> "
+                    + sub.getModelName()
+                    + " HP "
+                    + beforeHp
+                    + " -> "
+                    + sub.getCurrentHp()
+                    + ".");
+        }
 
         if (onStateChanged != null) {
             onStateChanged.run();

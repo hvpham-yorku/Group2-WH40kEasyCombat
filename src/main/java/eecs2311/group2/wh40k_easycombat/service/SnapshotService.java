@@ -65,6 +65,13 @@ public class SnapshotService {
             .collect(Collectors.toList());
     }
 
+    public List<LogSnapshot> getLogSnapshots() {
+        return history.stream()
+                .filter(s -> s instanceof LogSnapshot)
+                .map(s -> (LogSnapshot) s)
+                .collect(Collectors.toList());
+    }
+
     public Optional<BattleState> peekLatestState() {
         for (int i = history.size() - 1; i >= 0; i--) {
             if (history.get(i) instanceof StateSnapshot ss) {
