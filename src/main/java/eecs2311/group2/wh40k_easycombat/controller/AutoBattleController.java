@@ -35,16 +35,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AutoBattleController {
+    // ======================= Labels =======================
     @FXML private Label blueFactionLabel, redFactionLabel, battleModeLabel, phaseStatusLabel, fightStepLabel;
+
+    // ======================= Lists =======================
     @FXML private ListView<GameArmyUnitVM> blueUnitList, redUnitList;
     @FXML private ListView<UnitModelInstance> allocationModelList;
+
+    // ======================= Weapon Selectors =======================
     @FXML private ComboBox<WeaponProfile> blueWeaponCombo, redWeaponCombo;
     @FXML private Spinner<Integer> blueBearerCountSpinner, redBearerCountSpinner;
+
+    // ======================= Helper Labels =======================
     @FXML private Label blueWeaponHintLabel, redWeaponHintLabel, blueExtraAttackLabel, redExtraAttackLabel, pendingDamageStatusLabel;
+
+    // ======================= Layout Boxes =======================
     @FXML private VBox shootingRulesBox, fightRulesBox, blueFightBox, redFightBox;
+
+    // ======================= CheckBoxes =======================
     @FXML private CheckBox withinHalfRangeCheckBox, remainedStationaryCheckBox, targetHasCoverCheckBox, blastLegalCheckBox;
     @FXML private CheckBox blueEligibleFightCheckBox, redEligibleFightCheckBox, blueChargedCheckBox, redChargedCheckBox;
     @FXML private CheckBox targetInfantryCheckBox, targetVehicleCheckBox, targetMonsterCheckBox, targetCharacterCheckBox, targetPsykerCheckBox;
+
+    // ======================= Buttons and Logs =======================
     @FXML private Button blueAttackButton, redAttackButton, applyPendingDamageButton, closeButton;
     @FXML private TextArea battleResultBox, rollLogBox;
 
@@ -58,6 +71,7 @@ public class AutoBattleController {
     private Player lastFightPlayer;
     private PendingDamageSession currentPendingSession;
 
+    // When this page loads, initialize all lists, controls and default log states for auto battle.
     @FXML
     private void initialize() {
         blueUnitList.setItems(blueUnits);
@@ -88,8 +102,8 @@ public class AutoBattleController {
         lastFightPlayer = null;
         currentPendingSession = null;
         fightPhaseState = FightPhaseState.complete("No units are currently marked eligible to fight.");
-        blueFactionLabel.setText(blank(blueName, "Blue Army"));
-        redFactionLabel.setText(blank(redName, "Red Army"));
+        blueFactionLabel.setText(blank(blueName, "Attacker Army"));
+        redFactionLabel.setText(blank(redName, "Defender Army"));
         blueUnits.setAll(blueArmyUnits == null ? List.of() : blueArmyUnits);
         redUnits.setAll(redArmyUnits == null ? List.of() : redArmyUnits);
         ArmyListStateService.refreshArmyOrdering(blueUnits);
@@ -101,9 +115,13 @@ public class AutoBattleController {
         refreshUi();
     }
 
+    // When click "Attacker Attacks Defender" button, resolve one automatic attack from the attacker side.
     @FXML private void blueAttackRed(ActionEvent event) { resolveAttack(Player.ATTACKER, blueUnitList.getSelectionModel().getSelectedItem(), blueWeaponCombo.getValue(), blueBearerCountSpinner.getValue(), redUnitList.getSelectionModel().getSelectedItem()); }
+
+    // When click "Defender Attacks Attacker" button, resolve one automatic attack from the defender side.
     @FXML private void redAttackBlue(ActionEvent event) { resolveAttack(Player.DEFENDER, redUnitList.getSelectionModel().getSelectedItem(), redWeaponCombo.getValue(), redBearerCountSpinner.getValue(), blueUnitList.getSelectionModel().getSelectedItem()); }
 
+    // When click "Apply Pending Damage" button, apply the next pending unsaved hit to the selected model.
     @FXML
     private void applyPendingDamage(ActionEvent event) {
         if (!hasPendingDamage()) {
@@ -123,6 +141,7 @@ public class AutoBattleController {
         refreshUi();
     }
 
+    // When click "Close" button, confirm whether to leave the auto battle window with unresolved damage.
     @FXML
     private void closeWindow(ActionEvent event) {
         if (hasPendingDamage() && !DialogHelper.confirmYesNo(
@@ -390,7 +409,7 @@ public class AutoBattleController {
     private List<UnitInstance> blueUnitInstances() { return blueUnits.stream().map(GameArmyUnitVM::getUnit).collect(Collectors.toList()); }
     private List<UnitInstance> redUnitInstances() { return redUnits.stream().map(GameArmyUnitVM::getUnit).collect(Collectors.toList()); }
     private Player opposite(Player player) { return player == Player.ATTACKER ? Player.DEFENDER : Player.ATTACKER; }
-    private String label(Player player) { return player == Player.ATTACKER ? "Blue" : "Red"; }
+    private String label(Player player) { return player == Player.ATTACKER ? "Attacker" : "Defender"; }
     private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
     private String safe(String value) { return value == null ? "" : value; }
     private String formatWeapon(WeaponProfile weapon) { return weapon.name() + " | Range " + safe(weapon.range()) + " | A " + safe(weapon.a()) + " | " + (weapon.melee() ? "WS " : "BS ") + safe(weapon.skill()) + " | S " + safe(weapon.s()) + " | AP " + safe(weapon.ap()) + " | D " + safe(weapon.d()) + " | x" + weapon.count(); }

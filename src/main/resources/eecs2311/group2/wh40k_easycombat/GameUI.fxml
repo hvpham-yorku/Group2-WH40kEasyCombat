@@ -37,6 +37,11 @@
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
                     <children>
+                        <Label text="Attacker">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
                         <Label fx:id="blueFactionLabel" text="FactionName" wrapText="true">
                             <font>
                                 <Font name="System Bold" size="22.0" />
@@ -96,6 +101,11 @@
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
                     <children>
+                        <Label text="Defender">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
                         <Label fx:id="redFactionLabel" text="FactionName" wrapText="true">
                             <font>
                                 <Font name="System Bold" size="22.0" />

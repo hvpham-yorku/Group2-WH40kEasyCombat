@@ -61,8 +61,10 @@ public class GameUIController {
         BLUE, RED
     }
 
+    // ======================= Shared Controls =======================
     @FXML private CheckBox autoBattleCheckBox;
 
+    // ======================= Attacker Side =======================
     @FXML private Button blueAbandonMissionButton;
     @FXML private ListView<GameArmyUnitVM> blueArmyList;
     @FXML private Label blueCPLabel;
@@ -80,6 +82,7 @@ public class GameUIController {
     @FXML private Button blueSubButton;
     @FXML private Label blueVPLabel;
 
+    // ======================= Defender Side =======================
     @FXML private Button redAbandonMissionButton;
     @FXML private ListView<GameArmyUnitVM> redArmyList;
     @FXML private Label redCPLabel;
@@ -97,6 +100,7 @@ public class GameUIController {
     @FXML private Button redSubButton;
     @FXML private Label redVPLabel;
 
+    // ======================= Center Controls =======================
     @FXML private Button battleLogButton;
     @FXML private Button exitGameButton;
     @FXML private Button nextPhaseButton;
@@ -108,6 +112,7 @@ public class GameUIController {
     @FXML private Label roundLabel;
     @FXML private Label winnerLabel;
 
+    // ======================= Manual Dice =======================
     @FXML private TextArea virtuaDiceBox;
     @FXML private ComboBox<Integer> virtualDiceSuccessComboBox;
     @FXML private Spinner<Integer> virtuaDiceSpinner;
@@ -131,6 +136,7 @@ public class GameUIController {
     private int maxRounds = 5;
     private boolean gameOver = false;
 
+    // When this page loads, initialize all lists, turn state, manual dice controls and setup data.
     @FXML
     private void initialize() {
         setupArmyLists();
@@ -170,66 +176,79 @@ public class GameUIController {
         redArmyList.refresh();
     }
 
+    // When click the attacker "Abandon Mission" button, abandon the selected attacker secondary mission.
     @FXML
     void blueAbandonClicked(MouseEvent event) {
         abandonSelectedMission(ArmySide.BLUE);
     }
 
+    // When click the attacker "Check Mission" button, open the selected attacker mission card.
     @FXML
     void blueCheckClicked(MouseEvent event) {
         openSelectedSecondaryMission(ArmySide.BLUE);
     }
 
+    // When click the attacker "Draw Mission" button, draw attacker tactical secondary missions.
     @FXML
     void blueDrawClicked(MouseEvent event) {
         drawSecondaryMissions(ArmySide.BLUE);
     }
 
+    // When click the attacker "+" button, manually add one CP to the attacker.
     @FXML
     void blueClickPlus(MouseEvent event) {
         applyRoundState(RoundManager.addBlueCp(readRoundState(), 1));
     }
 
+    // When click the attacker "-" button, manually subtract one CP from the attacker.
     @FXML
     void blueClickSub(MouseEvent event) {
         applyRoundState(RoundManager.addBlueCp(readRoundState(), -1));
     }
 
+    // When click the attacker "Use Stratagem" button, use the selected attacker stratagem.
     @FXML
     void blueSelect(MouseEvent event) {
         useSelectedStrategy(ArmySide.BLUE);
     }
 
+    // When click the defender "Abandon Mission" button, abandon the selected defender secondary mission.
     @FXML
     void redAbandonClicked(MouseEvent event) {
         abandonSelectedMission(ArmySide.RED);
     }
 
+    // When click the defender "Check Mission" button, open the selected defender mission card.
     @FXML
     void redCheckClicked(MouseEvent event) {
         openSelectedSecondaryMission(ArmySide.RED);
     }
 
+    // When click the defender "Draw Mission" button, draw defender tactical secondary missions.
     @FXML
     void redDrawClicked(MouseEvent event) {
         drawSecondaryMissions(ArmySide.RED);
     }
 
+    // When click the defender "+" button, manually add one CP to the defender.
     @FXML
     void redClickPlus(MouseEvent event) {
         applyRoundState(RoundManager.addRedCp(readRoundState(), 1));
     }
 
+    // When click the defender "-" button, manually subtract one CP from the defender.
     @FXML
     void redClickSub(MouseEvent event) {
         applyRoundState(RoundManager.addRedCp(readRoundState(), -1));
     }
 
+    // When click the defender "Use Stratagem" button, use the selected defender stratagem.
     @FXML
     void redSelect(MouseEvent event) {
         useSelectedStrategy(ArmySide.RED);
     }
 
+    // When click "Exit" button, confirm whether to leave the current battle.
     @FXML
     void clickExit(MouseEvent event) throws IOException {
         boolean shouldExit = DialogHelper.confirmOkCancel(
@@ -250,15 +269,18 @@ public class GameUIController {
         }
     }
 
+    // When click the old "Next Round" area, forward the action to the phase advance logic.
     @FXML
     void nextRound(MouseEvent event) {
         nextPhase(new ActionEvent(nextPhaseButton, nextPhaseButton));
     }
 
+    // When click "Battle Log" button, reserve the battle log action for future use.
     @FXML
     void openLog(MouseEvent event) {
     }
 
+    // When click "Roll" button, roll the selected number of D6 and count successes.
     @FXML
     void rollDice(MouseEvent event) {
         int diceCount = virtuaDiceSpinner == null || virtuaDiceSpinner.getValue() == null
@@ -288,6 +310,7 @@ public class GameUIController {
         }
     }
 
+    // When click "Clear" button, clear the manual dice log text area.
     @FXML
     void clearDiceLog(MouseEvent event) {
         if (virtuaDiceBox != null) {
@@ -296,6 +319,7 @@ public class GameUIController {
         }
     }
 
+    // When click "Next Phase" button, advance the battle to the next phase and update turn state.
     @FXML
     private void nextPhase(ActionEvent event) {
         if (gameOver) {
@@ -330,6 +354,7 @@ public class GameUIController {
         maybeOpenBattleShockWindow();
     }
 
+    // When click "Auto Battle" check box, open the auto battle window for the current phase.
     @FXML
     private void openAutoBattle(ActionEvent event) {
         autoBattleCheckBox.setSelected(false);
@@ -342,7 +367,7 @@ public class GameUIController {
         if (blueArmyUnits.isEmpty() || redArmyUnits.isEmpty()) {
             DialogHelper.showWarning(
                     "Auto Battle Unavailable",
-                    "Please import both Blue and Red armies before opening Auto Battle."
+                    "Please import both the Attacker and Defender armies before opening Auto Battle."
             );
             return;
         }
@@ -565,7 +590,7 @@ public class GameUIController {
 
         Player owningPlayer = toPlayer(side);
         MissionResolution resolution = openMissionCardWindow(
-                (side == ArmySide.BLUE ? "Blue" : "Red") + " Secondary Mission",
+                sideLabel(side) + " Secondary Mission",
                 selected.getMissionCard(),
                 owningPlayer,
                 false,
@@ -624,8 +649,7 @@ public class GameUIController {
             addCommandPoint(toPlayer(side));
             DialogHelper.showInfo(
                     "Mission Abandoned",
-                    (side == ArmySide.BLUE ? "Blue" : "Red")
-                            + " gained 1 CP for the first mission abandoned this turn."
+                    sideLabel(side) + " gained 1 CP for the first mission abandoned this turn."
             );
         }
 
@@ -659,8 +683,7 @@ public class GameUIController {
         if (drawCount <= 0) {
             DialogHelper.showInfo(
                     "No Draw Available",
-                    (side == ArmySide.BLUE ? "Blue" : "Red")
-                            + " has already drawn two tactical missions this turn."
+                    sideLabel(side) + " has already drawn two tactical missions this turn."
             );
             return;
         }
@@ -670,7 +693,7 @@ public class GameUIController {
 
         DialogHelper.showInfo(
                 "Secondary Missions Drawn",
-                (side == ArmySide.BLUE ? "Blue" : "Red")
+                sideLabel(side)
                         + " drew "
                         + drawCount
                         + " secondary mission"
@@ -817,9 +840,9 @@ public class GameUIController {
                     mode,
                     turnService.getCurrentPhase(),
                     turnService.getActivePlayer(),
-                    blueFactionLabel == null ? "Blue Army" : blueFactionLabel.getText(),
+                    blueFactionLabel == null ? "Attacker Army" : blueFactionLabel.getText(),
                     blueArmyUnits,
-                    redFactionLabel == null ? "Red Army" : redFactionLabel.getText(),
+                    redFactionLabel == null ? "Defender Army" : redFactionLabel.getText(),
                     redArmyUnits
             );
 
@@ -937,6 +960,7 @@ public class GameUIController {
         }
     }
 
+    // When click the primary mission button, open the shared primary mission card and award VP if completed.
     @FXML
     private void openPrimaryMission(ActionEvent event) {
         if (gameOver) {
@@ -994,12 +1018,12 @@ public class GameUIController {
 
             EditorStratagemTargetController controller = loader.getController();
             controller.setContext(
-                    side == ArmySide.BLUE ? "Blue" : "Red",
+                    sideLabel(side),
                     stratagemName,
                     matchingRules,
                     candidates
             );
-
+            
             Stage stage = new Stage();
             stage.initOwner(nextPhaseButton.getScene().getWindow());
             stage.initModality(Modality.WINDOW_MODAL);
@@ -1014,6 +1038,10 @@ public class GameUIController {
             DialogHelper.showError("Open Stratagem Target Error", e);
             return null;
         }
+    }
+
+    private String sideLabel(ArmySide side) {
+        return side == ArmySide.BLUE ? "Attacker" : "Defender";
     }
 
     private MissionResolution openMissionCardWindow(
@@ -1088,7 +1116,7 @@ public class GameUIController {
         boolean blueLeading = blueVp > redVp;
         winnerLabel.setText(
                 "Current Leader: "
-                        + (blueLeading ? "Blue" : "Red")
+                        + (blueLeading ? "Attacker" : "Defender")
                         + " ("
                         + (blueLeading ? blueVp : redVp)
                         + "-"
@@ -1115,13 +1143,13 @@ public class GameUIController {
         return String.format(
                 Locale.ROOT,
                 "Battle Over. %s wins %d to %d VP.",
-                blueWon ? "Blue" : "Red",
+                blueWon ? "Attacker" : "Defender",
                 blueWon ? blueVp : redVp,
                 blueWon ? redVp : blueVp
         );
     }
 
     private String playerLabel(Player player) {
-        return player == Player.DEFENDER ? "Red" : "Blue";
+        return player == Player.DEFENDER ? "Defender" : "Attacker";
     }
 }

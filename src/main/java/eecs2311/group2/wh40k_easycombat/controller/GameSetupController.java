@@ -30,14 +30,17 @@ import java.io.IOException;
 import java.util.List;
 
 public class GameSetupController {
+    // ======================= Attacker Army =======================
     @FXML private Label blueArmyLabel;
     @FXML private Label blueArmyPointsLabel;
     @FXML private Button blueImportButton;
 
+    // ======================= Defender Army =======================
     @FXML private Label redArmyLabel;
     @FXML private Label redArmyPointsLabel;
     @FXML private Button redImportButton;
 
+    // ======================= Battle Setup =======================
     @FXML private ComboBox<BattleSizeOption> battleSizeComboBox;
     @FXML private ComboBox<String> primaryMissionComboBox;
     @FXML private Label primaryPreviewTitleLabel;
@@ -46,6 +49,7 @@ public class GameSetupController {
     @FXML private Spinner<Integer> roundSpinner;
     @FXML private CheckBox customRulesCheckBox;
 
+    // ======================= Secondary Missions =======================
     @FXML private ComboBox<SecondaryMissionMode> blueMissionModeComboBox;
     @FXML private ComboBox<String> blueMissionOneComboBox;
     @FXML private ComboBox<String> blueMissionTwoComboBox;
@@ -54,6 +58,8 @@ public class GameSetupController {
     @FXML private ComboBox<String> redMissionOneComboBox;
     @FXML private ComboBox<String> redMissionTwoComboBox;
 
+    // ======================= Buttons =======================
+    @FXML private Button swapRolesButton;
     @FXML private Button startBattleButton;
     @FXML private Button backButton;
 
@@ -64,6 +70,7 @@ public class GameSetupController {
     private GameArmyImportVM blueArmy;
     private GameArmyImportVM redArmy;
 
+    // When this page loads, initialize battle size, missions, round limit and current army labels.
     @FXML
     private void initialize() {
         battleSizeComboBox.setItems(FXCollections.observableArrayList(
@@ -109,6 +116,7 @@ public class GameSetupController {
         gameSetupService.clear();
     }
 
+    // When click "Import Attacker Army" button, open the army import window for the attacker side.
     @FXML
     private void importBlueArmy(ActionEvent event) {
         openImportWindow(army -> {
@@ -117,6 +125,7 @@ public class GameSetupController {
         });
     }
 
+    // When click "Import Defender Army" button, open the army import window for the defender side.
     @FXML
     private void importRedArmy(ActionEvent event) {
         openImportWindow(army -> {
@@ -125,6 +134,30 @@ public class GameSetupController {
         });
     }
 
+    // When click "Swap Roles" button, swap the current attacker and defender armies and mission settings.
+    @FXML
+    private void swapRoles(ActionEvent event) {
+        GameArmyImportVM previousAttacker = blueArmy;
+        blueArmy = redArmy;
+        redArmy = previousAttacker;
+
+        SecondaryMissionMode attackerMode = blueMissionModeComboBox.getValue();
+        SecondaryMissionMode defenderMode = redMissionModeComboBox.getValue();
+        blueMissionModeComboBox.setValue(defenderMode);
+        redMissionModeComboBox.setValue(attackerMode);
+
+        String attackerMissionOne = blueMissionOneComboBox.getValue();
+        String attackerMissionTwo = blueMissionTwoComboBox.getValue();
+        blueMissionOneComboBox.setValue(redMissionOneComboBox.getValue());
+        blueMissionTwoComboBox.setValue(redMissionTwoComboBox.getValue());
+        redMissionOneComboBox.setValue(attackerMissionOne);
+        redMissionTwoComboBox.setValue(attackerMissionTwo);
+
+        updateMissionModeUi();
+        refreshArmyLabels();
+    }
+
+    // When click "Start Battle" button, validate the setup and enter the main game screen.
     @FXML
     private void startBattle(ActionEvent event) throws IOException {
         BattleSizeOption battleSize = battleSizeComboBox.getValue();
@@ -133,7 +166,7 @@ public class GameSetupController {
             return;
         }
         if (blueArmy == null || redArmy == null) {
-            DialogHelper.showWarning("Missing Army", "Please import both armies before starting the battle.");
+            DialogHelper.showWarning("Missing Army", "Please import both the Attacker and Defender armies before starting the battle.");
             return;
         }
         if (blueArmy.points() > battleSize.points() || redArmy.points() > battleSize.points()) {
@@ -157,7 +190,7 @@ public class GameSetupController {
                 blueMode,
                 blueMissionOneComboBox.getValue(),
                 blueMissionTwoComboBox.getValue(),
-                "Blue"
+                "Attacker"
         );
         if (blueFixed == null) {
             return;
@@ -167,7 +200,7 @@ public class GameSetupController {
                 redMode,
                 redMissionOneComboBox.getValue(),
                 redMissionTwoComboBox.getValue(),
-                "Red"
+                "Defender"
         );
         if (redFixed == null) {
             return;
@@ -198,6 +231,7 @@ public class GameSetupController {
         );
     }
 
+    // When click "Back" button, return to the main menu page.
     @FXML
     private void back(ActionEvent event) throws IOException {
         FixedAspectView.switchResponsiveTo(
@@ -249,7 +283,7 @@ public class GameSetupController {
 
     private void refreshArmyLabels() {
         if (blueArmy == null) {
-            blueArmyLabel.setText("No Blue army imported");
+            blueArmyLabel.setText("No Attacker army imported");
             blueArmyPointsLabel.setText("0 pts");
         } else {
             blueArmyLabel.setText(blueArmy.armyName() + " (" + blueArmy.factionName() + ")");
@@ -257,7 +291,7 @@ public class GameSetupController {
         }
 
         if (redArmy == null) {
-            redArmyLabel.setText("No Red army imported");
+            redArmyLabel.setText("No Defender army imported");
             redArmyPointsLabel.setText("0 pts");
         } else {
             redArmyLabel.setText(redArmy.armyName() + " (" + redArmy.factionName() + ")");

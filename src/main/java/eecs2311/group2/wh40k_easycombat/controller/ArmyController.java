@@ -167,6 +167,7 @@ public class ArmyController {
 
     // ======================= Navigation =======================
 
+    // When click "Cancel" button, confirm whether to leave the army editor page.
     @FXML
     void cancelTheChange(MouseEvent event) throws IOException {
         boolean shouldExit = DialogHelper.confirmOkCancel(
@@ -189,6 +190,7 @@ public class ArmyController {
 
     // ======================= Main Actions =======================
 
+    // When click "Confirm" button, load the selected faction and detachment into the editor.
     @FXML
     void confirm(MouseEvent event) {
         String factionId = getSelectedFactionId();
@@ -207,6 +209,7 @@ public class ArmyController {
         refreshPoints();
     }
 
+    // When click "Add" button, add the selected unit from the datasheet tree into the army list.
     @FXML
     void add(MouseEvent event) {
         TreeItem<ArmyUnitTreeRowVM> selected = unitSectionTreeTable.getSelectionModel().getSelectedItem();
@@ -232,6 +235,7 @@ public class ArmyController {
         }
     }
 
+    // When click "Remove" button, remove the selected unit from the current army.
     @FXML
     void removeUnit(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
@@ -243,6 +247,7 @@ public class ArmyController {
         removeArmyUnit(selected);
     }
 
+    // When click "Set Warlord" button, mark the selected unit as the army warlord.
     @FXML
     void setWarlord(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
@@ -254,6 +259,7 @@ public class ArmyController {
         setWarlordFromCell(selected);
     }
 
+    // When click "Save" button, save the current army into the database.
     @FXML
     void save(MouseEvent event) {
         try {
@@ -286,6 +292,7 @@ public class ArmyController {
         }
     }
 
+    // When click "Load" button, load the selected saved army into the editor.
     @FXML
     void loadArmy(MouseEvent event) {
         ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
@@ -324,6 +331,7 @@ public class ArmyController {
         }
     }
 
+    // When click "Delete" button, delete the selected saved army from the database.
     @FXML
     void delete(MouseEvent event) {
         ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
@@ -347,6 +355,7 @@ public class ArmyController {
         }
     }
 
+    // When click "Favorite" button, toggle the favorite state of the selected saved army.
     @FXML
     void favorite(MouseEvent event) {
         ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
@@ -368,6 +377,7 @@ public class ArmyController {
         }
     }
 
+    // When click "Import" button, show the reserved import action message.
     @FXML
     void importData(MouseEvent event) {
         DialogHelper.showInfo("Reserved", "Import will be implemented later.");

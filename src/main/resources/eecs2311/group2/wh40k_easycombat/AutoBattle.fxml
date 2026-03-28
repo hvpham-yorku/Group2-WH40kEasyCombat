@@ -34,12 +34,12 @@
                         <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label fx:id="blueFactionLabel" text="Blue Army">
+                        <Label fx:id="blueFactionLabel" text="Attacker Army">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
-                        <Label text="Blue side selects an attacking unit here." />
+                        <Label text="The Attacker side selects a unit here." />
                     </children>
                 </VBox>
 
@@ -63,12 +63,12 @@
                         <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label fx:id="redFactionLabel" text="Red Army">
+                        <Label fx:id="redFactionLabel" text="Defender Army">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
-                        <Label text="Red side selects an attacking unit here." />
+                        <Label text="The Defender side selects a unit here." />
                     </children>
                 </VBox>
             </children>
@@ -87,7 +87,7 @@
                         <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label text="Blue Army Units">
+                        <Label text="Attacker Units">
                             <font>
                                 <Font size="18.0" />
                             </font>
@@ -97,12 +97,12 @@
                         <ComboBox fx:id="blueWeaponCombo" maxWidth="1.7976931348623157E308" styleClass="game-combo" />
                         <Label text="Attacking Weapon Bearers" />
                         <Spinner fx:id="blueBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
-                        <Label fx:id="blueWeaponHintLabel" text="Select a Blue unit first." wrapText="true" />
+                        <Label fx:id="blueWeaponHintLabel" text="Select an Attacker unit first." wrapText="true" />
 
                         <VBox fx:id="blueFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="blueEligibleFightCheckBox" text="Blue selected unit is eligible to fight" />
-                                <CheckBox fx:id="blueChargedCheckBox" text="Blue selected unit charged this turn" />
+                                <CheckBox fx:id="blueEligibleFightCheckBox" text="Selected Attacker unit is eligible to fight" />
+                                <CheckBox fx:id="blueChargedCheckBox" text="Selected Attacker unit charged this turn" />
                                 <Label fx:id="blueExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>
@@ -163,22 +163,26 @@
                             </children>
                         </VBox>
 
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
                                 <Button fx:id="blueAttackButton"
                                         mnemonicParsing="false"
                                         onAction="#blueAttackRed"
                                         prefHeight="40.0"
-                                        prefWidth="154.0"
+                                        prefWidth="188.0"
+                                        textAlignment="CENTER"
+                                        wrapText="true"
                                         styleClass="wh-btn, wh-btn-primary"
-                                        text="Blue Attacks Red" />
+                                        text="Attacker Attacks Defender" />
                                 <Button fx:id="redAttackButton"
                                         mnemonicParsing="false"
                                         onAction="#redAttackBlue"
                                         prefHeight="40.0"
-                                        prefWidth="154.0"
+                                        prefWidth="188.0"
+                                        textAlignment="CENTER"
+                                        wrapText="true"
                                         styleClass="wh-btn, wh-btn-primary"
-                                        text="Red Attacks Blue" />
+                                        text="Defender Attacks Attacker" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <Button fx:id="closeButton"
                                         mnemonicParsing="false"
@@ -244,7 +248,7 @@
                         <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label text="Red Army Units">
+                        <Label text="Defender Units">
                             <font>
                                 <Font size="18.0" />
                             </font>
@@ -254,12 +258,12 @@
                         <ComboBox fx:id="redWeaponCombo" maxWidth="1.7976931348623157E308" styleClass="game-combo" />
                         <Label text="Attacking Weapon Bearers" />
                         <Spinner fx:id="redBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
-                        <Label fx:id="redWeaponHintLabel" text="Select a Red unit first." wrapText="true" />
+                        <Label fx:id="redWeaponHintLabel" text="Select a Defender unit first." wrapText="true" />
 
                         <VBox fx:id="redFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="redEligibleFightCheckBox" text="Red selected unit is eligible to fight" />
-                                <CheckBox fx:id="redChargedCheckBox" text="Red selected unit charged this turn" />
+                                <CheckBox fx:id="redEligibleFightCheckBox" text="Selected Defender unit is eligible to fight" />
+                                <CheckBox fx:id="redChargedCheckBox" text="Selected Defender unit charged this turn" />
                                 <Label fx:id="redExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>

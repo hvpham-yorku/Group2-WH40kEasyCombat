@@ -675,6 +675,10 @@
     -fx-background-color: #0f0f0f;
 }
 
+.ds-outer .label {
+    -fx-text-fill: #e6e6e6;
+}
+
 /* --- Left Panel (sidebar) --- */
 .ds-left-panel {
     -fx-background-color: #1e1e1e;
@@ -1150,6 +1154,10 @@
     -fx-border-width: 1px;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
+}
+
+.ds-search .text {
+    -fx-fill: #ececec;
 }
 
 .ds-combo {

@@ -35,7 +35,7 @@
                         <Font name="System Bold" size="30.0" />
                     </font>
                 </Label>
-                <Label text="Import both armies, choose the battle size, missions and round limit before entering the battle screen." wrapText="true" />
+                <Label text="Import both armies, choose the Attacker and Defender, then set battle size, missions and round limit before entering the battle screen." wrapText="true" />
             </children>
         </VBox>
     </top>
@@ -59,18 +59,18 @@
                                         <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
                                     </padding>
                                     <children>
-                                        <Label text="Blue Army">
+                                        <Label text="Attacker Army">
                                             <font>
                                                 <Font name="System Bold" size="22.0" />
                                             </font>
                                         </Label>
-                                        <Label fx:id="blueArmyLabel" text="No Blue army imported" wrapText="true" />
+                                        <Label fx:id="blueArmyLabel" text="No Attacker army imported" wrapText="true" />
                                         <Label fx:id="blueArmyPointsLabel" text="0 pts" />
                                         <Button fx:id="blueImportButton"
                                                 mnemonicParsing="false"
                                                 onAction="#importBlueArmy"
                                                 styleClass="wh-btn"
-                                                text="Import Blue Army" />
+                                                text="Import Attacker Army" />
                                     </children>
                                 </VBox>
 
@@ -79,18 +79,18 @@
                                         <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
                                     </padding>
                                     <children>
-                                        <Label text="Red Army">
+                                        <Label text="Defender Army">
                                             <font>
                                                 <Font name="System Bold" size="22.0" />
                                             </font>
                                         </Label>
-                                        <Label fx:id="redArmyLabel" text="No Red army imported" wrapText="true" />
+                                        <Label fx:id="redArmyLabel" text="No Defender army imported" wrapText="true" />
                                         <Label fx:id="redArmyPointsLabel" text="0 pts" />
                                         <Button fx:id="redImportButton"
                                                 mnemonicParsing="false"
                                                 onAction="#importRedArmy"
                                                 styleClass="wh-btn"
-                                                text="Import Red Army" />
+                                                text="Import Defender Army" />
                                     </children>
                                 </VBox>
                             </children>
@@ -131,11 +131,22 @@
                                                  maxWidth="1.7976931348623157E308"
                                                  GridPane.columnIndex="1"
                                                  GridPane.rowIndex="1" />
+                                        <Label text="First Turn" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label text="The Attacker acts first each battle round." wrapText="true" />
+                                                <Button fx:id="swapRolesButton"
+                                                        mnemonicParsing="false"
+                                                        onAction="#swapRoles"
+                                                        styleClass="wh-btn"
+                                                        text="Swap Roles" />
+                                            </children>
+                                        </HBox>
                                         <CheckBox fx:id="customRulesCheckBox"
                                                   styleClass="game-checkbox"
                                                   text="Enable Custom Rules"
                                                   GridPane.columnIndex="3"
-                                                  GridPane.rowIndex="1" />
+                                                  GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
                             </children>
@@ -178,7 +189,7 @@
                                         <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
                                     </padding>
                                     <children>
-                                        <Label text="Blue Secondary Missions">
+                                        <Label text="Attacker Secondary Missions">
                                             <font>
                                                 <Font name="System Bold" size="20.0" />
                                             </font>
@@ -198,7 +209,7 @@
                                         <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
                                     </padding>
                                     <children>
-                                        <Label text="Red Secondary Missions">
+                                        <Label text="Defender Secondary Missions">
                                             <font>
                                                 <Font name="System Bold" size="20.0" />
                                             </font>

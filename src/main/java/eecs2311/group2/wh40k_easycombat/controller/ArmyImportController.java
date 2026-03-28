@@ -19,9 +19,13 @@ import java.util.function.Consumer;
 
 public class ArmyImportController {
 
+    // ======================= Import Table =======================
+
     @FXML private TableView<ArmySavedRowVM> armyTable;
     @FXML private TableColumn<ArmySavedRowVM, String> armyName;
     @FXML private TableColumn<ArmySavedRowVM, Number> armyPoints;
+
+    // ======================= Buttons =======================
     @FXML private Button importButton;
 
     private GameUIController parentController;
@@ -29,6 +33,7 @@ public class ArmyImportController {
     private Consumer<GameArmyImportVM> importConsumer;
     private int maxAllowedPoints;
 
+    // When this page loads, initialize the saved army table.
     @FXML
     private void initialize() {
         setupTable();
@@ -69,6 +74,7 @@ public class ArmyImportController {
         }
     }
 
+    // When click "Import" button, import the selected saved army into the current game flow.
     @FXML
     void importArmy(MouseEvent event) {
         ArmySavedRowVM selected = armyTable.getSelectionModel().getSelectedItem();

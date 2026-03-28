@@ -13,6 +13,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
 
 public class MainUIController {
+
+    // ======================= Buttons =======================
 	@FXML private Button startButton;
     
 	@FXML private Button ruleButton;
@@ -21,7 +23,9 @@ public class MainUIController {
 
     @FXML private Button exitButton;
 
-    // When click "Game Start" button
+    // ======================= Main Actions =======================
+
+    // When click "Game Start" button, open the game setup page.
     @FXML
     void startBtn(MouseEvent event) throws IOException {
         FixedAspectView.switchResponsiveTo(
@@ -35,7 +39,7 @@ public class MainUIController {
     }
 
     
-    // When click "Rules and Datasheets" button
+    // When click "Rules and Datasheets" button, open the datasheets page.
     @FXML
     void ruleBtn(MouseEvent event) throws IOException {
     	FixedAspectView.switchResponsiveTo(
@@ -48,7 +52,7 @@ public class MainUIController {
         );
     }
 
-    // When click "Army" button, go to army page
+    // When click "Army" button, open the army editor page.
     @FXML
     void armyBtn(MouseEvent event) throws IOException {
         FixedAspectView.switchResponsiveTo(
@@ -61,7 +65,7 @@ public class MainUIController {
         );
     }
 
-    // When click "Exit" button, exit the program
+    // When click "Exit" button, confirm whether to close the application.
     @FXML
     void exitBtn(MouseEvent event) {
     	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
