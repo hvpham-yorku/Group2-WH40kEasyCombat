@@ -35,3 +35,6 @@ replay_pid*
 
 # Auto-generated database schema and repository files
 src/main/resources/sql/001_schema.sql
+
+# User custom file
+/data/
