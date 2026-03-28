@@ -457,7 +457,10 @@ public class AutoBattleController {
 
     private boolean hasPendingDamage() { return currentPendingSession != null && currentPendingSession.hasPendingDamage(); }
     private void handleArmyStateChanged(Player side) { refreshUi(); }
-    private void syncSpinnerToWeapon(Spinner<Integer> spinner, WeaponProfile weapon) { int max = weapon == null ? 1 : Math.max(1, weapon.count()); int current = spinner.getValue() == null ? 1 : spinner.getValue(); spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, max, Math.max(1, Math.min(current, max)))); }
+    private void syncSpinnerToWeapon(Spinner<Integer> spinner, WeaponProfile weapon) {
+        int max = weapon == null ? 1 : Math.max(1, weapon.count());
+        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, max, max));
+    }
     private void setModeVisibility() { boolean ranged = battleMode.usesRangedWeapons(); shootingRulesBox.setManaged(ranged); shootingRulesBox.setVisible(ranged); fightRulesBox.setManaged(!ranged); fightRulesBox.setVisible(!ranged); blueFightBox.setManaged(!ranged); blueFightBox.setVisible(!ranged); redFightBox.setManaged(!ranged); redFightBox.setVisible(!ranged); }
     private void configureWeaponCombo(ComboBox<WeaponProfile> comboBox) { comboBox.setCellFactory(v -> new ListCell<>() { @Override protected void updateItem(WeaponProfile item, boolean empty) { super.updateItem(item, empty); setText(empty || item == null ? null : formatWeapon(item)); }}); comboBox.setButtonCell(new ListCell<>() { @Override protected void updateItem(WeaponProfile item, boolean empty) { super.updateItem(item, empty); setText(empty || item == null ? null : formatWeapon(item)); }}); }
     private void configureModelList() {
@@ -476,11 +479,11 @@ public class AutoBattleController {
     private String label(Player player) { return player == Player.ATTACKER ? "Attacker" : "Defender"; }
     private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
     private String safe(String value) { return value == null ? "" : value; }
-    private String formatWeapon(WeaponProfile weapon) { return weapon.name() + " | Range " + safe(weapon.range()) + " | A " + safe(weapon.a()) + " | " + (weapon.melee() ? "WS " : "BS ") + safe(weapon.skill()) + " | S " + safe(weapon.s()) + " | AP " + safe(weapon.ap()) + " | D " + safe(weapon.d()) + " | x" + weapon.count(); }
+    private String formatWeapon(WeaponProfile weapon) { return weapon.name() + " | Range " + safe(weapon.range()) + " | A " + safe(weapon.a()) + " | " + (weapon.melee() ? "WS " : "BS ") + safe(weapon.skill()) + " | S " + safe(weapon.s()) + " | AP " + safe(weapon.ap()) + " | D " + safe(weapon.d()) + " | available x" + weapon.count(); }
     private String formatModel(UnitModelInstance model) { return model.getModelName() + " | HP " + model.getCurrentHp() + "/" + model.getMaxHp(); }
     private String hintText(boolean noWeapons) {
-        if (battleMode == AutoBattleMode.SHOOTING) return noWeapons ? "No ranged weapons remain available for this shooting phase." : "Select one ranged weapon profile. Unsaved damage will be queued for defender allocation.";
-        if (battleMode == AutoBattleMode.REACTION_SHOOTING) return noWeapons ? "This unit has no ranged weapon available for reaction shooting." : "Select one ranged weapon profile for reaction fire, then let the defender allocate each unsaved hit.";
+        if (battleMode == AutoBattleMode.SHOOTING) return noWeapons ? "No ranged weapons remain available for this shooting phase." : "Select one ranged weapon profile. The spinner defaults to the maximum available equipped weapons, and any unused quantity can attack later.";
+        if (battleMode == AutoBattleMode.REACTION_SHOOTING) return noWeapons ? "This unit has no ranged weapon available for reaction shooting." : "Select one ranged weapon profile for reaction fire. The spinner defaults to the maximum available equipped weapons, and any unused quantity can attack later.";
         return noWeapons ? "No melee weapon is available for this unit." : "All melee weapon profiles on this unit will be resolved in this fight, then the defender allocates each unsaved hit.";
     }
 }

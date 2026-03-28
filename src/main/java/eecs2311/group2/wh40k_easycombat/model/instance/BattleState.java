@@ -229,12 +229,12 @@ public class BattleState {
             copy.addAbility(ability);
         }
 
-        for (String weaponKey : source.getUsedRangedWeaponKeysThisPhase()) {
-            copy.markRangedWeaponUsedThisPhaseByKey(weaponKey);
+        for (var entry : source.getUsedRangedWeaponCountsThisPhase().entrySet()) {
+            copy.markRangedWeaponUsedThisPhaseByKey(entry.getKey(), entry.getValue());
         }
 
-        for (String weaponKey : source.getUsedOneShotWeaponKeysThisBattle()) {
-            copy.markOneShotWeaponUsedByKey(weaponKey);
+        for (var entry : source.getUsedOneShotWeaponCountsThisBattle().entrySet()) {
+            copy.markOneShotWeaponUsedByKey(entry.getKey(), entry.getValue());
         }
 
         for (String weaponKey : source.getRemovedWeaponKeysForDestroyedModels()) {

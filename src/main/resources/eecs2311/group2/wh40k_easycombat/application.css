@@ -51,6 +51,85 @@
     -fx-background-radius: 6px;
 }
 
+.main-update-panel {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.main-side-card {
+    -fx-background-color: rgba(20, 20, 20, 0.88);
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 10, 0.2, 0, 2);
+}
+
+.main-side-card .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.main-update-title {
+    -fx-text-fill: #c9a227;
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.main-update-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.main-update-caption {
+    -fx-text-fill: #d7d7d7;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.main-side-card .hyperlink {
+    -fx-text-fill: #8ecae6;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.main-side-card .hyperlink:hover {
+    -fx-text-fill: #b9e6ff;
+}
+
+.main-news-link {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+    -fx-alignment: center-left;
+    -fx-padding: 2 0 2 0;
+}
+
+.main-news-link:hover {
+    -fx-text-fill: #c9a227;
+}
+
+.main-news-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.main-news-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-news-scroll > .corner {
+    -fx-background-color: transparent;
+}
+
 /* --- Base Button Style --- */
 .wh-btn {
     -fx-background-color: #2a2a2a;
