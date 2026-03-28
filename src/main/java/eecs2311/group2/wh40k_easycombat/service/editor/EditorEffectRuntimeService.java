@@ -90,6 +90,50 @@ public class EditorEffectRuntimeService {
         return created;
     }
 
+    public synchronized List<EditorActiveEffect> activateOptionalRulesForAttack(
+            List<EditorRuleDefinition> selectedRules,
+            UnitInstance attacker,
+            UnitInstance defender,
+            Player ownerPlayer,
+            Player turnOwner,
+            Phase currentPhase,
+            int currentRound
+    ) {
+        if (selectedRules == null || selectedRules.isEmpty()) {
+            return List.of();
+        }
+
+        List<EditorActiveEffect> created = new ArrayList<>();
+        for (EditorRuleDefinition rule : selectedRules) {
+            if (rule == null || !rule.isEnabled() || !rule.isOptionalActivation()) {
+                continue;
+            }
+
+            UnitInstance targetUnit = resolveTargetUnit(rule, attacker, defender);
+            if (targetUnit == null || isRuleActiveForAttack(rule, attacker, defender)) {
+                continue;
+            }
+
+            EditorActiveEffect effect = new EditorActiveEffect(
+                    rule.getId(),
+                    safe(rule.getName(), "Custom Rule"),
+                    targetUnit.getInstanceId(),
+                    targetUnit.getUnitName(),
+                    rule.getTargetRole(),
+                    rule.getDuration(),
+                    currentRound,
+                    currentPhase,
+                    ownerPlayer,
+                    turnOwner,
+                    rule
+            );
+            activeEffects.add(effect);
+            created.add(effect);
+        }
+
+        return List.copyOf(created);
+    }
+
     public synchronized List<EditorActiveEffect> getActiveEffects() {
         return List.copyOf(activeEffects);
     }
@@ -109,12 +153,83 @@ public class EditorEffectRuntimeService {
         return List.copyOf(result);
     }
 
+    public synchronized boolean isRuleActiveForAttack(
+            EditorRuleDefinition rule,
+            UnitInstance attacker,
+            UnitInstance defender
+    ) {
+        if (rule == null) {
+            return false;
+        }
+
+        UnitInstance targetUnit = resolveTargetUnit(rule, attacker, defender);
+        if (targetUnit == null) {
+            return false;
+        }
+
+        String ruleId = safe(rule.getId());
+        String unitId = safe(targetUnit.getInstanceId());
+        for (EditorActiveEffect effect : activeEffects) {
+            if (effect == null) {
+                continue;
+            }
+            if (ruleId.equals(safe(effect.ruleId())) && unitId.equals(safe(effect.targetUnitId()))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public synchronized void clearExpiredEffects(int currentRound, Phase currentPhase, Player activePlayer) {
         activeEffects.removeIf(effect -> isExpired(effect, currentRound, currentPhase, activePlayer));
     }
 
     public synchronized void clearAll() {
         activeEffects.clear();
+    }
+
+    public synchronized void deactivateEffects(List<EditorActiveEffect> effects) {
+        if (effects == null || effects.isEmpty()) {
+            return;
+        }
+
+        activeEffects.removeIf(effect -> containsEffect(effects, effect));
+    }
+
+    private UnitInstance resolveTargetUnit(
+            EditorRuleDefinition rule,
+            UnitInstance attacker,
+            UnitInstance defender
+    ) {
+        if (rule == null) {
+            return null;
+        }
+
+        return switch (rule.getTargetRole()) {
+            case DEFENDER -> defender;
+            case ATTACKER, EITHER -> attacker;
+        };
+    }
+
+    private boolean containsEffect(List<EditorActiveEffect> effects, EditorActiveEffect candidate) {
+        if (candidate == null) {
+            return false;
+        }
+
+        for (EditorActiveEffect effect : effects) {
+            if (effect == null) {
+                continue;
+            }
+            if (safe(effect.ruleId()).equals(safe(candidate.ruleId()))
+                    && safe(effect.targetUnitId()).equals(safe(candidate.targetUnitId()))
+                    && effect.appliedRound() == candidate.appliedRound()
+                    && effect.appliedPhase() == candidate.appliedPhase()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isExpired(

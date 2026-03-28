@@ -3,15 +3,18 @@ package eecs2311.group2.wh40k_easycombat.model.editor;
 import java.util.UUID;
 
 public class EditorRuleDefinition {
+    private static final String VM_RULE_PREFIX = "editor::";
+
     private String id = UUID.randomUUID().toString();
     private String name = "";
     private EditorRuleType type = EditorRuleType.ABILITY;
-    private EditorRuleActivationMode activationMode = EditorRuleActivationMode.PASSIVE;
     private EditorRulePhase phase = EditorRulePhase.ANY;
     private EditorRuleAttackType attackType = EditorRuleAttackType.ANY;
     private boolean enabled = true;
+    private boolean optionalActivation;
     private String attackerUnitNameContains = "";
     private String defenderUnitNameContains = "";
+    private String weaponNameContains = "";
     private String attackerKeyword = "";
     private String defenderKeyword = "";
     private String attackerAbilityNameContains = "";
@@ -29,36 +32,41 @@ public class EditorRuleDefinition {
     private String triggeringStratagemNameContains = "";
     private EditorRuleDuration duration = EditorRuleDuration.UNTIL_END_OF_PHASE;
     private EditorRuleTargetRole targetRole = EditorRuleTargetRole.ATTACKER;
-    private boolean requireWithinHalfRange;
-    private boolean requireRemainedStationary;
-    private boolean requireChargedThisTurn;
-    private boolean requireTargetHasCover;
-    private boolean requireTargetInfantry;
-    private boolean requireTargetVehicle;
-    private boolean requireTargetMonster;
-    private boolean requireTargetCharacter;
-    private boolean requireTargetPsyker;
-    private int hitModifier;
-    private int woundModifier;
-    private int attacksModifier;
-    private int damageModifier;
-    private int apModifier;
-    private String extraWeaponKeywords = "";
-    private EditorRerollType hitReroll = EditorRerollType.NONE;
-    private EditorRerollType woundReroll = EditorRerollType.NONE;
-    private String notes = "";
+    private String dslScript = defaultDslScript();
+    private boolean visualWithinHalfRange;
+    private boolean visualRemainedStationary;
+    private boolean visualAdvancedThisTurn;
+    private boolean visualFellBackThisTurn;
+    private boolean visualChargedThisTurn;
+    private boolean visualAttackerCanFight;
+    private boolean visualTargetHasCover;
+    private boolean visualBlastIsLegal;
+    private boolean visualTargetIsInfantry;
+    private boolean visualTargetIsVehicle;
+    private boolean visualTargetIsMonster;
+    private boolean visualTargetIsCharacter;
+    private boolean visualTargetIsPsyker;
+    private int visualHitModifier;
+    private int visualWoundModifier;
+    private int visualAttacksModifier;
+    private int visualDamageModifier;
+    private int visualApModifier;
+    private EditorRerollType visualHitReroll = EditorRerollType.NONE;
+    private EditorRerollType visualWoundReroll = EditorRerollType.NONE;
+    private String visualExtraWeaponKeywords = "";
 
     public EditorRuleDefinition copy() {
         EditorRuleDefinition copy = new EditorRuleDefinition();
         copy.id = id;
         copy.name = name;
         copy.type = type;
-        copy.activationMode = activationMode;
         copy.phase = phase;
         copy.attackType = attackType;
         copy.enabled = enabled;
+        copy.optionalActivation = optionalActivation;
         copy.attackerUnitNameContains = attackerUnitNameContains;
         copy.defenderUnitNameContains = defenderUnitNameContains;
+        copy.weaponNameContains = weaponNameContains;
         copy.attackerKeyword = attackerKeyword;
         copy.defenderKeyword = defenderKeyword;
         copy.attackerAbilityNameContains = attackerAbilityNameContains;
@@ -76,32 +84,56 @@ public class EditorRuleDefinition {
         copy.triggeringStratagemNameContains = triggeringStratagemNameContains;
         copy.duration = duration;
         copy.targetRole = targetRole;
-        copy.requireWithinHalfRange = requireWithinHalfRange;
-        copy.requireRemainedStationary = requireRemainedStationary;
-        copy.requireChargedThisTurn = requireChargedThisTurn;
-        copy.requireTargetHasCover = requireTargetHasCover;
-        copy.requireTargetInfantry = requireTargetInfantry;
-        copy.requireTargetVehicle = requireTargetVehicle;
-        copy.requireTargetMonster = requireTargetMonster;
-        copy.requireTargetCharacter = requireTargetCharacter;
-        copy.requireTargetPsyker = requireTargetPsyker;
-        copy.hitModifier = hitModifier;
-        copy.woundModifier = woundModifier;
-        copy.attacksModifier = attacksModifier;
-        copy.damageModifier = damageModifier;
-        copy.apModifier = apModifier;
-        copy.extraWeaponKeywords = extraWeaponKeywords;
-        copy.hitReroll = hitReroll;
-        copy.woundReroll = woundReroll;
-        copy.notes = notes;
+        copy.dslScript = dslScript;
+        copy.visualWithinHalfRange = visualWithinHalfRange;
+        copy.visualRemainedStationary = visualRemainedStationary;
+        copy.visualAdvancedThisTurn = visualAdvancedThisTurn;
+        copy.visualFellBackThisTurn = visualFellBackThisTurn;
+        copy.visualChargedThisTurn = visualChargedThisTurn;
+        copy.visualAttackerCanFight = visualAttackerCanFight;
+        copy.visualTargetHasCover = visualTargetHasCover;
+        copy.visualBlastIsLegal = visualBlastIsLegal;
+        copy.visualTargetIsInfantry = visualTargetIsInfantry;
+        copy.visualTargetIsVehicle = visualTargetIsVehicle;
+        copy.visualTargetIsMonster = visualTargetIsMonster;
+        copy.visualTargetIsCharacter = visualTargetIsCharacter;
+        copy.visualTargetIsPsyker = visualTargetIsPsyker;
+        copy.visualHitModifier = visualHitModifier;
+        copy.visualWoundModifier = visualWoundModifier;
+        copy.visualAttacksModifier = visualAttacksModifier;
+        copy.visualDamageModifier = visualDamageModifier;
+        copy.visualApModifier = visualApModifier;
+        copy.visualHitReroll = visualHitReroll;
+        copy.visualWoundReroll = visualWoundReroll;
+        copy.visualExtraWeaponKeywords = visualExtraWeaponKeywords;
         return copy;
     }
 
     public String displayName() {
         String baseName = name == null || name.isBlank() ? "Untitled Rule" : name.trim();
-        String modeLabel = getActivationMode().label();
+        String modeLabel = safe(triggeringStratagemNameContains).isBlank()
+                ? (optionalActivation ? "Optional" : "Passive")
+                : "Triggered";
         String enabledLabel = enabled ? "" : " (Disabled)";
         return "[" + modeLabel + "] " + baseName + enabledLabel;
+    }
+
+    public String vmRuleName() {
+        return VM_RULE_PREFIX + getId();
+    }
+
+    public static String defaultDslScript() {
+        return """
+                # Generated by the visual VM editor
+                0 -> hit_modifier
+                0 -> wound_modifier
+                0 -> attacks_modifier
+                0 -> damage_modifier
+                0 -> ap_modifier
+                0 -> hit_reroll
+                0 -> wound_reroll
+                "" -> extra_weapon_keywords
+                """;
     }
 
     public String getId() {
@@ -128,14 +160,6 @@ public class EditorRuleDefinition {
         this.type = type == null ? EditorRuleType.ABILITY : type;
     }
 
-    public EditorRuleActivationMode getActivationMode() {
-        return activationMode == null ? EditorRuleActivationMode.PASSIVE : activationMode;
-    }
-
-    public void setActivationMode(EditorRuleActivationMode activationMode) {
-        this.activationMode = activationMode == null ? EditorRuleActivationMode.PASSIVE : activationMode;
-    }
-
     public EditorRulePhase getPhase() {
         return phase == null ? EditorRulePhase.ANY : phase;
     }
@@ -160,12 +184,20 @@ public class EditorRuleDefinition {
         this.enabled = enabled;
     }
 
+    public boolean isOptionalActivation() {
+        return optionalActivation;
+    }
+
+    public void setOptionalActivation(boolean optionalActivation) {
+        this.optionalActivation = optionalActivation;
+    }
+
     public String getAttackerUnitNameContains() {
         return attackerUnitNameContains;
     }
 
     public void setAttackerUnitNameContains(String attackerUnitNameContains) {
-        this.attackerUnitNameContains = attackerUnitNameContains == null ? "" : attackerUnitNameContains.trim();
+        this.attackerUnitNameContains = safe(attackerUnitNameContains);
     }
 
     public String getDefenderUnitNameContains() {
@@ -173,7 +205,15 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderUnitNameContains(String defenderUnitNameContains) {
-        this.defenderUnitNameContains = defenderUnitNameContains == null ? "" : defenderUnitNameContains.trim();
+        this.defenderUnitNameContains = safe(defenderUnitNameContains);
+    }
+
+    public String getWeaponNameContains() {
+        return weaponNameContains;
+    }
+
+    public void setWeaponNameContains(String weaponNameContains) {
+        this.weaponNameContains = safe(weaponNameContains);
     }
 
     public String getAttackerKeyword() {
@@ -181,7 +221,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerKeyword(String attackerKeyword) {
-        this.attackerKeyword = attackerKeyword == null ? "" : attackerKeyword.trim();
+        this.attackerKeyword = safe(attackerKeyword);
     }
 
     public String getDefenderKeyword() {
@@ -189,7 +229,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderKeyword(String defenderKeyword) {
-        this.defenderKeyword = defenderKeyword == null ? "" : defenderKeyword.trim();
+        this.defenderKeyword = safe(defenderKeyword);
     }
 
     public String getAttackerAbilityNameContains() {
@@ -197,7 +237,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerAbilityNameContains(String attackerAbilityNameContains) {
-        this.attackerAbilityNameContains = attackerAbilityNameContains == null ? "" : attackerAbilityNameContains.trim();
+        this.attackerAbilityNameContains = safe(attackerAbilityNameContains);
     }
 
     public String getDefenderAbilityNameContains() {
@@ -205,15 +245,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderAbilityNameContains(String defenderAbilityNameContains) {
-        this.defenderAbilityNameContains = defenderAbilityNameContains == null ? "" : defenderAbilityNameContains.trim();
-    }
-
-    public String getAttackerFactionNameContains() {
-        return attackerFactionNameContains;
-    }
-
-    public void setAttackerFactionNameContains(String attackerFactionNameContains) {
-        this.attackerFactionNameContains = attackerFactionNameContains == null ? "" : attackerFactionNameContains.trim();
+        this.defenderAbilityNameContains = safe(defenderAbilityNameContains);
     }
 
     public String getAttackerFactionAbilityNameContains() {
@@ -221,7 +253,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerFactionAbilityNameContains(String attackerFactionAbilityNameContains) {
-        this.attackerFactionAbilityNameContains = attackerFactionAbilityNameContains == null ? "" : attackerFactionAbilityNameContains.trim();
+        this.attackerFactionAbilityNameContains = safe(attackerFactionAbilityNameContains);
     }
 
     public String getDefenderFactionAbilityNameContains() {
@@ -229,7 +261,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderFactionAbilityNameContains(String defenderFactionAbilityNameContains) {
-        this.defenderFactionAbilityNameContains = defenderFactionAbilityNameContains == null ? "" : defenderFactionAbilityNameContains.trim();
+        this.defenderFactionAbilityNameContains = safe(defenderFactionAbilityNameContains);
     }
 
     public String getAttackerDetachmentAbilityNameContains() {
@@ -237,7 +269,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerDetachmentAbilityNameContains(String attackerDetachmentAbilityNameContains) {
-        this.attackerDetachmentAbilityNameContains = attackerDetachmentAbilityNameContains == null ? "" : attackerDetachmentAbilityNameContains.trim();
+        this.attackerDetachmentAbilityNameContains = safe(attackerDetachmentAbilityNameContains);
     }
 
     public String getDefenderDetachmentAbilityNameContains() {
@@ -245,7 +277,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderDetachmentAbilityNameContains(String defenderDetachmentAbilityNameContains) {
-        this.defenderDetachmentAbilityNameContains = defenderDetachmentAbilityNameContains == null ? "" : defenderDetachmentAbilityNameContains.trim();
+        this.defenderDetachmentAbilityNameContains = safe(defenderDetachmentAbilityNameContains);
     }
 
     public String getAttackerDetachmentNameContains() {
@@ -253,7 +285,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerDetachmentNameContains(String attackerDetachmentNameContains) {
-        this.attackerDetachmentNameContains = attackerDetachmentNameContains == null ? "" : attackerDetachmentNameContains.trim();
+        this.attackerDetachmentNameContains = safe(attackerDetachmentNameContains);
     }
 
     public String getDefenderDetachmentNameContains() {
@@ -261,7 +293,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderDetachmentNameContains(String defenderDetachmentNameContains) {
-        this.defenderDetachmentNameContains = defenderDetachmentNameContains == null ? "" : defenderDetachmentNameContains.trim();
+        this.defenderDetachmentNameContains = safe(defenderDetachmentNameContains);
     }
 
     public String getAttackerEnhancementNameContains() {
@@ -269,7 +301,7 @@ public class EditorRuleDefinition {
     }
 
     public void setAttackerEnhancementNameContains(String attackerEnhancementNameContains) {
-        this.attackerEnhancementNameContains = attackerEnhancementNameContains == null ? "" : attackerEnhancementNameContains.trim();
+        this.attackerEnhancementNameContains = safe(attackerEnhancementNameContains);
     }
 
     public String getDefenderEnhancementNameContains() {
@@ -277,7 +309,15 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderEnhancementNameContains(String defenderEnhancementNameContains) {
-        this.defenderEnhancementNameContains = defenderEnhancementNameContains == null ? "" : defenderEnhancementNameContains.trim();
+        this.defenderEnhancementNameContains = safe(defenderEnhancementNameContains);
+    }
+
+    public String getAttackerFactionNameContains() {
+        return attackerFactionNameContains;
+    }
+
+    public void setAttackerFactionNameContains(String attackerFactionNameContains) {
+        this.attackerFactionNameContains = safe(attackerFactionNameContains);
     }
 
     public String getDefenderFactionNameContains() {
@@ -285,7 +325,7 @@ public class EditorRuleDefinition {
     }
 
     public void setDefenderFactionNameContains(String defenderFactionNameContains) {
-        this.defenderFactionNameContains = defenderFactionNameContains == null ? "" : defenderFactionNameContains.trim();
+        this.defenderFactionNameContains = safe(defenderFactionNameContains);
     }
 
     public String getTriggeringStratagemNameContains() {
@@ -293,7 +333,7 @@ public class EditorRuleDefinition {
     }
 
     public void setTriggeringStratagemNameContains(String triggeringStratagemNameContains) {
-        this.triggeringStratagemNameContains = triggeringStratagemNameContains == null ? "" : triggeringStratagemNameContains.trim();
+        this.triggeringStratagemNameContains = safe(triggeringStratagemNameContains);
     }
 
     public EditorRuleDuration getDuration() {
@@ -312,147 +352,187 @@ public class EditorRuleDefinition {
         this.targetRole = targetRole == null ? EditorRuleTargetRole.ATTACKER : targetRole;
     }
 
-    public boolean isRequireWithinHalfRange() {
-        return requireWithinHalfRange;
+    public String getDslScript() {
+        return dslScript;
     }
 
-    public void setRequireWithinHalfRange(boolean requireWithinHalfRange) {
-        this.requireWithinHalfRange = requireWithinHalfRange;
+    public void setDslScript(String dslScript) {
+        this.dslScript = dslScript == null ? "" : normalizeLineEndings(dslScript).trim();
     }
 
-    public boolean isRequireRemainedStationary() {
-        return requireRemainedStationary;
+    public boolean isVisualWithinHalfRange() {
+        return visualWithinHalfRange;
     }
 
-    public void setRequireRemainedStationary(boolean requireRemainedStationary) {
-        this.requireRemainedStationary = requireRemainedStationary;
+    public void setVisualWithinHalfRange(boolean visualWithinHalfRange) {
+        this.visualWithinHalfRange = visualWithinHalfRange;
     }
 
-    public boolean isRequireChargedThisTurn() {
-        return requireChargedThisTurn;
+    public boolean isVisualRemainedStationary() {
+        return visualRemainedStationary;
     }
 
-    public void setRequireChargedThisTurn(boolean requireChargedThisTurn) {
-        this.requireChargedThisTurn = requireChargedThisTurn;
+    public void setVisualRemainedStationary(boolean visualRemainedStationary) {
+        this.visualRemainedStationary = visualRemainedStationary;
     }
 
-    public boolean isRequireTargetHasCover() {
-        return requireTargetHasCover;
+    public boolean isVisualAdvancedThisTurn() {
+        return visualAdvancedThisTurn;
     }
 
-    public void setRequireTargetHasCover(boolean requireTargetHasCover) {
-        this.requireTargetHasCover = requireTargetHasCover;
+    public void setVisualAdvancedThisTurn(boolean visualAdvancedThisTurn) {
+        this.visualAdvancedThisTurn = visualAdvancedThisTurn;
     }
 
-    public boolean isRequireTargetInfantry() {
-        return requireTargetInfantry;
+    public boolean isVisualFellBackThisTurn() {
+        return visualFellBackThisTurn;
     }
 
-    public void setRequireTargetInfantry(boolean requireTargetInfantry) {
-        this.requireTargetInfantry = requireTargetInfantry;
+    public void setVisualFellBackThisTurn(boolean visualFellBackThisTurn) {
+        this.visualFellBackThisTurn = visualFellBackThisTurn;
     }
 
-    public boolean isRequireTargetVehicle() {
-        return requireTargetVehicle;
+    public boolean isVisualChargedThisTurn() {
+        return visualChargedThisTurn;
     }
 
-    public void setRequireTargetVehicle(boolean requireTargetVehicle) {
-        this.requireTargetVehicle = requireTargetVehicle;
+    public void setVisualChargedThisTurn(boolean visualChargedThisTurn) {
+        this.visualChargedThisTurn = visualChargedThisTurn;
     }
 
-    public boolean isRequireTargetMonster() {
-        return requireTargetMonster;
+    public boolean isVisualAttackerCanFight() {
+        return visualAttackerCanFight;
     }
 
-    public void setRequireTargetMonster(boolean requireTargetMonster) {
-        this.requireTargetMonster = requireTargetMonster;
+    public void setVisualAttackerCanFight(boolean visualAttackerCanFight) {
+        this.visualAttackerCanFight = visualAttackerCanFight;
     }
 
-    public boolean isRequireTargetCharacter() {
-        return requireTargetCharacter;
+    public boolean isVisualTargetHasCover() {
+        return visualTargetHasCover;
     }
 
-    public void setRequireTargetCharacter(boolean requireTargetCharacter) {
-        this.requireTargetCharacter = requireTargetCharacter;
+    public void setVisualTargetHasCover(boolean visualTargetHasCover) {
+        this.visualTargetHasCover = visualTargetHasCover;
     }
 
-    public boolean isRequireTargetPsyker() {
-        return requireTargetPsyker;
+    public boolean isVisualBlastIsLegal() {
+        return visualBlastIsLegal;
     }
 
-    public void setRequireTargetPsyker(boolean requireTargetPsyker) {
-        this.requireTargetPsyker = requireTargetPsyker;
+    public void setVisualBlastIsLegal(boolean visualBlastIsLegal) {
+        this.visualBlastIsLegal = visualBlastIsLegal;
     }
 
-    public int getHitModifier() {
-        return hitModifier;
+    public boolean isVisualTargetIsInfantry() {
+        return visualTargetIsInfantry;
     }
 
-    public void setHitModifier(int hitModifier) {
-        this.hitModifier = hitModifier;
+    public void setVisualTargetIsInfantry(boolean visualTargetIsInfantry) {
+        this.visualTargetIsInfantry = visualTargetIsInfantry;
     }
 
-    public int getWoundModifier() {
-        return woundModifier;
+    public boolean isVisualTargetIsVehicle() {
+        return visualTargetIsVehicle;
     }
 
-    public void setWoundModifier(int woundModifier) {
-        this.woundModifier = woundModifier;
+    public void setVisualTargetIsVehicle(boolean visualTargetIsVehicle) {
+        this.visualTargetIsVehicle = visualTargetIsVehicle;
     }
 
-    public int getAttacksModifier() {
-        return attacksModifier;
+    public boolean isVisualTargetIsMonster() {
+        return visualTargetIsMonster;
     }
 
-    public void setAttacksModifier(int attacksModifier) {
-        this.attacksModifier = attacksModifier;
+    public void setVisualTargetIsMonster(boolean visualTargetIsMonster) {
+        this.visualTargetIsMonster = visualTargetIsMonster;
     }
 
-    public int getDamageModifier() {
-        return damageModifier;
+    public boolean isVisualTargetIsCharacter() {
+        return visualTargetIsCharacter;
     }
 
-    public void setDamageModifier(int damageModifier) {
-        this.damageModifier = damageModifier;
+    public void setVisualTargetIsCharacter(boolean visualTargetIsCharacter) {
+        this.visualTargetIsCharacter = visualTargetIsCharacter;
     }
 
-    public int getApModifier() {
-        return apModifier;
+    public boolean isVisualTargetIsPsyker() {
+        return visualTargetIsPsyker;
     }
 
-    public void setApModifier(int apModifier) {
-        this.apModifier = apModifier;
+    public void setVisualTargetIsPsyker(boolean visualTargetIsPsyker) {
+        this.visualTargetIsPsyker = visualTargetIsPsyker;
     }
 
-    public String getExtraWeaponKeywords() {
-        return extraWeaponKeywords;
+    public int getVisualHitModifier() {
+        return visualHitModifier;
     }
 
-    public void setExtraWeaponKeywords(String extraWeaponKeywords) {
-        this.extraWeaponKeywords = extraWeaponKeywords == null ? "" : extraWeaponKeywords.trim();
+    public void setVisualHitModifier(int visualHitModifier) {
+        this.visualHitModifier = visualHitModifier;
     }
 
-    public EditorRerollType getHitReroll() {
-        return hitReroll == null ? EditorRerollType.NONE : hitReroll;
+    public int getVisualWoundModifier() {
+        return visualWoundModifier;
     }
 
-    public void setHitReroll(EditorRerollType hitReroll) {
-        this.hitReroll = hitReroll == null ? EditorRerollType.NONE : hitReroll;
+    public void setVisualWoundModifier(int visualWoundModifier) {
+        this.visualWoundModifier = visualWoundModifier;
     }
 
-    public EditorRerollType getWoundReroll() {
-        return woundReroll == null ? EditorRerollType.NONE : woundReroll;
+    public int getVisualAttacksModifier() {
+        return visualAttacksModifier;
     }
 
-    public void setWoundReroll(EditorRerollType woundReroll) {
-        this.woundReroll = woundReroll == null ? EditorRerollType.NONE : woundReroll;
+    public void setVisualAttacksModifier(int visualAttacksModifier) {
+        this.visualAttacksModifier = visualAttacksModifier;
     }
 
-    public String getNotes() {
-        return notes;
+    public int getVisualDamageModifier() {
+        return visualDamageModifier;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes == null ? "" : notes.trim();
+    public void setVisualDamageModifier(int visualDamageModifier) {
+        this.visualDamageModifier = visualDamageModifier;
+    }
+
+    public int getVisualApModifier() {
+        return visualApModifier;
+    }
+
+    public void setVisualApModifier(int visualApModifier) {
+        this.visualApModifier = visualApModifier;
+    }
+
+    public EditorRerollType getVisualHitReroll() {
+        return visualHitReroll == null ? EditorRerollType.NONE : visualHitReroll;
+    }
+
+    public void setVisualHitReroll(EditorRerollType visualHitReroll) {
+        this.visualHitReroll = visualHitReroll == null ? EditorRerollType.NONE : visualHitReroll;
+    }
+
+    public EditorRerollType getVisualWoundReroll() {
+        return visualWoundReroll == null ? EditorRerollType.NONE : visualWoundReroll;
+    }
+
+    public void setVisualWoundReroll(EditorRerollType visualWoundReroll) {
+        this.visualWoundReroll = visualWoundReroll == null ? EditorRerollType.NONE : visualWoundReroll;
+    }
+
+    public String getVisualExtraWeaponKeywords() {
+        return visualExtraWeaponKeywords;
+    }
+
+    public void setVisualExtraWeaponKeywords(String visualExtraWeaponKeywords) {
+        this.visualExtraWeaponKeywords = safe(visualExtraWeaponKeywords);
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String normalizeLineEndings(String value) {
+        return value == null ? "" : value.replace("\r\n", "\n").replace('\r', '\n');
     }
 }

@@ -2,10 +2,16 @@ package eecs2311.group2.wh40k_easycombat.service.vm;
 
 import eecs2311.group2.wh40k_easycombat.service.vm.expr.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExpressionParser {
+    private static final Pattern TOKEN_PATTERN = Pattern.compile(
+            "\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|>=|<=|==|\\|\\||&&|[()+\\-*/!<>]|[^\\s()+\\-*/!<>=|]+"
+    );
+
     private final List<String> tokens;
     private int pos = 0;
 
@@ -80,6 +86,7 @@ public class ExpressionParser {
 
         if (token.equalsIgnoreCase("true")) return new ConstExpr(true);
         if (token.equalsIgnoreCase("false")) return new ConstExpr(false);
+        if (isQuotedString(token)) return new ConstExpr(unescapeQuotedString(token));
 
         if (token.matches("\\d+")) return new ConstExpr(Integer.parseInt(token));
 
@@ -114,8 +121,12 @@ public class ExpressionParser {
     }
 
     private List<String> tokenize(String input) {
-        String spaced = input.replaceAll("([()+\\-*/!]|>=|<=|==|>|<|AND|OR)", " $1 ");
-        return Arrays.asList(spaced.trim().split("\\s+"));
+        List<String> result = new ArrayList<>();
+        Matcher matcher = TOKEN_PATTERN.matcher(input == null ? "" : input);
+        while (matcher.find()) {
+            result.add(matcher.group());
+        }
+        return result;
     }
 
     private OpCode parseOp(String op) {
@@ -127,5 +138,20 @@ public class ExpressionParser {
             case "==" -> OpCode.CMP_EQ;
             default -> throw new RuntimeException("Unknown op: " + op);
         };
+    }
+
+    private boolean isQuotedString(String token) {
+        return token != null
+                && token.length() >= 2
+                && ((token.startsWith("\"") && token.endsWith("\""))
+                || (token.startsWith("'") && token.endsWith("'")));
+    }
+
+    private String unescapeQuotedString(String token) {
+        String quoteStripped = token.substring(1, token.length() - 1);
+        return quoteStripped
+                .replace("\\\"", "\"")
+                .replace("\\'", "'")
+                .replace("\\\\", "\\");
     }
 }

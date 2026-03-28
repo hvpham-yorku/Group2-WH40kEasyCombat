@@ -99,6 +99,20 @@
                         <Spinner fx:id="blueBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
                         <Label fx:id="blueWeaponHintLabel" text="Select an Attacker unit first." wrapText="true" />
 
+                        <Label text="Optional VM Rules">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="blueOptionalRulesHintLabel"
+                               text="Select a unit, weapon and target to see optional VM rules for this attack."
+                               wrapText="true" />
+                        <FlowPane fx:id="blueOptionalRulesPane"
+                                  hgap="8.0"
+                                  vgap="6.0"
+                                  maxWidth="1.7976931348623157E308"
+                                  prefWrapLength="280.0" />
+
                         <VBox fx:id="blueFightBox" spacing="6.0">
                             <children>
                                 <CheckBox fx:id="blueEligibleFightCheckBox" text="Selected Attacker unit is eligible to fight" />
@@ -259,6 +273,20 @@
                         <Label text="Attacking Weapon Bearers" />
                         <Spinner fx:id="redBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
                         <Label fx:id="redWeaponHintLabel" text="Select a Defender unit first." wrapText="true" />
+
+                        <Label text="Optional VM Rules">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="redOptionalRulesHintLabel"
+                               text="Select a unit, weapon and target to see optional VM rules for this attack."
+                               wrapText="true" />
+                        <FlowPane fx:id="redOptionalRulesPane"
+                                  hgap="8.0"
+                                  vgap="6.0"
+                                  maxWidth="1.7976931348623157E308"
+                                  prefWrapLength="280.0" />
 
                         <VBox fx:id="redFightBox" spacing="6.0">
                             <children>

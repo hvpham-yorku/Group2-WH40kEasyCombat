@@ -265,15 +265,29 @@ public class AutoBattleService {
     }
 
     private AttackResult annotateCustomRules(AttackResult result, EditorRuleModifiers modifiers) {
-        if (result == null || modifiers == null || modifiers.appliedRuleNames().isEmpty()) {
+        if (result == null || modifiers == null) {
             return result;
         }
 
         List<String> notes = new ArrayList<>(result.notes());
-        notes.add(0, "Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        if (!modifiers.errorMessages().isEmpty()) {
+            for (int i = modifiers.errorMessages().size() - 1; i >= 0; i--) {
+                notes.add(0, "Custom rule VM error: " + modifiers.errorMessages().get(i));
+            }
+        }
+        if (!modifiers.appliedRuleNames().isEmpty()) {
+            notes.add(0, "Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        }
 
         List<String> rollLog = new ArrayList<>();
-        rollLog.add("Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        if (!modifiers.appliedRuleNames().isEmpty()) {
+            rollLog.add("Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        }
+        if (!modifiers.errorMessages().isEmpty()) {
+            for (String error : modifiers.errorMessages()) {
+                rollLog.add("Custom rule VM error: " + error);
+            }
+        }
         String summary = modifierSummary(modifiers);
         if (!summary.isBlank()) {
             rollLog.add(summary);
