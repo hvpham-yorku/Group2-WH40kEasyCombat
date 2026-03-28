@@ -151,11 +151,11 @@ public class AutoBattleService {
             hazardousTriggered = selectedKeywords.hazardous();
 
             if (mode == AutoBattleMode.SHOOTING) {
-                attacker.markRangedWeaponUsedThisPhase(selectedWeapon);
+                attacker.markRangedWeaponUsedThisPhase(selectedWeapon, resolveUsedWeaponCount(selectedWeapon, context));
             }
 
             if ((mode == AutoBattleMode.SHOOTING || mode == AutoBattleMode.REACTION_SHOOTING) && selectedKeywords.oneShot()) {
-                attacker.markOneShotWeaponUsed(selectedWeapon);
+                attacker.markOneShotWeaponUsed(selectedWeapon, resolveUsedWeaponCount(selectedWeapon, context));
             }
         }
 
@@ -418,18 +418,35 @@ public class AutoBattleService {
         for (WeaponProfile weapon : unit.getRangedWeapons()) {
             WeaponKeywordsService keywords = WeaponKeywordsService.parse(weapon.description());
 
-            if (enforcePhaseUsage && unit.hasUsedRangedWeaponThisPhase(weapon)) {
+            int remainingCount = enforcePhaseUsage
+                    ? unit.getRemainingRangedWeaponCountThisPhase(weapon)
+                    : weapon.count();
+
+            if (keywords.oneShot()) {
+                remainingCount = Math.min(remainingCount, unit.getRemainingOneShotWeaponCountThisBattle(weapon));
+            }
+
+            if (remainingCount <= 0) {
                 continue;
             }
 
-            if (keywords.oneShot() && unit.hasUsedOneShotWeaponThisBattle(weapon)) {
-                continue;
-            }
-
-            result.add(weapon);
+            result.add(remainingCount == weapon.count() ? weapon : weapon.withCount(remainingCount));
         }
 
         return result;
+    }
+
+    private int resolveUsedWeaponCount(WeaponProfile weapon, AttackKeywordContext context) {
+        if (weapon == null) {
+            return 0;
+        }
+
+        int requested = context == null ? 0 : context.attackingWeaponBearerCount();
+        if (requested <= 0) {
+            return Math.max(1, weapon.count());
+        }
+
+        return Math.max(1, Math.min(requested, weapon.count()));
     }
 
     private List<WeaponProfile> availableFightWeapons(UnitInstance unit) {

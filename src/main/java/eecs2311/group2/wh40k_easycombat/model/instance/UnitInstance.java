@@ -3,9 +3,10 @@ package eecs2311.group2.wh40k_easycombat.model.instance;
 import eecs2311.group2.wh40k_easycombat.service.calculations.UnitStrengthCalculations;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,8 +36,8 @@ public class UnitInstance {
     private final List<String> detachmentAbilityNames = new ArrayList<>();
     private final List<String> removedWeaponKeysForDestroyedModels = new ArrayList<>();
 
-    private final Set<String> usedRangedWeaponKeysThisPhase = new LinkedHashSet<>();
-    private final Set<String> usedOneShotWeaponKeysThisBattle = new LinkedHashSet<>();
+    private final Map<String, Integer> usedRangedWeaponCountsThisPhase = new LinkedHashMap<>();
+    private final Map<String, Integer> usedOneShotWeaponCountsThisBattle = new LinkedHashMap<>();
 
     public UnitInstance(String datasheetId, String unitName) {
         this.instanceId = UUID.randomUUID().toString();
@@ -184,11 +185,19 @@ public class UnitInstance {
     }
 
     public Set<String> getUsedRangedWeaponKeysThisPhase() {
-        return Set.copyOf(usedRangedWeaponKeysThisPhase);
+        return Set.copyOf(usedRangedWeaponCountsThisPhase.keySet());
+    }
+
+    public Map<String, Integer> getUsedRangedWeaponCountsThisPhase() {
+        return Map.copyOf(usedRangedWeaponCountsThisPhase);
     }
 
     public Set<String> getUsedOneShotWeaponKeysThisBattle() {
-        return Set.copyOf(usedOneShotWeaponKeysThisBattle);
+        return Set.copyOf(usedOneShotWeaponCountsThisBattle.keySet());
+    }
+
+    public Map<String, Integer> getUsedOneShotWeaponCountsThisBattle() {
+        return Map.copyOf(usedOneShotWeaponCountsThisBattle);
     }
 
     public List<String> getRemovedWeaponKeysForDestroyedModels() {
@@ -439,11 +448,11 @@ public class UnitInstance {
         wasChargedThisTurn = false;
         eligibleToFightThisPhase = false;
         foughtThisPhase = false;
-        usedRangedWeaponKeysThisPhase.clear();
+        usedRangedWeaponCountsThisPhase.clear();
     }
 
     public void resetForNewShootingPhase() {
-        usedRangedWeaponKeysThisPhase.clear();
+        usedRangedWeaponCountsThisPhase.clear();
     }
 
     public void resetForNewFightPhase() {
@@ -452,34 +461,78 @@ public class UnitInstance {
     }
 
     public boolean hasUsedRangedWeaponThisPhase(WeaponProfile weapon) {
-        return weapon != null && usedRangedWeaponKeysThisPhase.contains(buildWeaponKey(weapon));
+        return getRemainingRangedWeaponCountThisPhase(weapon) <= 0;
+    }
+
+    public int getUsedRangedWeaponCountThisPhase(WeaponProfile weapon) {
+        if (weapon == null) {
+            return 0;
+        }
+        return usedRangedWeaponCountsThisPhase.getOrDefault(buildWeaponKey(weapon), 0);
+    }
+
+    public int getRemainingRangedWeaponCountThisPhase(WeaponProfile weapon) {
+        if (weapon == null) {
+            return 0;
+        }
+        return Math.max(0, weapon.count() - getUsedRangedWeaponCountThisPhase(weapon));
     }
 
     public void markRangedWeaponUsedThisPhase(WeaponProfile weapon) {
+        markRangedWeaponUsedThisPhase(weapon, 1);
+    }
+
+    public void markRangedWeaponUsedThisPhase(WeaponProfile weapon, int count) {
         if (weapon != null) {
-            usedRangedWeaponKeysThisPhase.add(buildWeaponKey(weapon));
+            incrementUsage(usedRangedWeaponCountsThisPhase, buildWeaponKey(weapon), count, weapon.count());
         }
     }
 
     public void markRangedWeaponUsedThisPhaseByKey(String weaponKey) {
+        markRangedWeaponUsedThisPhaseByKey(weaponKey, 1);
+    }
+
+    public void markRangedWeaponUsedThisPhaseByKey(String weaponKey, int count) {
         if (weaponKey != null && !weaponKey.isBlank()) {
-            usedRangedWeaponKeysThisPhase.add(weaponKey);
+            incrementUsage(usedRangedWeaponCountsThisPhase, weaponKey, count, Integer.MAX_VALUE);
         }
     }
 
     public boolean hasUsedOneShotWeaponThisBattle(WeaponProfile weapon) {
-        return weapon != null && usedOneShotWeaponKeysThisBattle.contains(buildWeaponKey(weapon));
+        return getRemainingOneShotWeaponCountThisBattle(weapon) <= 0;
+    }
+
+    public int getUsedOneShotWeaponCountThisBattle(WeaponProfile weapon) {
+        if (weapon == null) {
+            return 0;
+        }
+        return usedOneShotWeaponCountsThisBattle.getOrDefault(buildWeaponKey(weapon), 0);
+    }
+
+    public int getRemainingOneShotWeaponCountThisBattle(WeaponProfile weapon) {
+        if (weapon == null) {
+            return 0;
+        }
+        return Math.max(0, weapon.count() - getUsedOneShotWeaponCountThisBattle(weapon));
     }
 
     public void markOneShotWeaponUsed(WeaponProfile weapon) {
+        markOneShotWeaponUsed(weapon, 1);
+    }
+
+    public void markOneShotWeaponUsed(WeaponProfile weapon, int count) {
         if (weapon != null) {
-            usedOneShotWeaponKeysThisBattle.add(buildWeaponKey(weapon));
+            incrementUsage(usedOneShotWeaponCountsThisBattle, buildWeaponKey(weapon), count, weapon.count());
         }
     }
 
     public void markOneShotWeaponUsedByKey(String weaponKey) {
+        markOneShotWeaponUsedByKey(weaponKey, 1);
+    }
+
+    public void markOneShotWeaponUsedByKey(String weaponKey, int count) {
         if (weaponKey != null && !weaponKey.isBlank()) {
-            usedOneShotWeaponKeysThisBattle.add(weaponKey);
+            incrementUsage(usedOneShotWeaponCountsThisBattle, weaponKey, count, Integer.MAX_VALUE);
         }
     }
 
@@ -593,6 +646,19 @@ public class UnitInstance {
             }
         }
         return false;
+    }
+
+    private static void incrementUsage(Map<String, Integer> usageMap, String weaponKey, int count, int maxAllowed) {
+        if (usageMap == null || weaponKey == null || weaponKey.isBlank() || count <= 0) {
+            return;
+        }
+
+        int current = usageMap.getOrDefault(weaponKey, 0);
+        int next = current + count;
+        if (maxAllowed > 0 && maxAllowed != Integer.MAX_VALUE) {
+            next = Math.min(next, maxAllowed);
+        }
+        usageMap.put(weaponKey, next);
     }
 
     private static int parseCharacteristicSafe(String text) {
