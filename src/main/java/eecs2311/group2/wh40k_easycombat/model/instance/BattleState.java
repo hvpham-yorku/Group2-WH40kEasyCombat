@@ -200,6 +200,12 @@ public class BattleState {
                 source.getDatasheetId(),
                 source.getUnitName()
         );
+        copy.setFactionId(source.getFactionId());
+        copy.setFactionName(source.getFactionName());
+        copy.setDetachmentId(source.getDetachmentId());
+        copy.setDetachmentName(source.getDetachmentName());
+        copy.setEnhancementId(source.getEnhancementId());
+        copy.setEnhancementName(source.getEnhancementName());
 
         copy.setBattleShocked(source.isBattleShocked());
         copy.setEligibleToFightThisPhase(source.isEligibleToFightThisPhase());
@@ -209,6 +215,14 @@ public class BattleState {
 
         for (String keyword : source.getKeywords()) {
             copy.addKeyword(keyword);
+        }
+
+        for (String abilityName : source.getFactionAbilityNames()) {
+            copy.addFactionAbilityName(abilityName);
+        }
+
+        for (String abilityName : source.getDetachmentAbilityNames()) {
+            copy.addDetachmentAbilityName(abilityName);
         }
 
         for (UnitAbilityProfile ability : source.getAbilities()) {

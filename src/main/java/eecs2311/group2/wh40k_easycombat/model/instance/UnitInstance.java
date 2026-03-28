@@ -13,6 +13,12 @@ public class UnitInstance {
     private final String instanceId;
     private final String datasheetId;
     private final String unitName;
+    private String factionId;
+    private String factionName;
+    private String detachmentId;
+    private String detachmentName;
+    private String enhancementId;
+    private String enhancementName;
 
     private boolean battleShocked;
     private boolean eligibleToFightThisPhase;
@@ -25,6 +31,8 @@ public class UnitInstance {
     private final List<WeaponProfile> meleeWeapons = new ArrayList<>();
     private final List<String> keywords = new ArrayList<>();
     private final List<UnitAbilityProfile> abilities = new ArrayList<>();
+    private final List<String> factionAbilityNames = new ArrayList<>();
+    private final List<String> detachmentAbilityNames = new ArrayList<>();
     private final List<String> removedWeaponKeysForDestroyedModels = new ArrayList<>();
 
     private final Set<String> usedRangedWeaponKeysThisPhase = new LinkedHashSet<>();
@@ -34,6 +42,12 @@ public class UnitInstance {
         this.instanceId = UUID.randomUUID().toString();
         this.datasheetId = datasheetId == null ? "" : datasheetId;
         this.unitName = unitName == null ? "" : unitName;
+        this.factionId = "";
+        this.factionName = "";
+        this.detachmentId = "";
+        this.detachmentName = "";
+        this.enhancementId = "";
+        this.enhancementName = "";
         this.battleShocked = false;
         this.eligibleToFightThisPhase = false;
         this.foughtThisPhase = false;
@@ -51,6 +65,54 @@ public class UnitInstance {
 
     public String getUnitName() {
         return unitName;
+    }
+
+    public String getFactionId() {
+        return factionId;
+    }
+
+    public void setFactionId(String factionId) {
+        this.factionId = factionId == null ? "" : factionId.trim();
+    }
+
+    public String getFactionName() {
+        return factionName;
+    }
+
+    public void setFactionName(String factionName) {
+        this.factionName = factionName == null ? "" : factionName.trim();
+    }
+
+    public String getDetachmentId() {
+        return detachmentId;
+    }
+
+    public void setDetachmentId(String detachmentId) {
+        this.detachmentId = detachmentId == null ? "" : detachmentId.trim();
+    }
+
+    public String getDetachmentName() {
+        return detachmentName;
+    }
+
+    public void setDetachmentName(String detachmentName) {
+        this.detachmentName = detachmentName == null ? "" : detachmentName.trim();
+    }
+
+    public String getEnhancementId() {
+        return enhancementId;
+    }
+
+    public void setEnhancementId(String enhancementId) {
+        this.enhancementId = enhancementId == null ? "" : enhancementId.trim();
+    }
+
+    public String getEnhancementName() {
+        return enhancementName;
+    }
+
+    public void setEnhancementName(String enhancementName) {
+        this.enhancementName = enhancementName == null ? "" : enhancementName.trim();
     }
 
     public boolean isBattleShocked() {
@@ -113,6 +175,14 @@ public class UnitInstance {
         return List.copyOf(abilities);
     }
 
+    public List<String> getFactionAbilityNames() {
+        return List.copyOf(factionAbilityNames);
+    }
+
+    public List<String> getDetachmentAbilityNames() {
+        return List.copyOf(detachmentAbilityNames);
+    }
+
     public Set<String> getUsedRangedWeaponKeysThisPhase() {
         return Set.copyOf(usedRangedWeaponKeysThisPhase);
     }
@@ -173,6 +243,26 @@ public class UnitInstance {
         }
     }
 
+    public void addFactionAbilityName(String abilityName) {
+        if (abilityName == null || abilityName.isBlank()) {
+            return;
+        }
+
+        if (!containsNormalizedValue(factionAbilityNames, abilityName)) {
+            factionAbilityNames.add(abilityName.trim());
+        }
+    }
+
+    public void addDetachmentAbilityName(String abilityName) {
+        if (abilityName == null || abilityName.isBlank()) {
+            return;
+        }
+
+        if (!containsNormalizedValue(detachmentAbilityNames, abilityName)) {
+            detachmentAbilityNames.add(abilityName.trim());
+        }
+    }
+
     public boolean hasKeyword(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return false;
@@ -213,6 +303,35 @@ public class UnitInstance {
             }
         }
         return false;
+    }
+
+    public boolean hasAbilityNameContaining(String text) {
+        if (text == null || text.isBlank()) {
+            return false;
+        }
+
+        String expected = normalize(text);
+        for (UnitAbilityProfile ability : abilities) {
+            if (normalize(ability.name()).contains(expected)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasFactionAbilityNameContaining(String text) {
+        return containsListValue(factionAbilityNames, text);
+    }
+
+    public boolean hasDetachmentAbilityNameContaining(String text) {
+        return containsListValue(detachmentAbilityNames, text);
+    }
+
+    public boolean hasEnhancementNameContaining(String text) {
+        if (text == null || text.isBlank()) {
+            return false;
+        }
+        return normalize(enhancementName).contains(normalize(text));
     }
 
     public boolean hasFightsFirst() {
@@ -450,6 +569,30 @@ public class UnitInstance {
 
     private static String normalize(String text) {
         return text == null ? "" : text.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean containsNormalizedValue(List<String> values, String expected) {
+        String normalizedExpected = normalize(expected);
+        for (String value : values) {
+            if (normalize(value).equals(normalizedExpected)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsListValue(List<String> values, String expected) {
+        if (expected == null || expected.isBlank()) {
+            return false;
+        }
+
+        String normalizedExpected = normalize(expected);
+        for (String value : values) {
+            if (normalize(value).contains(normalizedExpected)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int parseCharacteristicSafe(String text) {

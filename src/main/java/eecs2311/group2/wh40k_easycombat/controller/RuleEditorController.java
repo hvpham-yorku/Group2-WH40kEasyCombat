@@ -5,7 +5,9 @@ import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleActivationMode;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleAttackType;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDuration;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRulePhase;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleTargetRole;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleType;
 import eecs2311.group2.wh40k_easycombat.service.editor.RuleEditorService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
@@ -42,6 +44,21 @@ public class RuleEditorController {
     @FXML private TextField defenderUnitNameField;
     @FXML private TextField attackerKeywordField;
     @FXML private TextField defenderKeywordField;
+    @FXML private TextField attackerAbilityField;
+    @FXML private TextField defenderAbilityField;
+    @FXML private TextField attackerFactionAbilityField;
+    @FXML private TextField defenderFactionAbilityField;
+    @FXML private TextField attackerDetachmentAbilityField;
+    @FXML private TextField defenderDetachmentAbilityField;
+    @FXML private TextField attackerFactionField;
+    @FXML private TextField defenderFactionField;
+    @FXML private TextField attackerDetachmentField;
+    @FXML private TextField defenderDetachmentField;
+    @FXML private TextField attackerEnhancementField;
+    @FXML private TextField defenderEnhancementField;
+    @FXML private TextField triggeringStratagemField;
+    @FXML private ComboBox<EditorRuleDuration> durationComboBox;
+    @FXML private ComboBox<EditorRuleTargetRole> targetRoleComboBox;
 
     @FXML private CheckBox requireHalfRangeCheckBox;
     @FXML private CheckBox requireStationaryCheckBox;
@@ -95,11 +112,14 @@ public class RuleEditorController {
         activationModeComboBox.getItems().setAll(EditorRuleActivationMode.values());
         phaseComboBox.getItems().setAll(EditorRulePhase.values());
         attackTypeComboBox.getItems().setAll(EditorRuleAttackType.values());
+        durationComboBox.getItems().setAll(EditorRuleDuration.values());
+        targetRoleComboBox.getItems().setAll(EditorRuleTargetRole.values());
         hitRerollComboBox.getItems().setAll(EditorRerollType.values());
         woundRerollComboBox.getItems().setAll(EditorRerollType.values());
+        activationModeComboBox.setDisable(true);
+        activationModeComboBox.setValue(EditorRuleActivationMode.PASSIVE);
 
         rulesListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> showRule(newValue));
-        activationModeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> updateHelperText());
 
         refreshRuleList(null);
         if (ruleItems.isEmpty()) {
@@ -127,7 +147,7 @@ public class RuleEditorController {
             rule.setId(selectedRuleId);
             rule.setName(name);
             rule.setType(typeComboBox.getValue());
-            rule.setActivationMode(activationModeComboBox.getValue());
+            rule.setActivationMode(EditorRuleActivationMode.PASSIVE);
             rule.setPhase(phaseComboBox.getValue());
             rule.setAttackType(attackTypeComboBox.getValue());
             rule.setEnabled(enabledCheckBox.isSelected());
@@ -135,6 +155,21 @@ public class RuleEditorController {
             rule.setDefenderUnitNameContains(defenderUnitNameField.getText());
             rule.setAttackerKeyword(attackerKeywordField.getText());
             rule.setDefenderKeyword(defenderKeywordField.getText());
+            rule.setAttackerAbilityNameContains(attackerAbilityField.getText());
+            rule.setDefenderAbilityNameContains(defenderAbilityField.getText());
+            rule.setAttackerFactionAbilityNameContains(attackerFactionAbilityField.getText());
+            rule.setDefenderFactionAbilityNameContains(defenderFactionAbilityField.getText());
+            rule.setAttackerDetachmentAbilityNameContains(attackerDetachmentAbilityField.getText());
+            rule.setDefenderDetachmentAbilityNameContains(defenderDetachmentAbilityField.getText());
+            rule.setAttackerFactionNameContains(attackerFactionField.getText());
+            rule.setDefenderFactionNameContains(defenderFactionField.getText());
+            rule.setAttackerDetachmentNameContains(attackerDetachmentField.getText());
+            rule.setDefenderDetachmentNameContains(defenderDetachmentField.getText());
+            rule.setAttackerEnhancementNameContains(attackerEnhancementField.getText());
+            rule.setDefenderEnhancementNameContains(defenderEnhancementField.getText());
+            rule.setTriggeringStratagemNameContains(triggeringStratagemField.getText());
+            rule.setDuration(durationComboBox.getValue());
+            rule.setTargetRole(targetRoleComboBox.getValue());
             rule.setRequireWithinHalfRange(requireHalfRangeCheckBox.isSelected());
             rule.setRequireRemainedStationary(requireStationaryCheckBox.isSelected());
             rule.setRequireChargedThisTurn(requireChargedCheckBox.isSelected());
@@ -231,7 +266,7 @@ public class RuleEditorController {
 
         nameField.setText(current.getName());
         typeComboBox.setValue(current.getType());
-        activationModeComboBox.setValue(current.getActivationMode());
+        activationModeComboBox.setValue(EditorRuleActivationMode.PASSIVE);
         phaseComboBox.setValue(current.getPhase());
         attackTypeComboBox.setValue(current.getAttackType());
         enabledCheckBox.setSelected(current.isEnabled());
@@ -239,6 +274,21 @@ public class RuleEditorController {
         defenderUnitNameField.setText(current.getDefenderUnitNameContains());
         attackerKeywordField.setText(current.getAttackerKeyword());
         defenderKeywordField.setText(current.getDefenderKeyword());
+        attackerAbilityField.setText(current.getAttackerAbilityNameContains());
+        defenderAbilityField.setText(current.getDefenderAbilityNameContains());
+        attackerFactionAbilityField.setText(current.getAttackerFactionAbilityNameContains());
+        defenderFactionAbilityField.setText(current.getDefenderFactionAbilityNameContains());
+        attackerDetachmentAbilityField.setText(current.getAttackerDetachmentAbilityNameContains());
+        defenderDetachmentAbilityField.setText(current.getDefenderDetachmentAbilityNameContains());
+        attackerFactionField.setText(current.getAttackerFactionNameContains());
+        defenderFactionField.setText(current.getDefenderFactionNameContains());
+        attackerDetachmentField.setText(current.getAttackerDetachmentNameContains());
+        defenderDetachmentField.setText(current.getDefenderDetachmentNameContains());
+        attackerEnhancementField.setText(current.getAttackerEnhancementNameContains());
+        defenderEnhancementField.setText(current.getDefenderEnhancementNameContains());
+        triggeringStratagemField.setText(current.getTriggeringStratagemNameContains());
+        durationComboBox.setValue(current.getDuration());
+        targetRoleComboBox.setValue(current.getTargetRole());
         requireHalfRangeCheckBox.setSelected(current.isRequireWithinHalfRange());
         requireStationaryCheckBox.setSelected(current.isRequireRemainedStationary());
         requireChargedCheckBox.setSelected(current.isRequireChargedThisTurn());
@@ -265,13 +315,7 @@ public class RuleEditorController {
     }
 
     private void updateHelperText() {
-        EditorRuleActivationMode mode = activationModeComboBox.getValue();
-        if (mode == EditorRuleActivationMode.MANUAL) {
-            helperLabel.setText("Manual rules are saved now, but they will not auto-apply in Auto Battle until the future game-start/manual-use UI is added.");
-            return;
-        }
-
-        helperLabel.setText("Passive rules auto-apply in Auto Battle whenever their phase, attack type and conditions match the current attack.");
+        helperLabel.setText("Enabled rules auto-apply whenever their bindings match. If a Triggering Stratagem is set, using that stratagem will prompt for one affected unit and apply the rule for the chosen duration.");
     }
 
     private int parseInt(TextField field) {

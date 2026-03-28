@@ -39,7 +39,7 @@
                     </font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="statusLabel" text="Create or edit passive custom rules for Auto Battle." wrapText="true" />
+                <Label fx:id="statusLabel" text="Create or edit enabled custom rules for Auto Battle." wrapText="true" />
             </children>
         </HBox>
     </top>
@@ -88,7 +88,7 @@
                     <children>
                         <Label fx:id="helperLabel"
                                style="-fx-font-size: 14px;"
-                               text="Passive rules auto-apply in Auto Battle whenever their phase, attack type and conditions match the current attack."
+                               text="Enabled custom rules auto-apply in Auto Battle whenever their phase, attack type and bindings match. If a triggering stratagem name is set, using that stratagem will prompt for one affected unit and apply the rule for the chosen duration."
                                wrapText="true" />
 
                         <VBox spacing="12.0" styleClass="game-side-panel">
@@ -170,6 +170,77 @@
                                         <TextField fx:id="attackerKeywordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <Label text="Defender Required Keyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                         <TextField fx:id="defenderKeywordField" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                        <Label text="Attacker Skill Contains" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField fx:id="attackerAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Defender Skill Contains" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                        <TextField fx:id="defenderAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                                        <Label text="Attacker Faction Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField fx:id="attackerFactionAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Defender Faction Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                        <TextField fx:id="defenderFactionAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+
+                                        <Label text="Attacker Detachment Ability Contains" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField fx:id="attackerDetachmentAbilityField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Defender Detachment Ability Contains" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                        <TextField fx:id="defenderDetachmentAbilityField" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+
+                                        <Label text="Attacker Faction Contains" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField fx:id="attackerFactionField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Label text="Defender Faction Contains" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                        <TextField fx:id="defenderFactionField" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+
+                                        <Label text="Attacker Detachment Contains" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <TextField fx:id="attackerDetachmentField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                        <Label text="Defender Detachment Contains" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                        <TextField fx:id="defenderDetachmentField" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+
+                                        <Label text="Attacker Enhancement Contains" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                        <TextField fx:id="attackerEnhancementField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                        <Label text="Defender Enhancement Contains" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                        <TextField fx:id="defenderEnhancementField" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="game-side-panel">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+                            <children>
+                                <Label text="Stratagem Trigger">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                        <ColumnConstraints percentWidth="20.0" />
+                                        <ColumnConstraints percentWidth="30.0" hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Triggering Stratagem Contains" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="triggeringStratagemField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Affected Unit Role" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                        <ComboBox fx:id="targetRoleComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="3"
+                                                  GridPane.rowIndex="0" />
+
+                                        <Label text="Bonus Duration" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="durationComboBox"
+                                                  maxWidth="1.7976931348623157E308"
+                                                  GridPane.columnIndex="1"
+                                                  GridPane.rowIndex="1" />
+                                        <Label text="Leave stratagem empty to make this a passive auto-applied rule."
+                                               wrapText="true"
+                                               GridPane.columnIndex="2"
+                                               GridPane.columnSpan="2"
+                                               GridPane.rowIndex="1" />
                                     </children>
                                 </GridPane>
                             </children>

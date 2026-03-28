@@ -1,9 +1,11 @@
 package eecs2311.group2.wh40k_easycombat.service.editor;
 
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorActiveEffect;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleModifiers;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRulePhase;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleTargetRole;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.service.autobattle.AttackKeywordContext;
@@ -17,6 +19,7 @@ import java.util.Set;
 
 public class EditorRuleApplicationService {
     private final RuleEditorService ruleEditorService = RuleEditorService.getInstance();
+    private final EditorEffectRuntimeService runtimeService = EditorEffectRuntimeService.getInstance();
 
     public EditorRuleModifiers resolveForAttack(
             AutoBattleMode mode,
@@ -45,7 +48,7 @@ public class EditorRuleApplicationService {
         List<String> appliedRules = new ArrayList<>();
 
         for (EditorRuleDefinition rule : ruleEditorService.getRules()) {
-            if (!matches(rule, mode, attacker, defender, weapon, context)) {
+            if (!matchesStaticRule(rule, mode, attacker, defender, weapon, context)) {
                 continue;
             }
 
@@ -58,6 +61,23 @@ public class EditorRuleApplicationService {
             hitReroll = EditorRerollType.stronger(hitReroll, rule.getHitReroll());
             woundReroll = EditorRerollType.stronger(woundReroll, rule.getWoundReroll());
             appliedRules.add(rule.getName().isBlank() ? "Untitled Rule" : rule.getName());
+        }
+
+        for (EditorActiveEffect effect : runtimeService.getActiveEffects()) {
+            if (!matchesActiveEffect(effect, mode, attacker, defender, weapon, context)) {
+                continue;
+            }
+
+            EditorRuleDefinition rule = effect.rule();
+            hitModifier += rule.getHitModifier();
+            woundModifier += rule.getWoundModifier();
+            attacksModifier += rule.getAttacksModifier();
+            damageModifier += rule.getDamageModifier();
+            apModifier += rule.getApModifier();
+            mergeKeywords(grantedKeywords, rule.getExtraWeaponKeywords());
+            hitReroll = EditorRerollType.stronger(hitReroll, rule.getHitReroll());
+            woundReroll = EditorRerollType.stronger(woundReroll, rule.getWoundReroll());
+            appliedRules.add(effect.displayName());
         }
 
         return new EditorRuleModifiers(
@@ -73,7 +93,7 @@ public class EditorRuleApplicationService {
         );
     }
 
-    private boolean matches(
+    private boolean matchesStaticRule(
             EditorRuleDefinition rule,
             AutoBattleMode mode,
             UnitInstance attacker,
@@ -84,7 +104,38 @@ public class EditorRuleApplicationService {
         if (rule == null || !rule.isEnabled()) {
             return false;
         }
-        if (rule.getActivationMode() != eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleActivationMode.PASSIVE) {
+        if (!safe(rule.getTriggeringStratagemNameContains()).isBlank()) {
+            return false;
+        }
+        return matchesCore(rule, mode, attacker, defender, weapon, context);
+    }
+
+    private boolean matchesActiveEffect(
+            EditorActiveEffect effect,
+            AutoBattleMode mode,
+            UnitInstance attacker,
+            UnitInstance defender,
+            WeaponProfile weapon,
+            AttackKeywordContext context
+    ) {
+        if (effect == null || effect.rule() == null) {
+            return false;
+        }
+        if (!activeEffectTargetMatches(effect, attacker, defender)) {
+            return false;
+        }
+        return matchesCore(effect.rule(), mode, attacker, defender, weapon, context);
+    }
+
+    private boolean matchesCore(
+            EditorRuleDefinition rule,
+            AutoBattleMode mode,
+            UnitInstance attacker,
+            UnitInstance defender,
+            WeaponProfile weapon,
+            AttackKeywordContext context
+    ) {
+        if (rule == null || !rule.isEnabled()) {
             return false;
         }
         if (!phaseMatches(rule.getPhase(), mode)) {
@@ -103,6 +154,42 @@ public class EditorRuleApplicationService {
             return false;
         }
         if (!keywordMatches(defender, rule.getDefenderKeyword())) {
+            return false;
+        }
+        if (!abilityMatches(attacker, rule.getAttackerAbilityNameContains())) {
+            return false;
+        }
+        if (!abilityMatches(defender, rule.getDefenderAbilityNameContains())) {
+            return false;
+        }
+        if (!factionAbilityMatches(attacker, rule.getAttackerFactionAbilityNameContains())) {
+            return false;
+        }
+        if (!factionAbilityMatches(defender, rule.getDefenderFactionAbilityNameContains())) {
+            return false;
+        }
+        if (!detachmentAbilityMatches(attacker, rule.getAttackerDetachmentAbilityNameContains())) {
+            return false;
+        }
+        if (!detachmentAbilityMatches(defender, rule.getDefenderDetachmentAbilityNameContains())) {
+            return false;
+        }
+        if (!containsIgnoreCase(attacker.getFactionName(), rule.getAttackerFactionNameContains())) {
+            return false;
+        }
+        if (!containsIgnoreCase(defender.getFactionName(), rule.getDefenderFactionNameContains())) {
+            return false;
+        }
+        if (!containsIgnoreCase(attacker.getDetachmentName(), rule.getAttackerDetachmentNameContains())) {
+            return false;
+        }
+        if (!containsIgnoreCase(defender.getDetachmentName(), rule.getDefenderDetachmentNameContains())) {
+            return false;
+        }
+        if (!enhancementMatches(attacker, rule.getAttackerEnhancementNameContains())) {
+            return false;
+        }
+        if (!enhancementMatches(defender, rule.getDefenderEnhancementNameContains())) {
             return false;
         }
         if (rule.isRequireWithinHalfRange() && !context.withinHalfRange()) {
@@ -132,6 +219,29 @@ public class EditorRuleApplicationService {
         return !rule.isRequireTargetPsyker() || context.targetIsPsyker();
     }
 
+    private boolean activeEffectTargetMatches(
+            EditorActiveEffect effect,
+            UnitInstance attacker,
+            UnitInstance defender
+    ) {
+        String targetUnitId = safe(effect.targetUnitId());
+        if (targetUnitId.isBlank()) {
+            return false;
+        }
+
+        EditorRuleTargetRole targetRole = effect.targetRole();
+        boolean matchesAttacker = attacker != null && targetUnitId.equals(attacker.getInstanceId());
+        boolean matchesDefender = defender != null && targetUnitId.equals(defender.getInstanceId());
+
+        if (targetRole == EditorRuleTargetRole.ATTACKER) {
+            return matchesAttacker;
+        }
+        if (targetRole == EditorRuleTargetRole.DEFENDER) {
+            return matchesDefender;
+        }
+        return matchesAttacker || matchesDefender;
+    }
+
     private boolean phaseMatches(EditorRulePhase phase, AutoBattleMode mode) {
         if (phase == null || phase == EditorRulePhase.ANY) {
             return true;
@@ -148,6 +258,40 @@ public class EditorRuleApplicationService {
             return true;
         }
         return unit != null && unit.hasKeyword(keyword);
+    }
+
+    private boolean abilityMatches(UnitInstance unit, String abilityFilter) {
+        if (abilityFilter == null || abilityFilter.isBlank()) {
+            return true;
+        }
+        if (unit == null) {
+            return false;
+        }
+
+        return unit.hasAbilityNameContaining(abilityFilter)
+                || unit.hasAbilityNamed(abilityFilter)
+                || unit.hasAbilityTextContaining(abilityFilter);
+    }
+
+    private boolean factionAbilityMatches(UnitInstance unit, String abilityFilter) {
+        if (abilityFilter == null || abilityFilter.isBlank()) {
+            return true;
+        }
+        return unit != null && unit.hasFactionAbilityNameContaining(abilityFilter);
+    }
+
+    private boolean detachmentAbilityMatches(UnitInstance unit, String abilityFilter) {
+        if (abilityFilter == null || abilityFilter.isBlank()) {
+            return true;
+        }
+        return unit != null && unit.hasDetachmentAbilityNameContaining(abilityFilter);
+    }
+
+    private boolean enhancementMatches(UnitInstance unit, String enhancementFilter) {
+        if (enhancementFilter == null || enhancementFilter.isBlank()) {
+            return true;
+        }
+        return unit != null && unit.hasEnhancementNameContaining(enhancementFilter);
     }
 
     private boolean containsIgnoreCase(String source, String filter) {
@@ -171,5 +315,9 @@ public class EditorRuleApplicationService {
                 sink.add(normalized);
             }
         }
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value.trim();
     }
 }
