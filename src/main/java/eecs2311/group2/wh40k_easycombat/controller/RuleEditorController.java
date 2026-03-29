@@ -1,6 +1,8 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.RuleEditorFormMapper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.RuleEditorVisualBuilderHelper;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleAttackType;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
@@ -25,7 +27,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -142,17 +143,17 @@ public class RuleEditorController {
         targetRoleComboBox.getItems().setAll(EditorRuleTargetRole.values());
         visualHitRerollComboBox.getItems().setAll(EditorRerollType.values());
         visualWoundRerollComboBox.getItems().setAll(EditorRerollType.values());
-        configureSpinner(visualHitModifierSpinner, -6, 6, 0);
-        configureSpinner(visualWoundModifierSpinner, -6, 6, 0);
-        configureSpinner(visualAttacksModifierSpinner, -20, 20, 0);
-        configureSpinner(visualDamageModifierSpinner, -10, 10, 0);
-        configureSpinner(visualApModifierSpinner, -6, 6, 0);
+        RuleEditorVisualBuilderHelper.configureSpinner(visualHitModifierSpinner, -6, 6, 0);
+        RuleEditorVisualBuilderHelper.configureSpinner(visualWoundModifierSpinner, -6, 6, 0);
+        RuleEditorVisualBuilderHelper.configureSpinner(visualAttacksModifierSpinner, -20, 20, 0);
+        RuleEditorVisualBuilderHelper.configureSpinner(visualDamageModifierSpinner, -10, 10, 0);
+        RuleEditorVisualBuilderHelper.configureSpinner(visualApModifierSpinner, -6, 6, 0);
         scriptTextArea.setEditable(false);
 
         rulesListView.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldValue, newValue) -> showListEntry(newValue));
 
-        wireVisualBuilderPreview();
+        RuleEditorVisualBuilderHelper.wireVisualBuilderPreview(visualControls(), this::refreshGeneratedScriptPreview);
         refreshRuleList(null);
 
         selectFirstEditableOrPrepareNew();
@@ -173,7 +174,7 @@ public class RuleEditorController {
 
         updatingForm = true;
         try {
-            resetVisualControls();
+            RuleEditorVisualBuilderHelper.resetVisualControls(visualControls());
         } finally {
             updatingForm = false;
         }
@@ -190,35 +191,14 @@ public class RuleEditorController {
             return;
         }
 
-        EditorRuleDefinition rule = new EditorRuleDefinition();
-        rule.setId(selectedRuleId);
+        EditorRuleDefinition rule = RuleEditorFormMapper.readRuleFromForm(
+                selectedRuleId,
+                identityFields(),
+                matchFields(),
+                stratagemFields()
+        );
         rule.setName(name);
-        rule.setType(typeComboBox.getValue());
-        rule.setPhase(phaseComboBox.getValue());
-        rule.setAttackType(attackTypeComboBox.getValue());
-        rule.setEnabled(enabledCheckBox.isSelected());
-        rule.setOptionalActivation(optionalActivationCheckBox.isSelected());
-        rule.setAttackerUnitNameContains(attackerUnitNameField.getText());
-        rule.setDefenderUnitNameContains(defenderUnitNameField.getText());
-        rule.setWeaponNameContains(weaponNameField.getText());
-        rule.setAttackerKeyword(attackerKeywordField.getText());
-        rule.setDefenderKeyword(defenderKeywordField.getText());
-        rule.setAttackerAbilityNameContains(attackerAbilityField.getText());
-        rule.setDefenderAbilityNameContains(defenderAbilityField.getText());
-        rule.setAttackerFactionAbilityNameContains(attackerFactionAbilityField.getText());
-        rule.setDefenderFactionAbilityNameContains(defenderFactionAbilityField.getText());
-        rule.setAttackerDetachmentAbilityNameContains(attackerDetachmentAbilityField.getText());
-        rule.setDefenderDetachmentAbilityNameContains(defenderDetachmentAbilityField.getText());
-        rule.setAttackerFactionNameContains(attackerFactionField.getText());
-        rule.setDefenderFactionNameContains(defenderFactionField.getText());
-        rule.setAttackerDetachmentNameContains(attackerDetachmentField.getText());
-        rule.setDefenderDetachmentNameContains(defenderDetachmentField.getText());
-        rule.setAttackerEnhancementNameContains(attackerEnhancementField.getText());
-        rule.setDefenderEnhancementNameContains(defenderEnhancementField.getText());
-        rule.setTriggeringStratagemNameContains(triggeringStratagemField.getText());
-        rule.setDuration(durationComboBox.getValue());
-        rule.setTargetRole(targetRoleComboBox.getValue());
-        readVisualBuilder(rule);
+        RuleEditorVisualBuilderHelper.readVisualBuilder(rule, visualControls());
         rule.setDslScript(visualVmScriptBuilder.build(rule));
 
         try {
@@ -314,40 +294,15 @@ public class RuleEditorController {
         updatingForm = true;
         try {
             selectedRuleId = existingRule ? current.getId() : null;
-            deleteRuleButton.setDisable(!existingRule);
-            saveRuleButton.setDisable(false);
-            setEditorEditable(true);
-
-            nameField.setText(current.getName());
-            typeComboBox.setValue(current.getType());
-            phaseComboBox.setValue(current.getPhase());
-            attackTypeComboBox.setValue(current.getAttackType());
-            enabledCheckBox.setSelected(current.isEnabled());
-            optionalActivationCheckBox.setSelected(current.isOptionalActivation());
-
-            attackerUnitNameField.setText(current.getAttackerUnitNameContains());
-            defenderUnitNameField.setText(current.getDefenderUnitNameContains());
-            weaponNameField.setText(current.getWeaponNameContains());
-            attackerKeywordField.setText(current.getAttackerKeyword());
-            defenderKeywordField.setText(current.getDefenderKeyword());
-            attackerAbilityField.setText(current.getAttackerAbilityNameContains());
-            defenderAbilityField.setText(current.getDefenderAbilityNameContains());
-            attackerFactionAbilityField.setText(current.getAttackerFactionAbilityNameContains());
-            defenderFactionAbilityField.setText(current.getDefenderFactionAbilityNameContains());
-            attackerDetachmentAbilityField.setText(current.getAttackerDetachmentAbilityNameContains());
-            defenderDetachmentAbilityField.setText(current.getDefenderDetachmentAbilityNameContains());
-            attackerFactionField.setText(current.getAttackerFactionNameContains());
-            defenderFactionField.setText(current.getDefenderFactionNameContains());
-            attackerDetachmentField.setText(current.getAttackerDetachmentNameContains());
-            defenderDetachmentField.setText(current.getDefenderDetachmentNameContains());
-            attackerEnhancementField.setText(current.getAttackerEnhancementNameContains());
-            defenderEnhancementField.setText(current.getDefenderEnhancementNameContains());
-
-            triggeringStratagemField.setText(current.getTriggeringStratagemNameContains());
-            durationComboBox.setValue(current.getDuration());
-            targetRoleComboBox.setValue(current.getTargetRole());
-
-            loadVisualBuilder(current);
+            RuleEditorFormMapper.writeRuleToForm(
+                    current,
+                    existingRule,
+                    identityFields(),
+                    matchFields(),
+                    stratagemFields(),
+                    editorCards()
+            );
+            RuleEditorVisualBuilderHelper.loadVisualBuilder(current, visualControls());
             updateEditableHelperText();
         } finally {
             updatingForm = false;
@@ -363,19 +318,15 @@ public class RuleEditorController {
         updatingForm = true;
         try {
             selectedRuleId = null;
-            deleteRuleButton.setDisable(true);
-            saveRuleButton.setDisable(true);
-            setEditorEditable(false);
-
-            nameField.setText(item.getDisplayName());
-            typeComboBox.setValue(EditorRuleType.KEYWORD);
-            phaseComboBox.setValue(EditorRulePhase.ANY);
-            attackTypeComboBox.setValue(EditorRuleAttackType.ANY);
-            enabledCheckBox.setSelected(true);
-            optionalActivationCheckBox.setSelected(false);
-            clearMetadataFilters();
-            resetVisualControls();
-            scriptTextArea.setText(item.getScript());
+            RuleEditorFormMapper.showBuiltInRule(
+                    item.getDisplayName(),
+                    item.getScript(),
+                    identityFields(),
+                    matchFields(),
+                    stratagemFields(),
+                    editorCards()
+            );
+            RuleEditorVisualBuilderHelper.resetVisualControls(visualControls());
             updateBuiltInHelperText();
             statusLabel.setText("Viewing built-in VM rule: " + item.getDisplayName());
         } finally {
@@ -400,152 +351,14 @@ public class RuleEditorController {
         scriptHelpLabel.setText("Built-in VM script preview. Click New Rule to create an editable visual rule.");
     }
 
-    private void clearMetadataFilters() {
-        attackerUnitNameField.clear();
-        defenderUnitNameField.clear();
-        weaponNameField.clear();
-        attackerKeywordField.clear();
-        defenderKeywordField.clear();
-        attackerAbilityField.clear();
-        defenderAbilityField.clear();
-        attackerFactionAbilityField.clear();
-        defenderFactionAbilityField.clear();
-        attackerDetachmentAbilityField.clear();
-        defenderDetachmentAbilityField.clear();
-        attackerFactionField.clear();
-        defenderFactionField.clear();
-        attackerDetachmentField.clear();
-        defenderDetachmentField.clear();
-        attackerEnhancementField.clear();
-        defenderEnhancementField.clear();
-        triggeringStratagemField.clear();
-        durationComboBox.setValue(EditorRuleDuration.UNTIL_END_OF_PHASE);
-        targetRoleComboBox.setValue(EditorRuleTargetRole.ATTACKER);
-    }
-
-    private void loadVisualBuilder(EditorRuleDefinition rule) {
-        visualWithinHalfRangeCheckBox.setSelected(rule.isVisualWithinHalfRange());
-        visualRemainedStationaryCheckBox.setSelected(rule.isVisualRemainedStationary());
-        visualAdvancedThisTurnCheckBox.setSelected(rule.isVisualAdvancedThisTurn());
-        visualFellBackThisTurnCheckBox.setSelected(rule.isVisualFellBackThisTurn());
-        visualChargedThisTurnCheckBox.setSelected(rule.isVisualChargedThisTurn());
-        visualAttackerCanFightCheckBox.setSelected(rule.isVisualAttackerCanFight());
-        visualTargetHasCoverCheckBox.setSelected(rule.isVisualTargetHasCover());
-        visualBlastIsLegalCheckBox.setSelected(rule.isVisualBlastIsLegal());
-        visualTargetInfantryCheckBox.setSelected(rule.isVisualTargetIsInfantry());
-        visualTargetVehicleCheckBox.setSelected(rule.isVisualTargetIsVehicle());
-        visualTargetMonsterCheckBox.setSelected(rule.isVisualTargetIsMonster());
-        visualTargetCharacterCheckBox.setSelected(rule.isVisualTargetIsCharacter());
-        visualTargetPsykerCheckBox.setSelected(rule.isVisualTargetIsPsyker());
-        visualHitModifierSpinner.getValueFactory().setValue(rule.getVisualHitModifier());
-        visualWoundModifierSpinner.getValueFactory().setValue(rule.getVisualWoundModifier());
-        visualAttacksModifierSpinner.getValueFactory().setValue(rule.getVisualAttacksModifier());
-        visualDamageModifierSpinner.getValueFactory().setValue(rule.getVisualDamageModifier());
-        visualApModifierSpinner.getValueFactory().setValue(rule.getVisualApModifier());
-        visualHitRerollComboBox.setValue(rule.getVisualHitReroll());
-        visualWoundRerollComboBox.setValue(rule.getVisualWoundReroll());
-        visualKeywordsField.setText(rule.getVisualExtraWeaponKeywords());
-    }
-
-    private void readVisualBuilder(EditorRuleDefinition rule) {
-        rule.setVisualWithinHalfRange(visualWithinHalfRangeCheckBox.isSelected());
-        rule.setVisualRemainedStationary(visualRemainedStationaryCheckBox.isSelected());
-        rule.setVisualAdvancedThisTurn(visualAdvancedThisTurnCheckBox.isSelected());
-        rule.setVisualFellBackThisTurn(visualFellBackThisTurnCheckBox.isSelected());
-        rule.setVisualChargedThisTurn(visualChargedThisTurnCheckBox.isSelected());
-        rule.setVisualAttackerCanFight(visualAttackerCanFightCheckBox.isSelected());
-        rule.setVisualTargetHasCover(visualTargetHasCoverCheckBox.isSelected());
-        rule.setVisualBlastIsLegal(visualBlastIsLegalCheckBox.isSelected());
-        rule.setVisualTargetIsInfantry(visualTargetInfantryCheckBox.isSelected());
-        rule.setVisualTargetIsVehicle(visualTargetVehicleCheckBox.isSelected());
-        rule.setVisualTargetIsMonster(visualTargetMonsterCheckBox.isSelected());
-        rule.setVisualTargetIsCharacter(visualTargetCharacterCheckBox.isSelected());
-        rule.setVisualTargetIsPsyker(visualTargetPsykerCheckBox.isSelected());
-        rule.setVisualHitModifier(spinnerValue(visualHitModifierSpinner));
-        rule.setVisualWoundModifier(spinnerValue(visualWoundModifierSpinner));
-        rule.setVisualAttacksModifier(spinnerValue(visualAttacksModifierSpinner));
-        rule.setVisualDamageModifier(spinnerValue(visualDamageModifierSpinner));
-        rule.setVisualApModifier(spinnerValue(visualApModifierSpinner));
-        rule.setVisualHitReroll(visualHitRerollComboBox.getValue());
-        rule.setVisualWoundReroll(visualWoundRerollComboBox.getValue());
-        rule.setVisualExtraWeaponKeywords(visualKeywordsField.getText());
-    }
-
     private void refreshGeneratedScriptPreview() {
         if (updatingForm || saveRuleButton.isDisabled()) {
             return;
         }
 
         EditorRuleDefinition preview = new EditorRuleDefinition();
-        readVisualBuilder(preview);
+        RuleEditorVisualBuilderHelper.readVisualBuilder(preview, visualControls());
         scriptTextArea.setText(visualVmScriptBuilder.build(preview));
-    }
-
-    private void wireVisualBuilderPreview() {
-        enabledCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualWithinHalfRangeCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualRemainedStationaryCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualAdvancedThisTurnCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualFellBackThisTurnCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualChargedThisTurnCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualAttackerCanFightCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetHasCoverCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualBlastIsLegalCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetInfantryCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetVehicleCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetMonsterCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetCharacterCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualTargetPsykerCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualKeywordsField.textProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualHitRerollComboBox.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualWoundRerollComboBox.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualHitModifierSpinner.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualWoundModifierSpinner.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualAttacksModifierSpinner.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualDamageModifierSpinner.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-        visualApModifierSpinner.valueProperty().addListener((obs, oldValue, newValue) -> refreshGeneratedScriptPreview());
-    }
-
-    private void configureSpinner(Spinner<Integer> spinner, int min, int max, int value) {
-        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, value));
-        spinner.getStyleClass().add("game-spinner");
-    }
-
-    private int spinnerValue(Spinner<Integer> spinner) {
-        Integer value = spinner.getValue();
-        return value == null ? 0 : value;
-    }
-
-    private void resetVisualControls() {
-        visualWithinHalfRangeCheckBox.setSelected(false);
-        visualRemainedStationaryCheckBox.setSelected(false);
-        visualAdvancedThisTurnCheckBox.setSelected(false);
-        visualFellBackThisTurnCheckBox.setSelected(false);
-        visualChargedThisTurnCheckBox.setSelected(false);
-        visualAttackerCanFightCheckBox.setSelected(false);
-        visualTargetHasCoverCheckBox.setSelected(false);
-        visualBlastIsLegalCheckBox.setSelected(false);
-        visualTargetInfantryCheckBox.setSelected(false);
-        visualTargetVehicleCheckBox.setSelected(false);
-        visualTargetMonsterCheckBox.setSelected(false);
-        visualTargetCharacterCheckBox.setSelected(false);
-        visualTargetPsykerCheckBox.setSelected(false);
-        visualHitModifierSpinner.getValueFactory().setValue(0);
-        visualWoundModifierSpinner.getValueFactory().setValue(0);
-        visualAttacksModifierSpinner.getValueFactory().setValue(0);
-        visualDamageModifierSpinner.getValueFactory().setValue(0);
-        visualApModifierSpinner.getValueFactory().setValue(0);
-        visualHitRerollComboBox.setValue(EditorRerollType.NONE);
-        visualWoundRerollComboBox.setValue(EditorRerollType.NONE);
-        visualKeywordsField.clear();
-    }
-
-    private void setEditorEditable(boolean editable) {
-        identityCard.setDisable(!editable);
-        matchCard.setDisable(!editable);
-        stratagemCard.setDisable(!editable);
-        visualLogicCard.setDisable(!editable);
-        resetLogicButton.setDisable(!editable);
     }
 
     private void selectFirstEditableOrPrepareNew() {
@@ -559,6 +372,86 @@ public class RuleEditorController {
             }
         }
         prepareNewRule();
+    }
+
+    private RuleEditorFormMapper.RuleIdentityFields identityFields() {
+        return new RuleEditorFormMapper.RuleIdentityFields(
+                nameField,
+                typeComboBox,
+                phaseComboBox,
+                attackTypeComboBox,
+                enabledCheckBox,
+                optionalActivationCheckBox
+        );
+    }
+
+    private RuleEditorFormMapper.RuleMatchFields matchFields() {
+        return new RuleEditorFormMapper.RuleMatchFields(
+                attackerUnitNameField,
+                defenderUnitNameField,
+                weaponNameField,
+                attackerKeywordField,
+                defenderKeywordField,
+                attackerAbilityField,
+                defenderAbilityField,
+                attackerFactionAbilityField,
+                defenderFactionAbilityField,
+                attackerDetachmentAbilityField,
+                defenderDetachmentAbilityField,
+                attackerFactionField,
+                defenderFactionField,
+                attackerDetachmentField,
+                defenderDetachmentField,
+                attackerEnhancementField,
+                defenderEnhancementField
+        );
+    }
+
+    private RuleEditorFormMapper.RuleStratagemFields stratagemFields() {
+        return new RuleEditorFormMapper.RuleStratagemFields(
+                triggeringStratagemField,
+                durationComboBox,
+                targetRoleComboBox
+        );
+    }
+
+    private RuleEditorFormMapper.RuleEditorCards editorCards() {
+        return new RuleEditorFormMapper.RuleEditorCards(
+                identityCard,
+                matchCard,
+                stratagemCard,
+                visualLogicCard,
+                deleteRuleButton,
+                saveRuleButton,
+                resetLogicButton,
+                scriptTextArea
+        );
+    }
+
+    private RuleEditorVisualBuilderHelper.VisualControls visualControls() {
+        return new RuleEditorVisualBuilderHelper.VisualControls(
+                visualWithinHalfRangeCheckBox,
+                visualRemainedStationaryCheckBox,
+                visualAdvancedThisTurnCheckBox,
+                visualFellBackThisTurnCheckBox,
+                visualChargedThisTurnCheckBox,
+                visualAttackerCanFightCheckBox,
+                visualTargetHasCoverCheckBox,
+                visualBlastIsLegalCheckBox,
+                visualTargetInfantryCheckBox,
+                visualTargetVehicleCheckBox,
+                visualTargetMonsterCheckBox,
+                visualTargetCharacterCheckBox,
+                visualTargetPsykerCheckBox,
+                visualHitModifierSpinner,
+                visualWoundModifierSpinner,
+                visualAttacksModifierSpinner,
+                visualDamageModifierSpinner,
+                visualApModifierSpinner,
+                visualHitRerollComboBox,
+                visualWoundRerollComboBox,
+                visualKeywordsField
+        );
     }
 
     private String safe(String value) {
