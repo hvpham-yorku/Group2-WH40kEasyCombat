@@ -1,5 +1,6 @@
 package eecs2311.group2.wh40k_easycombat.db;
 
+import eecs2311.group2.wh40k_easycombat.util.AppPaths;
 import eecs2311.group2.wh40k_easycombat.util.SqlGenerator;
 import eecs2311.group2.wh40k_easycombat.util.JavaGenerator;
 
@@ -15,13 +16,32 @@ import java.sql.Statement;
 import java.util.List;
 
 public final class Database {
-    private static String URL = "jdbc:sqlite:app.db";
+    private static Path databasePath = AppPaths.getDatabasePath();
+    private static String URL = buildSqliteUrl(databasePath);
+
+    public static void useApplicationDatabase() throws IOException {
+        AppPaths.ensureRuntimeDirectories();
+        useDatabase(AppPaths.getDatabasePath());
+    }
 
     public static void useTestDatabase() {
-        URL = "jdbc:sqlite:test.db";
+        useDatabase(Path.of("test.db"));
+    }
+
+    public static Path getCurrentDatabasePath() {
+        return databasePath;
     }
 
     public static Connection getConnection() throws SQLException {
+        Path parent = databasePath.getParent();
+        if (parent != null) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new SQLException("Failed to create database directory: " + parent, e);
+            }
+        }
+
         Connection conn = DriverManager.getConnection(URL);
         initPragma(conn);
         return conn;
@@ -32,6 +52,17 @@ public final class Database {
             st.execute("PRAGMA foreign_keys = ON");
             st.execute("PRAGMA journal_mode = WAL");
             st.execute("PRAGMA synchronous = NORMAL");
+        }
+    }
+
+    public static void ensureSchema() throws SQLException {
+        try (Connection conn = Database.getConnection();
+             Statement st = conn.createStatement()) {
+            executeSqlStatements(st, SqlGenerator.generateFullSchema());
+        } catch (SQLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException("Failed to generate application schema.", e);
         }
     }
 
@@ -114,14 +145,26 @@ public final class Database {
 
             for (Path file : sqlFiles) {
                 String sql = Files.readString(file);
-                String[] statements = sql.split(";");
+                executeSqlStatements(st, sql);
+            }
+        }
+    }
 
-                for (String stmt : statements) {
-                    stmt = stmt.trim();
-                    if (!stmt.isEmpty()) {
-                        st.execute(stmt);
-                    }
-                }
+    private static void useDatabase(Path path) {
+        databasePath = path.toAbsolutePath().normalize();
+        URL = buildSqliteUrl(databasePath);
+    }
+
+    private static String buildSqliteUrl(Path path) {
+        return "jdbc:sqlite:" + path.toAbsolutePath().normalize();
+    }
+
+    private static void executeSqlStatements(Statement statement, String sql) throws SQLException {
+        String[] statements = sql.split(";");
+        for (String stmt : statements) {
+            String trimmed = stmt.trim();
+            if (!trimmed.isEmpty()) {
+                statement.execute(trimmed);
             }
         }
     }

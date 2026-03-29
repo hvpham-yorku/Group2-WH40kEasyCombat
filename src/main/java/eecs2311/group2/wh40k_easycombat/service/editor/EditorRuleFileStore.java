@@ -7,6 +7,7 @@ import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDuration;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRulePhase;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleTargetRole;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleType;
+import eecs2311.group2.wh40k_easycombat.util.AppPaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class EditorRuleFileStore {
-    private static final Path STORAGE_FOLDER = Path.of("data", "dsl");
+    private static final Path STORAGE_FOLDER = AppPaths.getUserDslDirectory();
 
     public List<EditorRuleDefinition> loadAll() {
         if (!Files.isDirectory(STORAGE_FOLDER)) {

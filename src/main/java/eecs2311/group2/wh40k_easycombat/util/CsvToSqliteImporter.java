@@ -30,8 +30,6 @@ import java.util.*;
  * - Army preset tables: special import with id remapping, because child tables depend on old CSV auto_id values.
  */
 public final class CsvToSqliteImporter {
-
-    private static final String DEFAULT_CSV_FOLDER = "src/main/resources/csv";
     private static final char DELIMITER = '|';
 
     // If your auto id column is not named this, add more names here.
@@ -48,7 +46,8 @@ public final class CsvToSqliteImporter {
     private CsvToSqliteImporter() {}
 
     public static void importDefaultCsvSeedLike(boolean forceReimport) throws IOException, SQLException {
-        importCsvFolderSeedLike(DEFAULT_CSV_FOLDER, forceReimport);
+        BundledResourceManager.ensureBundledResourcesAvailable();
+        importCsvFolderSeedLike(AppPaths.getSeedCsvDirectory().toString(), forceReimport);
     }
 
     public static void importCsvFolderSeedLike(String folderPath, boolean forceReimport) throws IOException, SQLException {
