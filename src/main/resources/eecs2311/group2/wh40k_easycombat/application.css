@@ -1492,7 +1492,7 @@
 }
 
 .mission-intro-label {
-    -fx-font-size: 17px;
+    -fx-font-size: 16px;
     -fx-font-style: italic;
     -fx-alignment: center;
     -fx-text-alignment: center;
@@ -1552,23 +1552,23 @@
 
 .mission-tag-text {
     -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-fill: #111111;
 }
 
 .mission-when-tag-text {
     -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-fill: #c72020;
 }
 
 .mission-body-text-node {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-fill: #111111;
 }
 
 .mission-body-text {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-text-fill: #111111;
 }
 
@@ -1584,7 +1584,7 @@
 
 .mission-score-text {
     -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-text-fill: #111111;
     -fx-text-alignment: right;
     -fx-alignment: center-right;
@@ -1595,14 +1595,14 @@
 }
 
 .mission-score-mode {
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-text-fill: #111111;
     -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
 }
 
 .mission-score-value {
     -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
-    -fx-font-size: 18px;
+    -fx-font-size: 17px;
     -fx-text-fill: #111111;
 }
 

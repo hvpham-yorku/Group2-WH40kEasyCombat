@@ -1,27 +1,45 @@
 package eecs2311.group2.wh40k_easycombat.model.instance;
 
+import eecs2311.group2.wh40k_easycombat.model.combat.PhaseAdvanceResult;
+import eecs2311.group2.wh40k_easycombat.service.autobattle.AutoBattleMode;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class BattleState {
     private String missionName;
+    private int maxRounds;
     private int currentRound;
     private Phase currentPhase;
     private Player activePlayer;
+    private boolean battleOver;
 
     private ArmyInstance attackerArmy;
     private ArmyInstance defenderArmy;
 
     public BattleState() {
-        reset("");
+        reset("", 5);
     }
 
     public BattleState(String missionName) {
-        reset(missionName);
+        reset(missionName, 5);
+    }
+
+    public BattleState(String missionName, int maxRounds) {
+        reset(missionName, maxRounds);
     }
 
     public void reset(String missionName) {
+        reset(missionName, 5);
+    }
+
+    public void reset(String missionName, int maxRounds) {
         this.missionName = missionName == null ? "" : missionName;
+        this.maxRounds = Math.max(1, maxRounds);
         this.currentRound = 1;
         this.currentPhase = Phase.COMMAND;
         this.activePlayer = Player.ATTACKER;
+        this.battleOver = false;
         this.attackerArmy = null;
         this.defenderArmy = null;
     }
@@ -32,6 +50,14 @@ public class BattleState {
 
     public void setMissionName(String missionName) {
         this.missionName = missionName == null ? "" : missionName;
+    }
+
+    public int getMaxRounds() {
+        return maxRounds;
+    }
+
+    public void setMaxRounds(int maxRounds) {
+        this.maxRounds = Math.max(1, maxRounds);
     }
 
     public int getCurrentRound() {
@@ -55,11 +81,19 @@ public class BattleState {
     }
 
     public Player getInactivePlayer() {
-        return (activePlayer == Player.ATTACKER) ? Player.DEFENDER : Player.ATTACKER;
+        return activePlayer == Player.ATTACKER ? Player.DEFENDER : Player.ATTACKER;
     }
 
     public void setActivePlayer(Player activePlayer) {
         this.activePlayer = activePlayer == null ? Player.ATTACKER : activePlayer;
+    }
+
+    public boolean isBattleOver() {
+        return battleOver;
+    }
+
+    public void setBattleOver(boolean battleOver) {
+        this.battleOver = battleOver;
     }
 
     public ArmyInstance getAttackerArmy() {
@@ -102,32 +136,94 @@ public class BattleState {
     }
 
     public ArmyInstance getInactiveArmy() {
-        return getArmy(activePlayer == Player.ATTACKER ? Player.DEFENDER : Player.ATTACKER);
+        return getArmy(getInactivePlayer());
     }
 
     public void switchActivePlayer() {
-        activePlayer = (activePlayer == Player.ATTACKER) ? Player.DEFENDER : Player.ATTACKER;
+        activePlayer = getInactivePlayer();
+    }
+
+    public boolean canOpenAutoBattle() {
+        return currentAutoBattleMode() != null;
+    }
+
+    public AutoBattleMode currentAutoBattleMode() {
+        return switch (currentPhase) {
+            case MOVEMENT, CHARGE -> AutoBattleMode.REACTION_SHOOTING;
+            case SHOOTING -> AutoBattleMode.SHOOTING;
+            case FIGHT -> AutoBattleMode.FIGHT;
+            case COMMAND -> null;
+        };
+    }
+
+    public String phaseText() {
+        return switch (currentPhase) {
+            case COMMAND -> "Command";
+            case MOVEMENT -> "Movement";
+            case SHOOTING -> "Shooting";
+            case CHARGE -> "Charge";
+            case FIGHT -> "Fight";
+        };
+    }
+
+    public String phaseLabelFor(Player player) {
+        return player == activePlayer ? phaseText() + " (Active)" : phaseText();
     }
 
     public void advancePhase() {
-        if (currentPhase == Phase.FIGHT) {
-            Player previousPlayer = activePlayer;
-            currentPhase = Phase.COMMAND;
-            switchActivePlayer();
+        advancePhaseState();
+    }
 
-            if (previousPlayer == Player.DEFENDER && activePlayer == Player.ATTACKER) {
+    public PhaseAdvanceResult advancePhaseState() {
+        if (battleOver) {
+            return snapshot(null);
+        }
+
+        if (currentPhase == Phase.FIGHT) {
+            activePlayer = getInactivePlayer();
+            currentPhase = Phase.COMMAND;
+
+            if (activePlayer == Player.ATTACKER) {
                 currentRound++;
             }
-            return;
+
+            clearBattleShockForCommandPhase(getArmy(activePlayer));
+            resetForNewTurn();
+            addCp(activePlayer, 1);
+            return snapshot(activePlayer);
         }
 
         currentPhase = currentPhase.next();
+
+        if (currentPhase == Phase.SHOOTING) {
+            resetForNewShootingPhase(getArmy(activePlayer));
+        }
+
+        if (currentPhase == Phase.FIGHT) {
+            resetForNewFightPhase();
+        }
+
+        return snapshot(null);
     }
 
     public void nextRound() {
         currentRound++;
         currentPhase = Phase.COMMAND;
         activePlayer = Player.ATTACKER;
+        clearBattleShockForCommandPhase(getArmy(activePlayer));
+        resetForNewTurn();
+    }
+
+    public int getCurrentCp(Player player) {
+        ArmyInstance army = getArmy(player);
+        return army == null ? 0 : army.getCurrentCp();
+    }
+
+    public void setCurrentCp(Player player, int cp) {
+        ArmyInstance army = getArmy(player);
+        if (army != null) {
+            army.setCurrentCp(cp);
+        }
     }
 
     public void addCp(Player player, int amount) {
@@ -138,17 +234,20 @@ public class BattleState {
     }
 
     public boolean spendCp(Player player, int amount) {
-        if (amount <= 0) {
-            return true;
-        }
-
         ArmyInstance army = getArmy(player);
-        if (army == null || army.getCurrentCp() < amount) {
-            return false;
-        }
+        return army != null && army.spendCp(amount);
+    }
 
-        army.spendCp(amount);
-        return true;
+    public int getCurrentVp(Player player) {
+        ArmyInstance army = getArmy(player);
+        return army == null ? 0 : army.getCurrentVp();
+    }
+
+    public void setCurrentVp(Player player, int amount) {
+        ArmyInstance army = getArmy(player);
+        if (army != null) {
+            army.setCurrentVp(amount);
+        }
     }
 
     public void addVp(Player player, int amount) {
@@ -158,44 +257,105 @@ public class BattleState {
         }
     }
 
+    public boolean hasExceededMaxRounds() {
+        return currentRound > maxRounds;
+    }
+
     public BattleState deepCopy() {
-        BattleState copy = new BattleState(missionName);
+        BattleState copy = new BattleState(missionName, maxRounds);
         copy.setCurrentRound(currentRound);
         copy.setCurrentPhase(currentPhase);
         copy.setActivePlayer(activePlayer);
+        copy.setBattleOver(battleOver);
         copy.setAttackerArmy(copyArmy(attackerArmy));
         copy.setDefenderArmy(copyArmy(defenderArmy));
         return copy;
     }
 
-  private static ArmyInstance copyArmy(ArmyInstance source) {
-    if (source == null) {
-        return null;
+    private PhaseAdvanceResult snapshot(Player commandPointRecipient) {
+        return new PhaseAdvanceResult(currentRound, currentPhase, activePlayer, commandPointRecipient);
     }
 
-    ArmyInstance copy = new ArmyInstance(
-            source.getArmyId(),
-            source.getArmyName(),
-            source.getFactionId(),
-            source.getFactionName(),
-            source.getDetachmentId()
-    );
-
-    copy.setCurrentCp(source.getCurrentCp());
-    copy.setCurrentVp(source.getCurrentVp());
-
-    for (UnitInstance unit : source.getUnits()) {
-        copy.addUnit(copyUnit(unit));
+    private void resetForNewTurn() {
+        for (UnitInstance unit : allUnits()) {
+            if (unit != null) {
+                unit.resetForNewTurn();
+            }
+        }
     }
 
-    for (StratagemInstance strategy : source.getStrategies()) {
-        copy.addStrategy(copyStrategy(strategy));
+    private void resetForNewShootingPhase(ArmyInstance army) {
+        if (army == null) {
+            return;
+        }
+
+        for (UnitInstance unit : army.getUnits()) {
+            if (unit != null) {
+                unit.resetForNewShootingPhase();
+            }
+        }
     }
 
-    return copy;
-}
+    private void resetForNewFightPhase() {
+        for (UnitInstance unit : allUnits()) {
+            if (unit != null) {
+                unit.resetForNewFightPhase();
+            }
+        }
+    }
 
-  private static UnitInstance copyUnit(UnitInstance source) {
+    private void clearBattleShockForCommandPhase(ArmyInstance army) {
+        if (army == null) {
+            return;
+        }
+
+        for (UnitInstance unit : army.getUnits()) {
+            if (unit != null) {
+                unit.setBattleShocked(false);
+            }
+        }
+    }
+
+    private List<UnitInstance> allUnits() {
+        List<UnitInstance> result = new ArrayList<>();
+        if (attackerArmy != null) {
+            result.addAll(attackerArmy.getUnits());
+        }
+        if (defenderArmy != null) {
+            result.addAll(defenderArmy.getUnits());
+        }
+        return result;
+    }
+
+    private static ArmyInstance copyArmy(ArmyInstance source) {
+        if (source == null) {
+            return null;
+        }
+
+        ArmyInstance copy = new ArmyInstance(
+                source.getArmyId(),
+                source.getArmyName(),
+                source.getFactionId(),
+                source.getFactionName(),
+                source.getDetachmentId()
+        );
+
+        copy.setSecondaryMissionName(source.getSecondaryMissionName());
+        copy.setCurrentCp(source.getCurrentCp());
+        copy.setCurrentVp(source.getCurrentVp());
+
+        for (UnitInstance unit : source.getUnits()) {
+            copy.addUnit(copyUnit(unit));
+        }
+
+        for (StratagemInstance strategy : source.getStrategies()) {
+            copy.addStrategy(copyStrategy(strategy));
+        }
+
+        return copy;
+    }
+
+    private static UnitInstance copyUnit(UnitInstance source) {
         UnitInstance copy = new UnitInstance(
                 source.getDatasheetId(),
                 source.getUnitName()
@@ -256,7 +416,7 @@ public class BattleState {
         return copy;
     }
 
-  private static UnitModelInstance copyModel(UnitModelInstance source) {
+    private static UnitModelInstance copyModel(UnitModelInstance source) {
         UnitModelInstance copy = new UnitModelInstance(
                 source.getModelName(),
                 source.getM(),
@@ -272,7 +432,7 @@ public class BattleState {
         return copy;
     }
 
-  private static WeaponProfile copyWeapon(WeaponProfile source) {
+    private static WeaponProfile copyWeapon(WeaponProfile source) {
         return new WeaponProfile(
                 source.weaponID(),
                 source.name(),
@@ -297,5 +457,4 @@ public class BattleState {
                 source.descriptionHtml()
         );
     }
-
 }

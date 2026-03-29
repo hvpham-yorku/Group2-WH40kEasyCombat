@@ -3,7 +3,6 @@ package eecs2311.group2.wh40k_easycombat.controller;
 import eecs2311.group2.wh40k_easycombat.cell.GameArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.cell.GameStrategyCell;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
-import eecs2311.group2.wh40k_easycombat.manager.RoundManager;
 import eecs2311.group2.wh40k_easycombat.manager.StratagemUseManager;
 import eecs2311.group2.wh40k_easycombat.model.combat.PhaseAdvanceResult;
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
@@ -20,8 +19,8 @@ import eecs2311.group2.wh40k_easycombat.service.calculations.DiceService;
 import eecs2311.group2.wh40k_easycombat.service.editor.EditorEffectRuntimeService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 import eecs2311.group2.wh40k_easycombat.service.game.BattleShockService;
+import eecs2311.group2.wh40k_easycombat.service.game.GameEngine;
 import eecs2311.group2.wh40k_easycombat.service.game.GameSetupService;
-import eecs2311.group2.wh40k_easycombat.service.game.GameTurnService;
 import eecs2311.group2.wh40k_easycombat.service.mission.MissionService;
 import eecs2311.group2.wh40k_easycombat.service.mission.MissionSessionService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
@@ -105,7 +104,6 @@ public class GameUIController {
     @FXML private Button battleLogButton;
     @FXML private Button exitGameButton;
     @FXML private Button nextPhaseButton;
-    @FXML private Button nextRoundButton;
     @FXML private Button rollButton;
 
     @FXML private Label missionNameLabel;
@@ -125,7 +123,7 @@ public class GameUIController {
     private final ObservableList<MissionEntryVM> blueMissionEntries = FXCollections.observableArrayList();
     private final ObservableList<MissionEntryVM> redMissionEntries = FXCollections.observableArrayList();
 
-    private final GameTurnService turnService = new GameTurnService();
+    private final GameEngine gameEngine = new GameEngine();
     private final DiceService manualDiceService = new DiceService();
     private final BattleShockService battleShockService = new BattleShockService();
     private final EditorEffectRuntimeService editorEffectRuntimeService = EditorEffectRuntimeService.getInstance();
@@ -135,8 +133,6 @@ public class GameUIController {
     private final BattleLogService battleLogService = BattleLogService.getInstance();
 
     private MissionEntryVM primaryMissionEntry;
-    private int maxRounds = 5;
-    private boolean gameOver = false;
 
     // When this page loads, initialize all lists, turn state, manual dice controls and setup data.
     @FXML
@@ -147,11 +143,6 @@ public class GameUIController {
         setupManualDice();
         initializePhaseState();
         applySetupConfig();
-
-        if (nextRoundButton != null) {
-            nextRoundButton.setManaged(false);
-            nextRoundButton.setVisible(false);
-        }
     }
 
     public void acceptImportedArmy(ArmySide side, GameArmyImportVM data) {
@@ -161,12 +152,14 @@ public class GameUIController {
 
         editorEffectRuntimeService.clearAll();
         ArmyListStateService.initializeDisplayOrder(data.units());
+        gameEngine.replaceArmy(toPlayer(side), data);
 
         if (side == ArmySide.BLUE) {
             blueArmyUnits.setAll(data.units());
             ArmyListStateService.refreshArmyOrdering(blueArmyUnits);
             blueStrategies.setAll(data.strategies());
             blueFactionLabel.setText(data.factionName());
+            syncScoreLabels();
             blueArmyList.refresh();
             return;
         }
@@ -175,6 +168,7 @@ public class GameUIController {
         ArmyListStateService.refreshArmyOrdering(redArmyUnits);
         redStrategies.setAll(data.strategies());
         redFactionLabel.setText(data.factionName());
+        syncScoreLabels();
         redArmyList.refresh();
     }
 
@@ -271,12 +265,6 @@ public class GameUIController {
         }
     }
 
-    // When click the old "Next Round" area, forward the action to the phase advance logic.
-    @FXML
-    void nextRound(MouseEvent event) {
-        nextPhase(new ActionEvent(nextPhaseButton, nextPhaseButton));
-    }
-
     // When click "Battle Log" button, open the battle log window and show all recorded actions.
     @FXML
     void openLog(MouseEvent event) {
@@ -332,9 +320,9 @@ public class GameUIController {
         }
 
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
-                turnService.getActivePlayer(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
+                gameEngine.getActivePlayer(),
                 "Manual dice roll: "
                         + diceCount
                         + "D6, success on "
@@ -359,7 +347,7 @@ public class GameUIController {
     // When click "Next Phase" button, advance the battle to the next phase and update turn state.
     @FXML
     private void nextPhase(ActionEvent event) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
@@ -368,14 +356,14 @@ public class GameUIController {
             return;
         }
 
-        int previousRound = turnService.getCurrentRound();
-        Phase previousPhase = turnService.getCurrentPhase();
-        Player previousActivePlayer = turnService.getActivePlayer();
-        PhaseAdvanceResult result = turnService.advancePhase(blueUnitInstances(), redUnitInstances());
+        int previousRound = gameEngine.getCurrentRound();
+        Phase previousPhase = gameEngine.getCurrentPhase();
+        Player previousActivePlayer = gameEngine.getActivePlayer();
+        PhaseAdvanceResult result = gameEngine.advancePhase();
         editorEffectRuntimeService.clearExpiredEffects(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
-                turnService.getActivePlayer()
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
+                gameEngine.getActivePlayer()
         );
 
         StringBuilder phaseLog = new StringBuilder();
@@ -387,24 +375,23 @@ public class GameUIController {
                 .append(playerLabel(previousActivePlayer))
                 .append(" active)")
                 .append(" to Round ")
-                .append(turnService.getCurrentRound())
+                .append(gameEngine.getCurrentRound())
                 .append(" ")
-                .append(phaseName(turnService.getCurrentPhase()))
+                .append(phaseName(gameEngine.getCurrentPhase()))
                 .append(" (")
-                .append(playerLabel(turnService.getActivePlayer()))
+                .append(playerLabel(gameEngine.getActivePlayer()))
                 .append(" active).");
 
-        if (turnService.getCurrentRound() > maxRounds) {
+        if (gameEngine.getCurrentRound() > gameEngine.getMaxRounds()) {
             battleLogService.logTurnEvent(previousRound, previousPhase, previousActivePlayer, phaseLog.toString());
             finishBattle();
             return;
         }
 
         if (result.awardedCommandPoint()) {
-            int beforeCp = currentCp(result.commandPointRecipient());
-            addCommandPoint(result.commandPointRecipient());
-            missionSessionService.startTurn(result.commandPointRecipient());
             int afterCp = currentCp(result.commandPointRecipient());
+            int beforeCp = Math.max(0, afterCp - 1);
+            missionSessionService.startTurn(result.commandPointRecipient());
             phaseLog.append(" ")
                     .append(playerLabel(result.commandPointRecipient()))
                     .append(" gained 1 CP (")
@@ -414,7 +401,7 @@ public class GameUIController {
                     .append(").");
         }
 
-        battleLogService.logTurnEvent(turnService.getCurrentRound(), turnService.getCurrentPhase(), turnService.getActivePlayer(), phaseLog.toString());
+        battleLogService.logTurnEvent(gameEngine.getCurrentRound(), gameEngine.getCurrentPhase(), gameEngine.getActivePlayer(), phaseLog.toString());
         syncTurnUi();
         blueArmyList.refresh();
         redArmyList.refresh();
@@ -427,7 +414,7 @@ public class GameUIController {
     private void openAutoBattle(ActionEvent event) {
         autoBattleCheckBox.setSelected(false);
 
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
@@ -440,7 +427,7 @@ public class GameUIController {
             return;
         }
 
-        AutoBattleMode mode = turnService.currentAutoBattleMode();
+        AutoBattleMode mode = gameEngine.currentAutoBattleMode();
         if (mode == null) {
             DialogHelper.showWarning(
                     "Wrong Phase",
@@ -496,46 +483,36 @@ public class GameUIController {
     }
 
     private void initializePhaseState() {
-        turnService.reset();
+        gameEngine.start();
         editorEffectRuntimeService.clearAll();
         battleLogService.clear();
-        gameOver = false;
-        maxRounds = 5;
-
-        if (blueCPLabel != null) {
-            blueCPLabel.setText("1");
-        }
-        if (redCPLabel != null) {
-            redCPLabel.setText("1");
-        }
-
-        addCommandPoint(turnService.getActivePlayer());
-        missionSessionService.startTurn(turnService.getActivePlayer());
+        syncScoreLabels();
         syncTurnUi();
         updateWinnerLabel();
     }
 
     private void syncTurnUi() {
         if (roundLabel != null) {
-            roundLabel.setText(String.valueOf(turnService.getCurrentRound()));
+            roundLabel.setText(String.valueOf(gameEngine.getCurrentRound()));
         }
 
         if (bluePhaseLabel != null) {
-            bluePhaseLabel.setText(turnService.phaseLabelFor(Player.ATTACKER));
+            bluePhaseLabel.setText(gameEngine.phaseLabelFor(Player.ATTACKER));
         }
 
         if (redPhaseLabel != null) {
-            redPhaseLabel.setText(turnService.phaseLabelFor(Player.DEFENDER));
+            redPhaseLabel.setText(gameEngine.phaseLabelFor(Player.DEFENDER));
         }
 
+        syncScoreLabels();
         updateWinnerLabel();
         updateSecondaryMissionButtons();
 
         if (nextPhaseButton != null) {
-            nextPhaseButton.setDisable(gameOver);
+            nextPhaseButton.setDisable(gameEngine.isBattleOver());
         }
         if (autoBattleCheckBox != null) {
-            autoBattleCheckBox.setDisable(gameOver);
+            autoBattleCheckBox.setDisable(gameEngine.isBattleOver());
         }
     }
 
@@ -552,7 +529,7 @@ public class GameUIController {
     }
 
     private void useSelectedStrategy(ArmySide side) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
@@ -606,7 +583,8 @@ public class GameUIController {
             }
         }
 
-        getCpLabel(side).setText(result.nextCpText());
+        gameEngine.setCommandPoints(toPlayer(side), parseInt(result.nextCpText()));
+        syncScoreLabels();
 
         List<String> activatedLabels = List.of();
         if (targetedUnit != null && selected != null) {
@@ -614,9 +592,9 @@ public class GameUIController {
                             selected.getStrategy(),
                             targetedUnit.getUnit(),
                             toPlayer(side),
-                            turnService.getActivePlayer(),
-                            turnService.getCurrentPhase(),
-                            turnService.getCurrentRound()
+                            gameEngine.getActivePlayer(),
+                            gameEngine.getCurrentPhase(),
+                            gameEngine.getCurrentRound()
                     ).stream()
                     .map(effect -> effect.displayName())
                     .collect(Collectors.toList());
@@ -649,8 +627,8 @@ public class GameUIController {
             log.append(" Activated effects: ").append(String.join(", ", activatedLabels)).append(".");
         }
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
                 toPlayer(side),
                 log.toString()
         );
@@ -664,7 +642,7 @@ public class GameUIController {
     }
 
     private void openSelectedSecondaryMission(ArmySide side) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
@@ -701,8 +679,8 @@ public class GameUIController {
                 missionSessionService.complete(owningPlayer, selected.getName());
             }
             battleLogService.logTurnEvent(
-                    turnService.getCurrentRound(),
-                    turnService.getCurrentPhase(),
+                    gameEngine.getCurrentRound(),
+                    gameEngine.getCurrentPhase(),
                     owningPlayer,
                     playerLabel(owningPlayer)
                             + " completed "
@@ -719,12 +697,12 @@ public class GameUIController {
     }
 
     private void abandonSelectedMission(ArmySide side) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
 
-        if (toPlayer(side) != turnService.getActivePlayer()) {
+        if (toPlayer(side) != gameEngine.getActivePlayer()) {
             DialogHelper.showWarning(
                     "Wrong Turn",
                     "You can only abandon tactical missions during that army's current turn."
@@ -753,7 +731,8 @@ public class GameUIController {
         boolean grantedCp = false;
         int beforeCp = currentCp(toPlayer(side));
         if (missionSessionService.grantAbandonCpIfAvailable(toPlayer(side))) {
-            addCommandPoint(toPlayer(side));
+            gameEngine.addCommandPoint(toPlayer(side));
+            syncScoreLabels();
             grantedCp = true;
             DialogHelper.showInfo(
                     "Mission Abandoned",
@@ -763,8 +742,8 @@ public class GameUIController {
 
         int afterCp = currentCp(toPlayer(side));
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
                 toPlayer(side),
                 playerLabel(toPlayer(side))
                         + " abandoned secondary mission \""
@@ -787,12 +766,12 @@ public class GameUIController {
     }
 
     private void drawSecondaryMissions(ArmySide side) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
 
-        if (toPlayer(side) != turnService.getActivePlayer()) {
+        if (toPlayer(side) != gameEngine.getActivePlayer()) {
             DialogHelper.showWarning(
                     "Wrong Turn",
                     "You can only draw tactical secondary missions during that army's current turn."
@@ -826,8 +805,8 @@ public class GameUIController {
         );
 
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
                 player,
                 playerLabel(player)
                         + " drew tactical mission"
@@ -854,37 +833,18 @@ public class GameUIController {
         return side == ArmySide.BLUE ? Player.ATTACKER : Player.DEFENDER;
     }
 
-    private RoundManager.RoundState readRoundState() {
-        return RoundManager.fromTexts(
-                roundLabel == null ? null : roundLabel.getText(),
-                blueCPLabel == null ? null : blueCPLabel.getText(),
-                redCPLabel == null ? null : redCPLabel.getText()
-        );
-    }
-
-    private void applyRoundState(RoundManager.RoundState state) {
-        if (state == null) {
-            return;
-        }
-
+    private void syncScoreLabels() {
         if (blueCPLabel != null) {
-            blueCPLabel.setText(String.valueOf(state.blueCp()));
+            blueCPLabel.setText(String.valueOf(gameEngine.currentCp(Player.ATTACKER)));
         }
         if (redCPLabel != null) {
-            redCPLabel.setText(String.valueOf(state.redCp()));
+            redCPLabel.setText(String.valueOf(gameEngine.currentCp(Player.DEFENDER)));
         }
-    }
-
-    private void addCommandPoint(Player player) {
-        if (player == Player.ATTACKER) {
-            if (blueCPLabel != null) {
-                blueCPLabel.setText(String.valueOf(parseInt(blueCPLabel.getText()) + 1));
-            }
-            return;
+        if (blueVPLabel != null) {
+            blueVPLabel.setText(String.valueOf(gameEngine.currentVp(Player.ATTACKER)));
         }
-
-        if (redCPLabel != null) {
-            redCPLabel.setText(String.valueOf(parseInt(redCPLabel.getText()) + 1));
+        if (redVPLabel != null) {
+            redVPLabel.setText(String.valueOf(gameEngine.currentVp(Player.DEFENDER)));
         }
     }
 
@@ -909,17 +869,17 @@ public class GameUIController {
     }
 
     private void maybeOpenBattleShockWindow() {
-        if (turnService.getCurrentPhase() != Phase.COMMAND) {
+        if (gameEngine.getCurrentPhase() != Phase.COMMAND) {
             return;
         }
 
-        List<UnitInstance> activeUnits = turnService.getActivePlayer() == Player.ATTACKER
+        List<UnitInstance> activeUnits = gameEngine.getActivePlayer() == Player.ATTACKER
                 ? blueUnitInstances()
                 : redUnitInstances();
 
         List<UnitInstance> candidates = battleShockService.battleShockCandidates(
                 activeUnits,
-                turnService.getCurrentRound()
+                gameEngine.getCurrentRound()
         );
 
         if (candidates.isEmpty()) {
@@ -927,10 +887,10 @@ public class GameUIController {
         }
 
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
-                turnService.getActivePlayer(),
-                playerLabel(turnService.getActivePlayer())
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
+                gameEngine.getActivePlayer(),
+                playerLabel(gameEngine.getActivePlayer())
                         + " begins the Battle-shock step for: "
                         + candidates.stream().map(UnitInstance::getUnitName).collect(Collectors.joining(", "))
                         + "."
@@ -947,12 +907,12 @@ public class GameUIController {
             Parent root = loader.load();
 
             BattleShockController controller = loader.getController();
-            String factionName = turnService.getActivePlayer() == Player.ATTACKER
+            String factionName = gameEngine.getActivePlayer() == Player.ATTACKER
                     ? blueFactionLabel.getText()
                     : redFactionLabel.getText();
             controller.setContext(
                     factionName,
-                    turnService.getCurrentRound(),
+                    gameEngine.getCurrentRound(),
                     candidates,
                     this::refreshArmyViews
             );
@@ -987,9 +947,9 @@ public class GameUIController {
             AutoBattleController controller = loader.getController();
             controller.setBattleContext(
                     mode,
-                    turnService.getCurrentRound(),
-                    turnService.getCurrentPhase(),
-                    turnService.getActivePlayer(),
+                    gameEngine.getCurrentRound(),
+                    gameEngine.getCurrentPhase(),
+                    gameEngine.getActivePlayer(),
                     blueFactionLabel == null ? "Attacker Army" : blueFactionLabel.getText(),
                     blueArmyUnits,
                     redFactionLabel == null ? "Defender Army" : redFactionLabel.getText(),
@@ -1020,21 +980,22 @@ public class GameUIController {
                 primaryMissionEntry = new MissionEntryVM(primaryMissions.get(0));
                 missionNameLabel.setText(primaryMissionEntry.getName());
                 primaryMissionStateLabel.setText("State: Active");
+                gameEngine.selectMainMission(primaryMissionEntry.getName(), 0);
             }
 
             missionSessionService.initialize(null);
-            missionSessionService.startTurn(turnService.getActivePlayer());
+            missionSessionService.startTurn(gameEngine.getActivePlayer());
             refreshMissionTablesFromSession();
             battleLogService.logTurnEvent(
-                    turnService.getCurrentRound(),
-                    turnService.getCurrentPhase(),
-                    turnService.getActivePlayer(),
+                    gameEngine.getCurrentRound(),
+                    gameEngine.getCurrentPhase(),
+                    gameEngine.getActivePlayer(),
                     "Battle started with the default setup. Attacker acts first."
             );
             return;
         }
 
-        maxRounds = config.maxRounds();
+        gameEngine.configureBattle(config.primaryMission().title(), config.maxRounds());
         ruleApplyState(config.customRulesEnabled());
 
         acceptImportedArmy(ArmySide.BLUE, config.blueArmy());
@@ -1046,7 +1007,7 @@ public class GameUIController {
         primaryMissionStateLabel.setText("State: Active");
 
         missionSessionService.initialize(config);
-        missionSessionService.startTurn(turnService.getActivePlayer());
+        missionSessionService.startTurn(gameEngine.getActivePlayer());
         refreshMissionTablesFromSession();
 
         battleLogService.log(
@@ -1067,13 +1028,13 @@ public class GameUIController {
                         + "."
         );
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
-                turnService.getActivePlayer(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
+                gameEngine.getActivePlayer(),
                 "Starting CP - Attacker: "
-                        + parseInt(blueCPLabel.getText())
+                        + currentCp(Player.ATTACKER)
                         + ", Defender: "
-                        + parseInt(redCPLabel.getText())
+                        + currentCp(Player.DEFENDER)
                         + ". Attacker takes the first turn."
         );
 
@@ -1110,8 +1071,8 @@ public class GameUIController {
     private void updateSecondaryMissionButtons() {
         boolean blueFixed = missionSessionService.modeFor(Player.ATTACKER) == SecondaryMissionMode.FIXED;
         boolean redFixed = missionSessionService.modeFor(Player.DEFENDER) == SecondaryMissionMode.FIXED;
-        boolean blueActiveTurn = turnService.getActivePlayer() == Player.ATTACKER;
-        boolean redActiveTurn = turnService.getActivePlayer() == Player.DEFENDER;
+        boolean blueActiveTurn = gameEngine.getActivePlayer() == Player.ATTACKER;
+        boolean redActiveTurn = gameEngine.getActivePlayer() == Player.DEFENDER;
         int blueDrawCount = missionSessionService.drawCountFor(Player.ATTACKER);
         int redDrawCount = missionSessionService.drawCountFor(Player.DEFENDER);
 
@@ -1122,7 +1083,7 @@ public class GameUIController {
                             : (blueDrawCount == 1 ? "Draw 1 Mission" : "Draw " + blueDrawCount + " Missions")
             );
             blueDrawMissionButton.setDisable(
-                    blueFixed || !blueActiveTurn || !missionSessionService.canDraw(Player.ATTACKER) || gameOver
+                    blueFixed || !blueActiveTurn || !missionSessionService.canDraw(Player.ATTACKER) || gameEngine.isBattleOver()
             );
         }
         if (redDrawMissionButton != null) {
@@ -1132,33 +1093,33 @@ public class GameUIController {
                             : (redDrawCount == 1 ? "Draw 1 Mission" : "Draw " + redDrawCount + " Missions")
             );
             redDrawMissionButton.setDisable(
-                    redFixed || !redActiveTurn || !missionSessionService.canDraw(Player.DEFENDER) || gameOver
+                    redFixed || !redActiveTurn || !missionSessionService.canDraw(Player.DEFENDER) || gameEngine.isBattleOver()
             );
         }
         if (blueAbandonMissionButton != null) {
-            blueAbandonMissionButton.setDisable(blueFixed || !blueActiveTurn || blueMissionEntries.isEmpty() || gameOver);
+            blueAbandonMissionButton.setDisable(blueFixed || !blueActiveTurn || blueMissionEntries.isEmpty() || gameEngine.isBattleOver());
         }
         if (redAbandonMissionButton != null) {
-            redAbandonMissionButton.setDisable(redFixed || !redActiveTurn || redMissionEntries.isEmpty() || gameOver);
+            redAbandonMissionButton.setDisable(redFixed || !redActiveTurn || redMissionEntries.isEmpty() || gameEngine.isBattleOver());
         }
         if (blueCheckMissionButton != null) {
-            blueCheckMissionButton.setDisable(blueMissionEntries.isEmpty() || gameOver);
+            blueCheckMissionButton.setDisable(blueMissionEntries.isEmpty() || gameEngine.isBattleOver());
         }
         if (redCheckMissionButton != null) {
-            redCheckMissionButton.setDisable(redMissionEntries.isEmpty() || gameOver);
+            redCheckMissionButton.setDisable(redMissionEntries.isEmpty() || gameEngine.isBattleOver());
         }
         if (blueSelectButton != null) {
-            blueSelectButton.setDisable(gameOver);
+            blueSelectButton.setDisable(gameEngine.isBattleOver());
         }
         if (redSelectButton != null) {
-            redSelectButton.setDisable(gameOver);
+            redSelectButton.setDisable(gameEngine.isBattleOver());
         }
     }
 
     // When click the primary mission button, open the shared primary mission card and award VP if completed.
     @FXML
     private void openPrimaryMission(ActionEvent event) {
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             DialogHelper.showInfo("Battle Over", winnerText());
             return;
         }
@@ -1188,8 +1149,8 @@ public class GameUIController {
                 );
             }
             battleLogService.logTurnEvent(
-                    turnService.getCurrentRound(),
-                    turnService.getCurrentPhase(),
+                    gameEngine.getCurrentRound(),
+                    gameEngine.getCurrentPhase(),
                     resolution.awardedPlayer(),
                     playerLabel(resolution.awardedPlayer())
                             + " scored "
@@ -1276,9 +1237,9 @@ public class GameUIController {
             stage.initOwner(nextPhaseButton.getScene().getWindow());
             stage.initModality(Modality.WINDOW_MODAL);
             stage.setTitle(missionCard == null ? "Mission Card" : missionCard.title());
-            stage.setScene(new Scene(root));
-            stage.setMinWidth(860.0);
-            stage.setMinHeight(760.0);
+            stage.setScene(new Scene(root, 760.0, 700.0));
+            stage.setMinWidth(700.0);
+            stage.setMinHeight(620.0);
             stage.showAndWait();
 
             return controller.getResolution();
@@ -1294,10 +1255,8 @@ public class GameUIController {
             return;
         }
 
-        Label target = player == Player.DEFENDER ? redVPLabel : blueVPLabel;
-        if (target != null) {
-            target.setText(String.valueOf(parseInt(target.getText()) + vp));
-        }
+        gameEngine.addVictoryPoints(player, vp);
+        syncScoreLabels();
         updateWinnerLabel();
     }
 
@@ -1306,13 +1265,13 @@ public class GameUIController {
             return;
         }
 
-        if (gameOver) {
+        if (gameEngine.isBattleOver()) {
             winnerLabel.setText(winnerText());
             return;
         }
 
-        int blueVp = parseInt(blueVPLabel == null ? null : blueVPLabel.getText());
-        int redVp = parseInt(redVPLabel == null ? null : redVPLabel.getText());
+        int blueVp = gameEngine.currentVp(Player.ATTACKER);
+        int redVp = gameEngine.currentVp(Player.DEFENDER);
 
         if (blueVp == redVp) {
             winnerLabel.setText("Current Score: Tied at " + blueVp + " VP");
@@ -1332,28 +1291,14 @@ public class GameUIController {
     }
 
     private void finishBattle() {
-        gameOver = true;
+        gameEngine.finishBattle();
         syncTurnUi();
         battleLogService.log(winnerText());
         DialogHelper.showInfo("Battle Over", winnerText());
     }
 
     private String winnerText() {
-        int blueVp = parseInt(blueVPLabel == null ? null : blueVPLabel.getText());
-        int redVp = parseInt(redVPLabel == null ? null : redVPLabel.getText());
-
-        if (blueVp == redVp) {
-            return "Battle Over. The game is a draw at " + blueVp + " VP each.";
-        }
-
-        boolean blueWon = blueVp > redVp;
-        return String.format(
-                Locale.ROOT,
-                "Battle Over. %s wins %d to %d VP.",
-                blueWon ? "Attacker" : "Defender",
-                blueWon ? blueVp : redVp,
-                blueWon ? redVp : blueVp
-        );
+        return gameEngine.winnerText();
     }
 
     private String playerLabel(Player player) {
@@ -1363,12 +1308,8 @@ public class GameUIController {
     private void adjustManualCommandPoints(ArmySide side, int delta) {
         Player player = toPlayer(side);
         int beforeCp = currentCp(player);
-
-        if (side == ArmySide.BLUE) {
-            applyRoundState(RoundManager.addBlueCp(readRoundState(), delta));
-        } else {
-            applyRoundState(RoundManager.addRedCp(readRoundState(), delta));
-        }
+        gameEngine.adjustCommandPoints(player, delta);
+        syncScoreLabels();
 
         int afterCp = currentCp(player);
         if (beforeCp == afterCp) {
@@ -1376,8 +1317,8 @@ public class GameUIController {
         }
 
         battleLogService.logTurnEvent(
-                turnService.getCurrentRound(),
-                turnService.getCurrentPhase(),
+                gameEngine.getCurrentRound(),
+                gameEngine.getCurrentPhase(),
                 player,
                 playerLabel(player)
                         + " manually adjusted CP: "
@@ -1389,7 +1330,7 @@ public class GameUIController {
     }
 
     private int currentCp(Player player) {
-        return parseInt((player == Player.DEFENDER ? redCPLabel : blueCPLabel).getText());
+        return gameEngine.currentCp(player);
     }
 
     private String phaseName(Phase phase) {
