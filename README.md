@@ -37,8 +37,12 @@ See the full documentation in the [Project Wiki](https://github.com/hvpham-yorku
 ---
 
 ### Before You Run
-If you have previously run an older version of this software, 
-please delete the app.db file in the project folder to ensure proper operation.
+If you have previously run an older version of this software,
+please delete the local application data folder for this app to ensure proper operation.
+
+On Windows, the runtime data now lives under:
+
+    %LOCALAPPDATA%\WH40KEasyCombat
 
 ### Run Using Eclipse (JavaFX)
 
@@ -74,4 +78,49 @@ From project root:
     mvn clean test
 
 ---
+
+## Windows Packaging
+
+### Prerequisites
+
+- JDK 21+ with `jpackage`
+- Maven 3.8+
+- For installer `.exe` output: WiX Toolset installed and added to `PATH`
+
+### Build a portable Windows app folder
+
+From project root:
+
+    mvn clean package -Pwindows-app-image
+
+Or use the helper script:
+
+    .\scripts\package-windows.ps1
+
+Output:
+
+    target\jpackage\WH40KEasyCombat
+
+Run:
+
+    target\jpackage\WH40KEasyCombat\WH40KEasyCombat.exe
+
+### Build a Windows installer exe
+
+From project root:
+
+    mvn clean package -Pwindows-installer
+
+Or use the helper script:
+
+    .\scripts\package-windows.ps1 -Type exe
+
+Output:
+
+    target\installer
+
+### Notes
+
+- The packaged app stores its writable database, CSV overrides, and custom VM rules in `%LOCALAPPDATA%\WH40KEasyCombat`.
+- Built-in CSV and DSL files are extracted from the packaged jar into the app's local runtime directory automatically on startup.
 

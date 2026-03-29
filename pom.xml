@@ -12,6 +12,10 @@
         <sqlite.version>3.49.1.0</sqlite.version>
         <jackson.version>2.15.2</jackson.version>
         <junit.version>5.10.2</junit.version>
+        <application.name>WH40KEasyCombat</application.name>
+        <application.version>0.0.1</application.version>
+        <application.module>wh40k_easycomba</application.module>
+        <application.mainClass>eecs2311.group2.wh40k_easycombat.Main</application.mainClass>
     </properties>
     <dependencies>
         <dependency>
@@ -66,7 +70,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>eecs2311.group2.wh40k_easycombat.Main</mainClass>
+                    <mainClass>${application.mainClass}</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -76,4 +80,120 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>windows-app-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-runtime-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeScope>runtime</includeScope>
+                                    <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage-app-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jpackage.exe</executable>
+                                    <arguments>
+                                        <argument>--type</argument>
+                                        <argument>app-image</argument>
+                                        <argument>--name</argument>
+                                        <argument>${application.name}</argument>
+                                        <argument>--dest</argument>
+                                        <argument>${project.build.directory}/jpackage</argument>
+                                        <argument>--module-path</argument>
+                                        <argument>${project.build.directory}/${project.build.finalName}.jar;${project.build.directory}/libs</argument>
+                                        <argument>--module</argument>
+                                        <argument>${application.module}/${application.mainClass}</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>${application.version}</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>windows-installer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-runtime-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeScope>runtime</includeScope>
+                                    <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage-exe-installer</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jpackage.exe</executable>
+                                    <arguments>
+                                        <argument>--type</argument>
+                                        <argument>exe</argument>
+                                        <argument>--name</argument>
+                                        <argument>${application.name}</argument>
+                                        <argument>--dest</argument>
+                                        <argument>${project.build.directory}/installer</argument>
+                                        <argument>--module-path</argument>
+                                        <argument>${project.build.directory}/${project.build.finalName}.jar;${project.build.directory}/libs</argument>
+                                        <argument>--module</argument>
+                                        <argument>${application.module}/${application.mainClass}</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>${application.version}</argument>
+                                        <argument>--win-shortcut</argument>
+                                        <argument>--win-menu</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

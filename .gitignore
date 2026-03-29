@@ -1,23 +1,22 @@
+# Build and packaging output
 /target/
+/dist/
 
-.idea
+# IDE and editor files
+/.idea/
+/.settings/
+/.vscode/
+*.iml
+*.ipr
+*.iws
+.factorypath
 
-.settings/
-.vscode/
+# Eclipse project metadata
+.classpath
+.project
 
-# Compiled class file
+# Compiled artifacts
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -26,15 +25,27 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Logs and crash dumps
+*.log
 hs_err_pid*
 replay_pid*
 
+# Local databases and SQLite sidecar files
 *.db
-.DS_Store
+*.db-wal
+*.db-shm
 
-# Auto-generated database schema and repository files
+# Local user-generated files
+/data/
+
+# Generated schema file
 src/main/resources/sql/001_schema.sql
 
-# User custom file
-/data/
+# OS files
+.DS_Store
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/

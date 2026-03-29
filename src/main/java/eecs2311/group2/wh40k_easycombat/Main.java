@@ -1,11 +1,8 @@
 package eecs2311.group2.wh40k_easycombat;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.sql.SQLException;
-import eecs2311.group2.wh40k_easycombat.db.Database;
-import eecs2311.group2.wh40k_easycombat.service.vm.VMService;
-import eecs2311.group2.wh40k_easycombat.util.CsvToSqliteImporter;
+import eecs2311.group2.wh40k_easycombat.util.AppBootstrap;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -33,13 +30,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        Database.generateSchemaFile();
-        Database.executeSqlFolder("src/main/resources/sql/");
-        System.out.println("SQL scripts executed!");
-        VMService.loadFolder(Path.of("src/main/resources/dsl/"));
-
-        CsvToSqliteImporter.importDefaultCsvSeedLike(false);
-
+        AppBootstrap.initializeApplication();
         launch(args);
     }
 }

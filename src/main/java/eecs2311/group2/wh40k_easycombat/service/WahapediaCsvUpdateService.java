@@ -1,6 +1,7 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
 import eecs2311.group2.wh40k_easycombat.db.Database;
+import eecs2311.group2.wh40k_easycombat.util.AppPaths;
 import eecs2311.group2.wh40k_easycombat.util.CsvToSqliteImporter;
 
 import java.io.IOException;
@@ -16,10 +17,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class WahapediaCsvUpdateService {
-    private static final Path LOCAL_CSV_FOLDER = Path.of("src", "main", "resources", "csv");
-    private static final Path DATABASE_FILE = Path.of("app.db");
-    private static final Path DATABASE_WAL_FILE = Path.of("app.db-wal");
-    private static final Path DATABASE_SHM_FILE = Path.of("app.db-shm");
+    private static final Path LOCAL_CSV_FOLDER = AppPaths.getUserCsvDirectory();
+    private static final Path DATABASE_FILE = AppPaths.getDatabasePath();
+    private static final Path DATABASE_WAL_FILE = AppPaths.getDatabaseWalPath();
+    private static final Path DATABASE_SHM_FILE = AppPaths.getDatabaseShmPath();
     private static final List<String> REQUIRED_FILE_NAMES = List.of(
             "Factions.csv",
             "Source.csv",
@@ -142,24 +143,44 @@ public class WahapediaCsvUpdateService {
             return;
         }
 
-        Files.createDirectories(LOCAL_CSV_FOLDER);
-        for (Path selectedFile : selectedFiles) {
-            if (selectedFile == null || selectedFile.getFileName() == null) {
-                continue;
+        Path parent = LOCAL_CSV_FOLDER.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
+        Path stagingFolder = Files.createTempDirectory(parent == null ? Path.of(".") : parent, "csv-override-");
+        boolean moved = false;
+        try {
+            for (Path selectedFile : selectedFiles) {
+                if (selectedFile == null || selectedFile.getFileName() == null) {
+                    continue;
+                }
+
+                Files.copy(
+                        selectedFile,
+                        stagingFolder.resolve(selectedFile.getFileName().toString()),
+                        StandardCopyOption.REPLACE_EXISTING
+                );
             }
 
-            Files.copy(
-                    selectedFile,
-                    LOCAL_CSV_FOLDER.resolve(selectedFile.getFileName().toString()),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
+            deleteRecursively(LOCAL_CSV_FOLDER);
+            try {
+                Files.move(stagingFolder, LOCAL_CSV_FOLDER, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException atomicMoveFailure) {
+                Files.move(stagingFolder, LOCAL_CSV_FOLDER, StandardCopyOption.REPLACE_EXISTING);
+            }
+            moved = true;
+        } finally {
+            if (!moved) {
+                deleteRecursively(stagingFolder);
+            }
         }
     }
 
     private void rebuildDatabaseFromSelectedCsv(Path stagingFolder) throws IOException, SQLException {
+        Database.useApplicationDatabase();
         deleteDatabaseFiles();
-        Database.generateSchemaFile();
-        Database.executeSqlFolder("src/main/resources/sql/");
+        Database.ensureSchema();
         CsvToSqliteImporter.importCsvFolderSeedLike(stagingFolder.toString(), true);
         StaticDataService.reloadFromSqlite();
     }
