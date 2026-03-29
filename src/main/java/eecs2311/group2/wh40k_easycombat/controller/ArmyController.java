@@ -5,6 +5,9 @@ import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
 import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyEditorControllerHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportApplyHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportDialogHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportSummaryFormatter;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
 import eecs2311.group2.wh40k_easycombat.service.ArmyBundleService;
@@ -33,16 +36,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -395,7 +393,7 @@ public class ArmyController {
                 return;
             }
 
-            String importedText = openWh40kAppImportDialog();
+            String importedText = ArmyImportDialogHelper.openWh40kAppImportDialog();
             if (importedText == null) {
                 return;
             }
@@ -432,22 +430,30 @@ public class ArmyController {
             editingArmyMarked = false;
             ArmyBuilderManager.clearArmy(currentArmy);
 
-            if (!result.factionName().isBlank() && !applyImportedFaction(result.factionName())) {
+            if (!result.factionName().isBlank() && !ArmyImportApplyHelper.applyImportedFaction(
+                    factionCBbox,
+                    this::refreshDetachmentOptions,
+                    this::rebuildUnitTree,
+                    result.factionName()
+            )) {
                 importWarnings.add("Faction not auto-selected: " + result.factionName());
             }
 
-            if (!result.detachmentName().isBlank() && !applyImportedDetachment(result.detachmentName())) {
+            if (!result.detachmentName().isBlank() && !ArmyImportApplyHelper.applyImportedDetachment(
+                    datachmentCBbox,
+                    result.detachmentName()
+            )) {
                 importWarnings.add("Detachment not auto-selected: " + result.detachmentName());
             }
 
             armyNametxt.setText(result.armyName());
             currentArmy.setAll(result.units());
-            keepOnlyFirstImportedWarlord();
+            ArmyImportApplyHelper.keepOnlyFirstImportedWarlord(currentArmy);
             refreshPoints();
 
             DialogHelper.showInfo(
                     "Import Complete",
-                    buildImportSummary(result, totalPoints, importWarnings)
+                    ArmyImportSummaryFormatter.buildImportSummary(result, totalPoints, importWarnings)
             );
         } catch (Exception e) {
             DialogHelper.showError("WH40K App Import Error", e);
@@ -574,146 +580,6 @@ public class ArmyController {
 
     private boolean hasEditorContent() {
         return !currentArmy.isEmpty() || !armyNametxt.getText().isBlank();
-    }
-
-    private String openWh40kAppImportDialog() {
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Import From WH40K App");
-        dialog.setHeaderText("Paste one official WH40K App army export below.");
-
-        DialogPane pane = dialog.getDialogPane();
-        pane.getStylesheets().add(
-                getClass().getResource("/eecs2311/group2/wh40k_easycombat/application.css").toExternalForm()
-        );
-        pane.getStyleClass().add("custom-alert");
-
-        ButtonType importButtonType = new ButtonType("Import", ButtonBar.ButtonData.OK_DONE);
-        pane.getButtonTypes().addAll(importButtonType, ButtonType.CANCEL);
-
-        TextArea inputArea = new TextArea();
-        inputArea.setWrapText(true);
-        inputArea.setPrefRowCount(24);
-        inputArea.setPrefColumnCount(64);
-        inputArea.setPromptText("Paste the full WH40K App export here...");
-        inputArea.getStyleClass().add("game-textarea");
-
-        pane.setPrefSize(880, 680);
-        pane.setContent(inputArea);
-
-        dialog.setResultConverter(buttonType ->
-                buttonType == importButtonType ? inputArea.getText() : null
-        );
-
-        return dialog.showAndWait().orElse(null);
-    }
-
-    private boolean applyImportedFaction(String importedFactionName) {
-        String matchingDisplay = findMatchingDisplay(factionCBbox.getItems(), importedFactionName);
-        if (matchingDisplay == null) {
-            return false;
-        }
-
-        factionCBbox.setValue(matchingDisplay);
-        refreshDetachmentOptions();
-        rebuildUnitTree();
-        return true;
-    }
-
-    private boolean applyImportedDetachment(String importedDetachmentName) {
-        String matchingDisplay = findMatchingDisplay(datachmentCBbox.getItems(), importedDetachmentName);
-        if (matchingDisplay == null) {
-            return false;
-        }
-
-        datachmentCBbox.setValue(matchingDisplay);
-        return true;
-    }
-
-    private void keepOnlyFirstImportedWarlord() {
-        ArmyUnitVM firstWarlord = null;
-
-        for (ArmyUnitVM unit : currentArmy) {
-            if (!unit.warlordProperty().get()) {
-                continue;
-            }
-
-            if (firstWarlord == null) {
-                firstWarlord = unit;
-            } else {
-                unit.warlordProperty().set(false);
-            }
-        }
-    }
-
-    private String buildImportSummary(
-            ArmyWh40kAppImportService.ImportResult result,
-            int totalPoints,
-            List<String> importWarnings
-    ) {
-        StringBuilder summary = new StringBuilder();
-        summary.append("Army Name: ").append(result.armyName()).append('\n');
-        summary.append("Imported Units: ").append(result.units().size()).append('\n');
-        summary.append("Total Points: ").append(totalPoints).append('\n');
-
-        if (!result.skippedUnits().isEmpty()) {
-            summary.append("\nSkipped Units:\n");
-            for (String skippedUnit : result.skippedUnits()) {
-                summary.append("- ").append(skippedUnit).append('\n');
-            }
-        }
-
-        if (!result.skippedItems().isEmpty()) {
-            summary.append("\nSkipped Equipment:\n");
-            for (String skippedItem : result.skippedItems()) {
-                summary.append("- ").append(skippedItem).append('\n');
-            }
-        }
-
-        if (!importWarnings.isEmpty()) {
-            summary.append("\nWarnings:\n");
-            for (String warning : importWarnings) {
-                summary.append("- ").append(warning).append('\n');
-            }
-        }
-
-        return summary.toString().trim();
-    }
-
-    private String findMatchingDisplay(List<String> displays, String importedValue) {
-        String expected = normalizeImportText(importedValue);
-        if (expected.isBlank()) {
-            return null;
-        }
-
-        for (String display : displays) {
-            if (normalizeImportText(display).equals(expected)) {
-                return display;
-            }
-        }
-
-        for (String display : displays) {
-            String candidate = normalizeImportText(display);
-            if (candidate.contains(expected) || expected.contains(candidate)) {
-                return display;
-            }
-        }
-
-        return null;
-    }
-
-    private String normalizeImportText(String text) {
-        if (text == null || text.isBlank()) {
-            return "";
-        }
-
-        return text.toLowerCase(Locale.ROOT)
-                .replace('&', ' ')
-                .replace('-', ' ')
-                .replace('_', ' ')
-                .replace('/', ' ')
-                .replaceAll("[^a-z0-9 ]", " ")
-                .replaceAll("\\s+", " ")
-                .trim();
     }
 
     private static String defaultFactionDisplay(List<String> factions) {
