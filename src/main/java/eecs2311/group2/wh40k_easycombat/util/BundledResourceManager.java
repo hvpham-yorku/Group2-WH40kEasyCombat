@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -51,15 +52,57 @@ public final class BundledResourceManager {
                 Files.createDirectories(parent);
             }
 
-            try (InputStream stream = MODULE.getResourceAsStream(resourceRoot + "/" + relativeFile)) {
-                if (stream == null) {
-                    throw new IOException("Bundled resource not found: " + resourceRoot + "/" + relativeFile);
-                }
-                Files.copy(stream, targetFile, StandardCopyOption.REPLACE_EXISTING);
-            }
+            syncFile(resourceRoot, relativeFile, targetFile);
         }
 
         deleteUnexpectedFiles(targetDirectory, expectedFiles);
+    }
+
+    private static void syncFile(String resourceRoot, String relativeFile, Path targetFile) throws IOException {
+        byte[] bundledBytes = readBundledBytes(resourceRoot, relativeFile);
+        if (Files.exists(targetFile) && hasSameContent(targetFile, bundledBytes)) {
+            return;
+        }
+
+        try {
+            writeFile(targetFile, bundledBytes);
+        } catch (IOException e) {
+            if (Files.exists(targetFile)) {
+                System.err.println("[WARN] Keeping existing bundled resource because it could not be updated: "
+                        + targetFile + " (" + e.getMessage() + ")");
+                return;
+            }
+            throw e;
+        }
+    }
+
+    private static byte[] readBundledBytes(String resourceRoot, String relativeFile) throws IOException {
+        try (InputStream stream = MODULE.getResourceAsStream(resourceRoot + "/" + relativeFile)) {
+            if (stream == null) {
+                throw new IOException("Bundled resource not found: " + resourceRoot + "/" + relativeFile);
+            }
+            return stream.readAllBytes();
+        }
+    }
+
+    private static boolean hasSameContent(Path targetFile, byte[] bundledBytes) throws IOException {
+        return Arrays.equals(Files.readAllBytes(targetFile), bundledBytes);
+    }
+
+    private static void writeFile(Path targetFile, byte[] bundledBytes) throws IOException {
+        Path tempFile = Files.createTempFile(targetFile.getParent(), targetFile.getFileName().toString(), ".tmp");
+        try {
+            Files.write(tempFile, bundledBytes);
+            try {
+                Files.move(tempFile, targetFile,
+                        StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException firstMoveFailure) {
+                Files.move(tempFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(tempFile);
+        }
     }
 
     private static void deleteUnexpectedFiles(Path targetDirectory, Set<Path> expectedFiles) throws IOException {
@@ -74,7 +117,12 @@ public final class BundledResourceManager {
                     .toList();
 
             for (Path file : filesToDelete) {
-                Files.deleteIfExists(file);
+                try {
+                    Files.deleteIfExists(file);
+                } catch (IOException e) {
+                    System.err.println("[WARN] Failed to delete outdated bundled resource: "
+                            + file + " (" + e.getMessage() + ")");
+                }
             }
         }
 
@@ -86,7 +134,12 @@ public final class BundledResourceManager {
 
             for (Path directory : directories) {
                 if (!directory.equals(targetDirectory) && isDirectoryEmpty(directory)) {
-                    Files.deleteIfExists(directory);
+                    try {
+                        Files.deleteIfExists(directory);
+                    } catch (IOException e) {
+                        System.err.println("[WARN] Failed to delete outdated bundled resource directory: "
+                                + directory + " (" + e.getMessage() + ")");
+                    }
                 }
             }
         }
