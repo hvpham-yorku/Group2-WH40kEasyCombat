@@ -142,7 +142,7 @@
                                         <Hyperlink fx:id="wahapediaLink"
                                                    onAction="#openWahapediaExport"
                                                    text="Wahapedia" />
-                                        <Label styleClass="main-update-caption" text="CSV file" />
+                                        <Label styleClass="main-update-caption" text="CSV files" />
                                     </children>
                                 </HBox>
 

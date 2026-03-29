@@ -62,6 +62,12 @@
                         onAction="#newRule"
                         styleClass="wh-btn, wh-btn-primary"
                         text="New Rule" />
+                <Button fx:id="importScriptButton"
+                        maxWidth="1.7976931348623157E308"
+                        mnemonicParsing="false"
+                        onAction="#importScript"
+                        styleClass="wh-btn"
+                        text="Import Script" />
                 <Button fx:id="deleteRuleButton"
                         maxWidth="1.7976931348623157E308"
                         mnemonicParsing="false"
@@ -340,6 +346,11 @@
 
                         <HBox alignment="CENTER_RIGHT" spacing="12.0">
                             <children>
+                                <Button fx:id="exportScriptButton"
+                                        mnemonicParsing="false"
+                                        onAction="#exportScript"
+                                        styleClass="wh-btn"
+                                        text="Export Script" />
                                 <Button fx:id="saveRuleButton"
                                         mnemonicParsing="false"
                                         onAction="#saveRule"
