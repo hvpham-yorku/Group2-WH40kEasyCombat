@@ -12,9 +12,14 @@ The application supports Warhammer 40K players during combat by providing:
 - Unit and weapon configuration
 - Rule browsing and editing
 - Combat phase tracking
+- Auto-battle function for beginners
 - Static data management
 - Database-backed persistence
+
+### Special features: [⚔️ Auto battle rules visualization script editing](https://github.com/hvpham-yorku/Group2-WH40kEasyCombat/wiki/Customizable-Rule-System)
+
 ---
+
 ## Documentation
 
 See the full documentation in the [Project Wiki](https://github.com/hvpham-yorku/Group2-WH40kEasyCombat/wiki).
@@ -62,7 +67,7 @@ From project root:
 
 ---
 
-### Run Tests
+### Run Tests by Terminal
 
 From project root:
 
