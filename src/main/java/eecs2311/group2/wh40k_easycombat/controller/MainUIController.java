@@ -4,12 +4,14 @@ import eecs2311.group2.wh40k_easycombat.Main;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.model.Last_update;
 import eecs2311.group2.wh40k_easycombat.repository.Last_updateRepository;
+import eecs2311.group2.wh40k_easycombat.service.WahapediaCsvUpdateService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.service.WarhammerCommunityNewsService;
 import javafx.fxml.FXML;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class MainUIController {
@@ -51,6 +54,7 @@ public class MainUIController {
             "https://wahapedia.ru/wh40k10ed/the-rules/data-export/";
     private static final String WARHAMMER_NEWS_URL =
             "https://www.warhammer-community.com/en-gb/setting/warhammer-40000/";
+    private final WahapediaCsvUpdateService wahapediaCsvUpdateService = new WahapediaCsvUpdateService();
 
     // ======================= Setup =======================
 
@@ -119,10 +123,74 @@ public class MainUIController {
         }
     } 
 
-    // When click "Update" button, show the reserved update action message.
+    // When click "Update" button, select Wahapedia CSV files, validate them, and update the local data.
     @FXML
     void updateDataBtn(MouseEvent event) {
-        DialogHelper.showInfo("Reserved", "Data update from Wahapedia CSV will be implemented later.");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Wahapedia CSV Files");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+
+        List<java.io.File> selectedFiles = fileChooser.showOpenMultipleDialog(updateButton.getScene().getWindow());
+        if (selectedFiles == null || selectedFiles.isEmpty()) {
+            return;
+        }
+
+        List<Path> selectedPaths = selectedFiles.stream()
+                .map(java.io.File::toPath)
+                .toList();
+
+        WahapediaCsvUpdateService.ValidationResult validation =
+                wahapediaCsvUpdateService.validateSelection(selectedPaths);
+        if (!validation.valid()) {
+            DialogHelper.showWarning("Invalid CSV Selection", validation.message());
+            return;
+        }
+
+        if (!DialogHelper.confirmYesNo(
+                "Update Data",
+                "Import the selected Wahapedia CSV files, rebuild the local database, and overwrite the current static data?\n\n"
+                        + "This will remove the saved armies currently stored in the database."
+        )) {
+            return;
+        }
+
+        updateButton.setDisable(true);
+        updateButton.setText("Updating...");
+
+        Task<Void> updateTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                wahapediaCsvUpdateService.importSelectedFiles(selectedPaths);
+                return null;
+            }
+        };
+
+        updateTask.setOnSucceeded(e -> {
+            updateButton.setDisable(false);
+            updateButton.setText("Update");
+            loadLastUpdateInfo();
+            DialogHelper.showInfo(
+                    "Update Complete",
+                    "Rebuilt the local database, imported "
+                            + wahapediaCsvUpdateService.requiredFileNames().size()
+                            + " Wahapedia CSV files, and replaced the matching local CSV resources."
+            );
+        });
+
+        updateTask.setOnFailed(e -> {
+            updateButton.setDisable(false);
+            updateButton.setText("Update");
+            Throwable error = updateTask.getException();
+            if (error instanceof IllegalArgumentException) {
+                DialogHelper.showWarning("Update Blocked", error.getMessage());
+                return;
+            }
+            DialogHelper.showError("Update Failed", error == null ? "Unknown error." : error.getMessage());
+        });
+
+        Thread updateThread = new Thread(updateTask, "wahapedia-csv-update");
+        updateThread.setDaemon(true);
+        updateThread.start();
     }
 
     // When click "Wahapedia" hyperlink, open the official data export page in the browser.

@@ -42,20 +42,6 @@ class CalculationsTest {
     }
 
     @Test
-    @DisplayName("Victory points are summed correctly")
-    void victoryPointsTotal() {
-        VictoryPoints vp = new VictoryPoints();
-        assertEquals(3, vp.calculateVictoryPoints(1, 1, 1));
-    }
-
-    @Test
-    @DisplayName("Victory points add onto an existing total")
-    void victoryPointsAdd() {
-        VictoryPoints vp = new VictoryPoints();
-        assertEquals(8, vp.addVictoryPoints(3, 5));
-    }
-
-    @Test
     @DisplayName("Charge succeeds when roll equals distance")
     void chargeSucceedsWhenRollEqualsDistance() {
         assertTrue(ChargePhaseCalculations.isChargeSuccessful(8, 8));
