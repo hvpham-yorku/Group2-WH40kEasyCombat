@@ -30,8 +30,12 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class RuleEditorController {
     // ======================= Rule List =======================
@@ -108,6 +112,8 @@ public class RuleEditorController {
     @FXML private Button newRuleButton;
     @FXML private Button saveRuleButton;
     @FXML private Button deleteRuleButton;
+    @FXML private Button importScriptButton;
+    @FXML private Button exportScriptButton;
     @FXML private Button resetLogicButton;
     @FXML private Button backButton;
 
@@ -207,6 +213,53 @@ public class RuleEditorController {
             statusLabel.setText("Saved VM-backed custom rule: " + saved.getName());
         } catch (IllegalArgumentException ex) {
             DialogHelper.showWarning("Invalid VM Script", ex.getMessage());
+        }
+    }
+
+    // When click "Import Script" button, choose one VM rule file from the computer and import it into the software.
+    @FXML
+    private void importScript(ActionEvent event) {
+        FileChooser chooser = buildRuleFileChooser("Import VM Rule Script");
+        File file = chooser.showOpenDialog(resolveOwner(event));
+        if (file == null) {
+            return;
+        }
+
+        try {
+            EditorRuleDefinition imported = ruleEditorService.importRule(file.toPath());
+            refreshRuleList(imported.getId());
+            statusLabel.setText("Imported VM rule script: " + imported.getName());
+        } catch (IllegalArgumentException ex) {
+            DialogHelper.showWarning("Import Failed", ex.getMessage());
+        } catch (RuntimeException ex) {
+            DialogHelper.showError("Import Error", ex);
+        }
+    }
+
+    // When click "Export Script" button, export the currently selected VM rule script to the computer.
+    @FXML
+    private void exportScript(ActionEvent event) {
+        EditorRuleDefinition exportRule = buildRuleForExport();
+        if (exportRule == null) {
+            DialogHelper.showWarning("Nothing To Export", "Please select or create one rule before exporting.");
+            return;
+        }
+
+        FileChooser chooser = buildRuleFileChooser("Export VM Rule Script");
+        chooser.setInitialFileName(defaultExportFileName(exportRule));
+        File file = chooser.showSaveDialog(resolveOwner(event));
+        if (file == null) {
+            return;
+        }
+
+        Path exportPath = ensureRuleExtension(file.toPath());
+        try {
+            ruleEditorService.exportRule(exportRule, exportPath);
+            statusLabel.setText("Exported VM rule script to: " + exportPath.getFileName());
+        } catch (IllegalArgumentException ex) {
+            DialogHelper.showWarning("Export Failed", ex.getMessage());
+        } catch (RuntimeException ex) {
+            DialogHelper.showError("Export Error", ex);
         }
     }
 
@@ -372,6 +425,73 @@ public class RuleEditorController {
             }
         }
         prepareNewRule();
+    }
+
+    private EditorRuleDefinition buildRuleForExport() {
+        RuleEditorListItem selectedItem = rulesListView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null && !selectedItem.isEditable()) {
+            EditorRuleDefinition builtInRule = new EditorRuleDefinition();
+            builtInRule.setName(selectedItem.getDisplayName());
+            builtInRule.setDslScript(selectedItem.getScript());
+            return builtInRule;
+        }
+
+        String name = safe(nameField.getText());
+        if (name.isBlank()) {
+            return null;
+        }
+
+        EditorRuleDefinition rule = RuleEditorFormMapper.readRuleFromForm(
+                selectedRuleId,
+                identityFields(),
+                matchFields(),
+                stratagemFields()
+        );
+        rule.setName(name);
+        RuleEditorVisualBuilderHelper.readVisualBuilder(rule, visualControls());
+        rule.setDslScript(visualVmScriptBuilder.build(rule));
+        return rule;
+    }
+
+    private FileChooser buildRuleFileChooser(String title) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(title);
+        chooser.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("VM Rule Files", "*.rule"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        return chooser;
+    }
+
+    private Window resolveOwner(ActionEvent event) {
+        Object source = event == null ? null : event.getSource();
+        if (source instanceof Node node && node.getScene() != null) {
+            return node.getScene().getWindow();
+        }
+        if (backButton != null && backButton.getScene() != null) {
+            return backButton.getScene().getWindow();
+        }
+        return null;
+    }
+
+    private String defaultExportFileName(EditorRuleDefinition rule) {
+        String baseName = safe(rule == null ? "" : rule.getName());
+        if (baseName.isBlank()) {
+            baseName = "custom-rule";
+        }
+        return baseName.replaceAll("[\\\\/:*?\"<>|]+", "_") + ".rule";
+    }
+
+    private Path ensureRuleExtension(Path path) {
+        if (path == null) {
+            return null;
+        }
+        String fileName = path.getFileName() == null ? "" : path.getFileName().toString();
+        if (fileName.toLowerCase().endsWith(".rule")) {
+            return path;
+        }
+        return path.resolveSibling(fileName + ".rule");
     }
 
     private RuleEditorFormMapper.RuleIdentityFields identityFields() {

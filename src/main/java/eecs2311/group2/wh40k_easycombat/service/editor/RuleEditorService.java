@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleDefinition;
 import eecs2311.group2.wh40k_easycombat.service.vm.RuleCompiler;
 import eecs2311.group2.wh40k_easycombat.service.vm.VMService;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ public class RuleEditorService {
     private static final RuleEditorService INSTANCE = new RuleEditorService(new EditorRuleFileStore());
 
     private final RuleCompiler compiler = new RuleCompiler();
+    private final VisualVmScriptBuilder visualVmScriptBuilder = new VisualVmScriptBuilder();
     private final EditorRuleFileStore fileStore;
     private final List<EditorRuleDefinition> rules;
     private boolean autoApplyEnabled = true;
@@ -77,6 +79,22 @@ public class RuleEditorService {
         return saved.copy();
     }
 
+    public synchronized EditorRuleDefinition importRule(Path path) {
+        EditorRuleDefinition imported = fileStore.loadFromPath(path);
+        validateImportedRule(imported, path);
+        return saveRule(imported);
+    }
+
+    public synchronized void exportRule(EditorRuleDefinition rule, Path path) {
+        if (rule == null) {
+            throw new IllegalArgumentException("rule must not be null");
+        }
+
+        EditorRuleDefinition exported = rule.copy();
+        validateRule(exported);
+        fileStore.writeToPath(exported, path);
+    }
+
     public synchronized boolean deleteRule(String ruleId) {
         if (ruleId == null || ruleId.isBlank()) {
             return false;
@@ -126,6 +144,20 @@ public class RuleEditorService {
         }
     }
 
+    private void validateImportedRule(EditorRuleDefinition rule, Path path) {
+        validateRule(rule);
+
+        String importedScript = normalizeScript(rule.getDslScript());
+        String generatedScript = normalizeScript(visualVmScriptBuilder.build(rule));
+        if (!importedScript.equals(generatedScript)) {
+            throw new IllegalArgumentException(
+                    "Imported script is not a valid Rule Editor visual export. "
+                            + "Please import a .rule file exported from this Rule Editor so the visual controls and VM script stay in sync."
+                            + (path == null ? "" : " File: " + path.getFileName())
+            );
+        }
+    }
+
     private void syncVmRules() {
         Set<String> loadedNames = new HashSet<>(VMService.getLoadedRules());
         for (String loadedName : loadedNames) {
@@ -145,5 +177,13 @@ public class RuleEditorService {
 
     private static String safe(String value) {
         return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    private static String normalizeScript(String script) {
+        return script == null
+                ? ""
+                : script.replace("\r\n", "\n")
+                .replace('\r', '\n')
+                .trim();
     }
 }

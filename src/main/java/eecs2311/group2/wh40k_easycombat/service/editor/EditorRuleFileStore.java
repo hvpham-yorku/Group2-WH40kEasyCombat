@@ -37,6 +37,17 @@ public class EditorRuleFileStore {
         return rules;
     }
 
+    public EditorRuleDefinition loadFromPath(Path path) {
+        if (path == null) {
+            throw new IllegalArgumentException("Rule file path must not be null.");
+        }
+        if (!Files.isRegularFile(path)) {
+            throw new IllegalArgumentException("Rule file was not found: " + path);
+        }
+
+        return readRule(path);
+    }
+
     public void save(EditorRuleDefinition rule) {
         if (rule == null) {
             return;
@@ -47,6 +58,25 @@ public class EditorRuleFileStore {
             Files.writeString(resolvePath(rule.getId()), serialize(rule));
         } catch (IOException e) {
             throw new RuntimeException("Failed to save VM rule file for " + rule.getName() + ": " + e.getMessage(), e);
+        }
+    }
+
+    public void writeToPath(EditorRuleDefinition rule, Path path) {
+        if (rule == null) {
+            throw new IllegalArgumentException("Rule must not be null.");
+        }
+        if (path == null) {
+            throw new IllegalArgumentException("Export path must not be null.");
+        }
+
+        try {
+            Path parent = path.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.writeString(path, serialize(rule));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export VM rule file to " + path + ": " + e.getMessage(), e);
         }
     }
 
