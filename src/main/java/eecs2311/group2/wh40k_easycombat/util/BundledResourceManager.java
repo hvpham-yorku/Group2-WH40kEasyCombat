@@ -60,8 +60,16 @@ public final class BundledResourceManager {
 
     private static void syncFile(String resourceRoot, String relativeFile, Path targetFile) throws IOException {
         byte[] bundledBytes = readBundledBytes(resourceRoot, relativeFile);
-        if (Files.exists(targetFile) && hasSameContent(targetFile, bundledBytes)) {
-            return;
+        if (Files.exists(targetFile)) {
+            try {
+                if (hasSameContent(targetFile, bundledBytes)) {
+                    return;
+                }
+            } catch (IOException e) {
+                System.err.println("[WARN] Keeping existing bundled resource because it could not be read: "
+                        + targetFile + " (" + e.getMessage() + ")");
+                return;
+            }
         }
 
         try {
@@ -110,38 +118,43 @@ public final class BundledResourceManager {
             return;
         }
 
-        try (Stream<Path> paths = Files.walk(targetDirectory)) {
-            List<Path> filesToDelete = paths
-                    .filter(Files::isRegularFile)
-                    .filter(path -> !expectedFiles.contains(targetDirectory.relativize(path).normalize()))
-                    .toList();
+        try {
+            try (Stream<Path> paths = Files.walk(targetDirectory)) {
+                List<Path> filesToDelete = paths
+                        .filter(Files::isRegularFile)
+                        .filter(path -> !expectedFiles.contains(targetDirectory.relativize(path).normalize()))
+                        .toList();
 
-            for (Path file : filesToDelete) {
-                try {
-                    Files.deleteIfExists(file);
-                } catch (IOException e) {
-                    System.err.println("[WARN] Failed to delete outdated bundled resource: "
-                            + file + " (" + e.getMessage() + ")");
-                }
-            }
-        }
-
-        try (Stream<Path> paths = Files.walk(targetDirectory)) {
-            List<Path> directories = paths
-                    .filter(Files::isDirectory)
-                    .sorted(Comparator.reverseOrder())
-                    .toList();
-
-            for (Path directory : directories) {
-                if (!directory.equals(targetDirectory) && isDirectoryEmpty(directory)) {
+                for (Path file : filesToDelete) {
                     try {
-                        Files.deleteIfExists(directory);
+                        Files.deleteIfExists(file);
                     } catch (IOException e) {
-                        System.err.println("[WARN] Failed to delete outdated bundled resource directory: "
-                                + directory + " (" + e.getMessage() + ")");
+                        System.err.println("[WARN] Failed to delete outdated bundled resource: "
+                                + file + " (" + e.getMessage() + ")");
                     }
                 }
             }
+
+            try (Stream<Path> paths = Files.walk(targetDirectory)) {
+                List<Path> directories = paths
+                        .filter(Files::isDirectory)
+                        .sorted(Comparator.reverseOrder())
+                        .toList();
+
+                for (Path directory : directories) {
+                    if (!directory.equals(targetDirectory) && isDirectoryEmpty(directory)) {
+                        try {
+                            Files.deleteIfExists(directory);
+                        } catch (IOException e) {
+                            System.err.println("[WARN] Failed to delete outdated bundled resource directory: "
+                                    + directory + " (" + e.getMessage() + ")");
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[WARN] Skipping bundled resource cleanup because the directory could not be read: "
+                    + targetDirectory + " (" + e.getMessage() + ")");
         }
     }
 
