@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="420.0" prefWidth="720.0"
+           styleClass="main-root"
+           stylesheets="@application.css"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="eecs2311.group2.wh40k_easycombat.controller.LoadingController">
+
+    <children>
+        <VBox alignment="CENTER" fillWidth="true" maxWidth="500.0" spacing="22.0">
+            <padding>
+                <Insets top="32.0" right="28.0" bottom="32.0" left="28.0" />
+            </padding>
+
+            <children>
+                <Label styleClass="main-title"
+                       alignment="CENTER"
+                       maxWidth="1.7976931348623157E308"
+                       text="WARHAMMER 40,000"
+                       textAlignment="CENTER" />
+
+                <Label styleClass="main-subtitle"
+                       alignment="CENTER"
+                       maxWidth="1.7976931348623157E308"
+                       text="Initializing Easy Combat"
+                       textAlignment="CENTER" />
+
+                <VBox alignment="CENTER" fillWidth="true" spacing="14.0" styleClass="loading-panel">
+                    <padding>
+                        <Insets top="24.0" right="22.0" bottom="24.0" left="22.0" />
+                    </padding>
+
+                    <children>
+                        <Label fx:id="statusLabel"
+                               alignment="CENTER"
+                               maxWidth="1.7976931348623157E308"
+                               styleClass="loading-status"
+                               text="Preparing startup..."
+                               textAlignment="CENTER"
+                               wrapText="true" />
+
+                        <ProgressBar fx:id="progressBar"
+                                     maxWidth="1.7976931348623157E308"
+                                     prefHeight="10.0"
+                                     progress="-1.0"
+                                     styleClass="loading-progress" />
+
+                        <Label alignment="CENTER"
+                               maxWidth="1.7976931348623157E308"
+                               styleClass="loading-note"
+                               text="The first launch can take a little longer while the database and default data are prepared."
+                               textAlignment="CENTER"
+                               wrapText="true" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

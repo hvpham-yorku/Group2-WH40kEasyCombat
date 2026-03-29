@@ -2,6 +2,8 @@ package eecs2311.group2.wh40k_easycombat.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.module.ModuleReader;
+import java.lang.module.ResolvedModule;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -21,7 +23,6 @@ import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 public final class BundledResourceManager {
-    private static final ClassLoader CLASS_LOADER = BundledResourceManager.class.getClassLoader();
     private static final Module MODULE = BundledResourceManager.class.getModule();
 
     private BundledResourceManager() {
@@ -60,8 +61,16 @@ public final class BundledResourceManager {
 
     private static void syncFile(String resourceRoot, String relativeFile, Path targetFile) throws IOException {
         byte[] bundledBytes = readBundledBytes(resourceRoot, relativeFile);
-        if (Files.exists(targetFile) && hasSameContent(targetFile, bundledBytes)) {
-            return;
+        if (Files.exists(targetFile)) {
+            try {
+                if (hasSameContent(targetFile, bundledBytes)) {
+                    return;
+                }
+            } catch (IOException e) {
+                System.err.println("[WARN] Keeping existing bundled resource because it could not be read: "
+                        + targetFile + " (" + e.getMessage() + ")");
+                return;
+            }
         }
 
         try {
@@ -110,38 +119,43 @@ public final class BundledResourceManager {
             return;
         }
 
-        try (Stream<Path> paths = Files.walk(targetDirectory)) {
-            List<Path> filesToDelete = paths
-                    .filter(Files::isRegularFile)
-                    .filter(path -> !expectedFiles.contains(targetDirectory.relativize(path).normalize()))
-                    .toList();
+        try {
+            try (Stream<Path> paths = Files.walk(targetDirectory)) {
+                List<Path> filesToDelete = paths
+                        .filter(Files::isRegularFile)
+                        .filter(path -> !expectedFiles.contains(targetDirectory.relativize(path).normalize()))
+                        .toList();
 
-            for (Path file : filesToDelete) {
-                try {
-                    Files.deleteIfExists(file);
-                } catch (IOException e) {
-                    System.err.println("[WARN] Failed to delete outdated bundled resource: "
-                            + file + " (" + e.getMessage() + ")");
-                }
-            }
-        }
-
-        try (Stream<Path> paths = Files.walk(targetDirectory)) {
-            List<Path> directories = paths
-                    .filter(Files::isDirectory)
-                    .sorted(Comparator.reverseOrder())
-                    .toList();
-
-            for (Path directory : directories) {
-                if (!directory.equals(targetDirectory) && isDirectoryEmpty(directory)) {
+                for (Path file : filesToDelete) {
                     try {
-                        Files.deleteIfExists(directory);
+                        Files.deleteIfExists(file);
                     } catch (IOException e) {
-                        System.err.println("[WARN] Failed to delete outdated bundled resource directory: "
-                                + directory + " (" + e.getMessage() + ")");
+                        System.err.println("[WARN] Failed to delete outdated bundled resource: "
+                                + file + " (" + e.getMessage() + ")");
                     }
                 }
             }
+
+            try (Stream<Path> paths = Files.walk(targetDirectory)) {
+                List<Path> directories = paths
+                        .filter(Files::isDirectory)
+                        .sorted(Comparator.reverseOrder())
+                        .toList();
+
+                for (Path directory : directories) {
+                    if (!directory.equals(targetDirectory) && isDirectoryEmpty(directory)) {
+                        try {
+                            Files.deleteIfExists(directory);
+                        } catch (IOException e) {
+                            System.err.println("[WARN] Failed to delete outdated bundled resource directory: "
+                                    + directory + " (" + e.getMessage() + ")");
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[WARN] Skipping bundled resource cleanup because the directory could not be read: "
+                    + targetDirectory + " (" + e.getMessage() + ")");
         }
     }
 
@@ -152,7 +166,12 @@ public final class BundledResourceManager {
     }
 
     private static List<String> listRelativeResourceFiles(String resourceRoot) throws IOException {
-        URL rootUrl = CLASS_LOADER.getResource(resourceRoot);
+        List<String> moduleResources = listRelativeFilesFromModule(resourceRoot);
+        if (!moduleResources.isEmpty()) {
+            return moduleResources;
+        }
+
+        URL rootUrl = BundledResourceManager.class.getClassLoader().getResource(resourceRoot);
         if (rootUrl == null) {
             return List.of();
         }
@@ -162,6 +181,31 @@ public final class BundledResourceManager {
             case "jar" -> listRelativeFilesFromJar(rootUrl);
             default -> throw new IOException("Unsupported resource protocol: " + rootUrl.getProtocol());
         };
+    }
+
+    private static List<String> listRelativeFilesFromModule(String resourceRoot) throws IOException {
+        ModuleLayer layer = MODULE.getLayer();
+        if (layer == null) {
+            return List.of();
+        }
+
+        ResolvedModule resolvedModule = layer.configuration()
+                .findModule(MODULE.getName())
+                .orElse(null);
+        if (resolvedModule == null) {
+            return List.of();
+        }
+
+        String prefix = resourceRoot.endsWith("/") ? resourceRoot : resourceRoot + "/";
+        try (ModuleReader reader = resolvedModule.reference().open()) {
+            return reader.list()
+                    .filter(name -> name.startsWith(prefix))
+                    .filter(name -> !name.endsWith("/"))
+                    .map(name -> name.substring(prefix.length()))
+                    .filter(name -> !name.isBlank())
+                    .sorted()
+                    .toList();
+        }
     }
 
     private static List<String> listRelativeFilesFromDirectory(URL rootUrl) throws IOException {
