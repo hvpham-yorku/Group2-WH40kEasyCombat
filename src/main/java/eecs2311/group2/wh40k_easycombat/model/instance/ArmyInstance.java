@@ -81,6 +81,10 @@ public class ArmyInstance {
         return units;
     }
 
+    public List<UnitInstance> getUnitInstances() {
+        return units;
+    }
+
     public List<StratagemInstance> getStrategies() {
         return strategies;
     }
@@ -107,9 +111,23 @@ public class ArmyInstance {
         }
     }
 
+    public void replaceUnits(List<UnitInstance> nextUnits) {
+        units.clear();
+        if (nextUnits != null) {
+            units.addAll(nextUnits.stream().filter(unit -> unit != null).toList());
+        }
+    }
+
     public void addStrategy(StratagemInstance strategy) {
         if (strategy != null) {
             strategies.add(strategy);
+        }
+    }
+
+    public void replaceStrategies(List<StratagemInstance> nextStrategies) {
+        strategies.clear();
+        if (nextStrategies != null) {
+            strategies.addAll(nextStrategies.stream().filter(strategy -> strategy != null).toList());
         }
     }
 
@@ -117,11 +135,24 @@ public class ArmyInstance {
         setCurrentCp(this.currentCp + amount);
     }
 
-    public void spendCp(int amount) {
+    public boolean spendCp(int amount) {
+        if (amount <= 0) {
+            return true;
+        }
+        if (currentCp < amount) {
+            return false;
+        }
         setCurrentCp(this.currentCp - amount);
+        return true;
     }
 
     public void addVp(int amount) {
         setCurrentVp(this.currentVp + amount);
+    }
+
+    public void clearBattleState() {
+        secondaryMissionName = "";
+        currentCp = 0;
+        currentVp = 0;
     }
 }

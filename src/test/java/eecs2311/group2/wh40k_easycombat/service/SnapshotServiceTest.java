@@ -163,6 +163,36 @@ class SnapshotServiceTest {
             assertEquals(Phase.SHOOTING, peeked.getCurrentPhase());
             assertEquals(Player.DEFENDER, peeked.getActivePlayer());
         }
+
+        @Test
+        @DisplayName("preserves battle over, max rounds and army points in deep copy")
+        void preservesExpandedRuntimeState() {
+            BattleState state = new BattleState("Mission", 4);
+            state.setBattleOver(true);
+            state.setCurrentRound(2);
+
+            var attacker = new eecs2311.group2.wh40k_easycombat.model.instance.ArmyInstance(
+                    1,
+                    "Attacker",
+                    "faction",
+                    "Faction",
+                    "detachment"
+            );
+            attacker.setCurrentCp(5);
+            attacker.setCurrentVp(12);
+            state.setAttackerArmy(attacker);
+
+            service.pushState(state);
+
+            BattleState peeked = service.peekLatestState().orElseThrow();
+            assertTrue(peeked.isBattleOver());
+            assertEquals(4, peeked.getMaxRounds());
+            assertEquals(5, peeked.getCurrentCp(Player.ATTACKER));
+            assertEquals(12, peeked.getCurrentVp(Player.ATTACKER));
+
+            attacker.setCurrentCp(0);
+            assertEquals(5, peeked.getCurrentCp(Player.ATTACKER));
+        }
     }
 
     // ========== pushLog ==========

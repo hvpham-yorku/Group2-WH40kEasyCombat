@@ -5,6 +5,7 @@ import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsRenderHelper
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.service.ruleservice.ruleSearcher;
+import eecs2311.group2.wh40k_easycombat.service.ruleservice.ruleSorter;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
@@ -30,6 +31,7 @@ import javafx.scene.text.TextFlow;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -51,6 +53,7 @@ public class DatasheetsController implements Initializable {
     @FXML private Button backToMainButton;
     @FXML private Button coreRuleSearchButton;
     @FXML private Button coreRuleClearButton;
+    @FXML private Button coreRuleSortButton;
 
     // ======================= Inputs ===========================
     @FXML private TextField searchTextField;
@@ -117,6 +120,7 @@ public class DatasheetsController implements Initializable {
 
     // ======================= In-memory ========================
     private final DatasheetsPageState state = new DatasheetsPageState();
+    private final List<String> currentCoreRuleMatches = new ArrayList<>();
     private ruleSearcher coreRuleSearcher;
 
     // When this page loads, initialize tables, load datasheets and wire the page events.
@@ -367,6 +371,9 @@ public class DatasheetsController implements Initializable {
         }
 
         List<String> matches = coreRuleSearcher.searchAll(query, 20);
+        currentCoreRuleMatches.clear();
+        currentCoreRuleMatches.addAll(matches);
+
         if (matches.isEmpty()) {
             if (coreRuleStatusLabel != null) {
                 coreRuleStatusLabel.setText("No core rule text matched \"" + query + "\".");
@@ -383,6 +390,29 @@ public class DatasheetsController implements Initializable {
         }
         if (coreRuleResultsArea != null) {
             coreRuleResultsArea.setText(formatCoreRuleMatches(matches));
+            coreRuleResultsArea.positionCaret(0);
+        }
+    }
+
+    // When click "Sort A-Z" button, sort the current core rule search results alphabetically.
+    @FXML
+    private void sortCoreRuleResults(ActionEvent event) {
+        if (currentCoreRuleMatches.isEmpty()) {
+            if (coreRuleStatusLabel != null) {
+                coreRuleStatusLabel.setText("There are no core rule results to sort yet.");
+            }
+            return;
+        }
+
+        ruleSorter.sort(currentCoreRuleMatches);
+
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText("Sorted " + currentCoreRuleMatches.size()
+                    + " core rule result" + (currentCoreRuleMatches.size() == 1 ? "" : "s")
+                    + " alphabetically.");
+        }
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(formatCoreRuleMatches(currentCoreRuleMatches));
             coreRuleResultsArea.positionCaret(0);
         }
     }
@@ -516,6 +546,8 @@ public class DatasheetsController implements Initializable {
     }
 
     private void resetCoreRuleSearchView() {
+        currentCoreRuleMatches.clear();
+
         if (coreRuleStatusLabel != null) {
             coreRuleStatusLabel.setText(coreRuleSearcher == null
                     ? CORE_RULE_UNAVAILABLE_STATUS
