@@ -20,6 +20,11 @@ The application supports Warhammer 40K players during combat by providing:
 
 ---
 
+## 🚀 Download now (Windows EXE installation)
+[Download (Windows)](https://github.com/hvpham-yorku/Group2-WH40kEasyCombat/releases/latest)
+
+---
+
 ## Documentation
 
 See the full documentation in the [Project Wiki](https://github.com/hvpham-yorku/Group2-WH40kEasyCombat/wiki).
