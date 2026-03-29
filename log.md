@@ -1,3 +1,149 @@
+## For ITR3
+## Meeting Minutes
+
+2026.03.16 - After re-establishing the basic logic of automatic combat, the development of the game engine began. The UI style has been determined.
+
+2026.03.23 - Testing of the game and UI revealed that the software was not adapted to the laptop screen, requiring adaptation modifications. The game logic functioned correctly, and development of subsequent custom features began.
+
+2026.03.28 - The custom ability script was reviewed, and the final testing process began.
+
+2026.03.29 - Discuss software optimization and reduce dead code.
+
+## Changes
+2026.03.18 - Added CSS files to unify the UI style
+
+2026.03.19 - Improved UI suitability for small screens, and modified some instances to better match the auto battle function.
+
+2026.03.24 - The direct Datasheets CRUD functionality has been removed, replaced by player-defined rules and the ability to import external CSV files to synchronize data with the official database.
+
+2026.03.25 - With the upcoming release of Warhammer 40k edition 11, some interfaces have been left open to allow for potential rule changes in future updates.
+
+2026.03.29 - All dead code and features from the previous version have been completely removed, leaving only the interfaces reserved for future updates.
+
+## Concern
+Due to the upcoming update to Warhammer 40,000, which may involve significant rule changes, it is essential to be prepared for the upcoming update.
+
+## Task Assignments
+Bin Xu - Custom rules VM
+
+Kishan Kumarasamy - CSS and unit tests
+
+Mark Susanto - Unit tests and Game engine
+
+Ruien Huang - JavaFX UI and Auto-Battle Modifications
+
+San Khoshaba - Game calculation and update UML
+
+## Development Tasks per User Story
+
+---
+
+### Big User Story #1  
+### As a user, I want to create and store many Warhammer entities in the system so that I can manage my collection in all one place.
+
+### Detailed Stories
+- Search datasheets and core rules by keywords in the database  
+  - Dev = San  
+  - Tester = Henry  
+
+- Build and validate an army composition  
+  - Dev = Ruein  
+  - Tester = Mark  
+
+- Import an existing army list from an official source  
+  - Dev = Ruien  
+  - Tester = Henry  
+
+- Import datasheet data from an official CSV source  
+  - Dev = Ruien  
+  - Tester = Henry  
+
+- View full details for a selected unit in the database  
+  - Dev =  
+  - Tester = Henry  
+
+- Filter out datasheets based on parameters like faction  
+  - Dev =  
+  - Tester = Henry  
+
+---
+
+### Big User Story #2  
+### As a user, I want to be able to start a game that can simulate Warhammer battles and log round results so that I can track and simplify game sessions
+
+### Detailed Stories
+- Set up a game session and validate parameters such as game mode rules and point limits  
+  - Dev = Ruien  
+  - Tester = Mark  
+
+- Select overall mission and secondary objectives for a session  
+  - Dev =  
+  - Tester =  
+
+- Activate stratagems and update command points  
+  - Dev = Ruien  
+  - Tester =  
+
+- Load an existing army preset during game setup  
+  - Dev = Ruien  
+  - Tester =  
+
+- Simulate combat between two selected units  
+  - Dev = Ruien  
+  - Tester = Mark  
+
+- Generate dice results from user selection  
+  - Dev = Ruien Huang  
+  - Tester =  
+
+- Run the game engine through official battle phases  
+  - Dev = Mark  
+  - Tester =  
+
+- Apply effects to units and armies  
+  - Dev = San  
+  - Tester =  
+
+---
+
+### Big User Story #3  
+### As a user, I want a system that can keep track of and store its state during sessions so that I know what actions have been performed to get to this point
+
+### Detailed Stories
+- Create a battle log system tracking all actions that cause state changes  
+  - Dev = Henry  
+  - Tester =  
+
+---
+
+### Big User Story #4  
+### As a user, I want to be able to make customizable rules so that I can modify and create new ways to play
+
+### Detailed Stories
+- Create custom rules by using the GUI tool  
+  - Dev = Henry  
+  - Tester =  
+
+- Able to import custom rule files from somewhere  
+  - Dev = Henry  
+  - Tester =  
+
+- Able to modify the custom rule by using the GUI tool  
+  - Dev = Ruien  
+  - Tester =  
+
+- Able to apply the custom rule  
+  - Dev = Henry, Ruien  
+  - Tester =  
+
+## Time Spent (days)
+Big User Story #1 - Plan 10 - Actual - 6
+Big User Story #2 - Plan 16 - Actual -20
+Big User Story #3 - Plan 12 - Actual - 8
+Big User Story #4 - Plan 7 - Actual - 7
+
+---
+
 ## For ITR2
 ## Meeting Minutes
 2026.02.23 - Delivery 1 was discussed and it was decided to refactor the database in ITR2.
