@@ -9,15 +9,13 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="1100.0" prefWidth="1760.0"
+<BorderPane prefHeight="760.0" prefWidth="1280.0"
             styleClass="game-root"
             stylesheets="@application.css"
             xmlns="http://javafx.com/javafx/21"
@@ -25,34 +23,34 @@
             fx:controller="eecs2311.group2.wh40k_easycombat.controller.AutoBattleController">
 
     <top>
-        <HBox spacing="18.0" BorderPane.alignment="CENTER">
+        <HBox spacing="14.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
             </padding>
 
             <children>
                 <VBox spacing="6.0" styleClass="game-player-blue" HBox.hgrow="ALWAYS">
                     <padding>
-                        <Insets top="14.0" right="18.0" bottom="14.0" left="18.0" />
+                        <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label fx:id="blueFactionLabel" text="Blue Army">
+                        <Label fx:id="blueFactionLabel" text="Attacker Army">
                             <font>
-                                <Font name="System Bold" size="22.0" />
+                                <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
-                        <Label text="Blue side selects an attacking unit here." />
+                        <Label text="The Attacker side selects a unit here." />
                     </children>
                 </VBox>
 
                 <VBox alignment="CENTER" spacing="6.0" styleClass="game-round-panel" HBox.hgrow="ALWAYS">
                     <padding>
-                        <Insets top="14.0" right="18.0" bottom="14.0" left="18.0" />
+                        <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
                     </padding>
                     <children>
                         <Label fx:id="battleModeLabel" text="Auto Battle">
                             <font>
-                                <Font name="System Bold" size="24.0" />
+                                <Font name="System Bold" size="22.0" />
                             </font>
                         </Label>
                         <Label fx:id="phaseStatusLabel" text="Current Phase" wrapText="true" />
@@ -62,15 +60,15 @@
 
                 <VBox alignment="CENTER_RIGHT" spacing="6.0" styleClass="game-player-red" HBox.hgrow="ALWAYS">
                     <padding>
-                        <Insets top="14.0" right="18.0" bottom="14.0" left="18.0" />
+                        <Insets top="12.0" right="14.0" bottom="12.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label fx:id="redFactionLabel" text="Red Army">
+                        <Label fx:id="redFactionLabel" text="Defender Army">
                             <font>
-                                <Font name="System Bold" size="22.0" />
+                                <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
-                        <Label text="Red side selects an attacking unit here." />
+                        <Label text="The Defender side selects a unit here." />
                     </children>
                 </VBox>
             </children>
@@ -78,185 +76,228 @@
     </top>
 
     <center>
-        <GridPane hgap="18.0" BorderPane.alignment="CENTER">
+        <HBox spacing="14.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="0.0" right="18.0" bottom="18.0" left="18.0" />
+                <Insets top="0.0" right="14.0" bottom="14.0" left="14.0" />
             </padding>
 
-            <columnConstraints>
-                <ColumnConstraints percentWidth="29.0" />
-                <ColumnConstraints percentWidth="42.0" />
-                <ColumnConstraints percentWidth="29.0" />
-            </columnConstraints>
-
-            <rowConstraints>
-                <RowConstraints vgrow="ALWAYS" />
-            </rowConstraints>
-
             <children>
-                <VBox spacing="12.0" styleClass="game-side-panel" GridPane.columnIndex="0">
+                <VBox minWidth="290.0" prefWidth="320.0" maxWidth="360.0" spacing="12.0" styleClass="game-side-panel">
                     <padding>
-                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label text="Blue Army Units">
+                        <Label text="Attacker Units">
                             <font>
-                                <Font size="20.0" />
+                                <Font size="18.0" />
                             </font>
                         </Label>
-                        <ListView fx:id="blueUnitList" prefHeight="460.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
+                        <ListView fx:id="blueUnitList" prefHeight="420.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
                         <Label text="Selected Weapon" />
                         <ComboBox fx:id="blueWeaponCombo" maxWidth="1.7976931348623157E308" styleClass="game-combo" />
                         <Label text="Attacking Weapon Bearers" />
                         <Spinner fx:id="blueBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
-                        <Label fx:id="blueWeaponHintLabel" text="Select a Blue unit first." wrapText="true" />
+                        <Label fx:id="blueWeaponHintLabel" text="Select an Attacker unit first." wrapText="true" />
 
-                        <VBox fx:id="blueFightBox" spacing="8.0">
+                        <Label text="Optional VM Rules">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="blueOptionalRulesHintLabel"
+                               text="Select a unit, weapon and target to see optional VM rules for this attack."
+                               wrapText="true" />
+                        <FlowPane fx:id="blueOptionalRulesPane"
+                                  hgap="8.0"
+                                  vgap="6.0"
+                                  maxWidth="1.7976931348623157E308"
+                                  prefWrapLength="280.0" />
+
+                        <VBox fx:id="blueFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="blueEligibleFightCheckBox" text="Blue selected unit is eligible to fight" />
-                                <CheckBox fx:id="blueChargedCheckBox" text="Blue selected unit charged this turn" />
+                                <CheckBox fx:id="blueEligibleFightCheckBox" text="Selected Attacker unit is eligible to fight" />
+                                <CheckBox fx:id="blueChargedCheckBox" text="Selected Attacker unit charged this turn" />
                                 <Label fx:id="blueExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>
                     </children>
                 </VBox>
 
-                <VBox spacing="12.0" styleClass="game-center-panel" GridPane.columnIndex="1">
+                <VBox spacing="12.0" styleClass="game-center-panel" HBox.hgrow="ALWAYS">
                     <padding>
-                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
                     </padding>
                     <children>
-                        <VBox fx:id="shootingRulesBox" spacing="6.0">
+                        <HBox spacing="14.0">
                             <children>
-                                <Label text="Shooting Conditions">
+                                <VBox fx:id="shootingRulesBox" spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Shooting Conditions">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <CheckBox fx:id="withinHalfRangeCheckBox" styleClass="game-checkbox" text="Within Half Range" />
+                                        <CheckBox fx:id="remainedStationaryCheckBox" styleClass="game-checkbox" text="Attacker Remained Stationary" />
+                                        <CheckBox fx:id="targetHasCoverCheckBox" styleClass="game-checkbox" text="Target Has Benefit of Cover" />
+                                        <CheckBox fx:id="blastLegalCheckBox" styleClass="game-checkbox" text="Blast Is Legal For This Shot" />
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="fightRulesBox" spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Fight Conditions">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Pile In, Consolidate, Engagement Range and exact model reach still need player confirmation on the tabletop."
+                                               wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label text="Target Keywords">
                                     <font>
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
-                                <CheckBox fx:id="withinHalfRangeCheckBox" styleClass="game-checkbox" text="Within Half Range" />
-                                <CheckBox fx:id="remainedStationaryCheckBox" styleClass="game-checkbox" text="Attacker Remained Stationary" />
-                                <CheckBox fx:id="targetHasCoverCheckBox" styleClass="game-checkbox" text="Target Has Benefit of Cover" />
-                                <CheckBox fx:id="blastLegalCheckBox" styleClass="game-checkbox" text="Blast Is Legal For This Shot" />
+                                <FlowPane hgap="12.0" vgap="6.0" maxWidth="1.7976931348623157E308" prefWrapLength="520.0">
+                                    <children>
+                                        <CheckBox fx:id="targetInfantryCheckBox" styleClass="game-checkbox" text="Infantry" />
+                                        <CheckBox fx:id="targetVehicleCheckBox" styleClass="game-checkbox" text="Vehicle" />
+                                        <CheckBox fx:id="targetMonsterCheckBox" styleClass="game-checkbox" text="Monster" />
+                                        <CheckBox fx:id="targetCharacterCheckBox" styleClass="game-checkbox" text="Character" />
+                                        <CheckBox fx:id="targetPsykerCheckBox" styleClass="game-checkbox" text="Psyker" />
+                                    </children>
+                                </FlowPane>
                             </children>
                         </VBox>
 
-                        <VBox fx:id="fightRulesBox" spacing="6.0">
-                            <children>
-                                <Label text="Fight Conditions">
-                                    <font>
-                                        <Font size="18.0" />
-                                    </font>
-                                </Label>
-                                <Label text="Pile In, Consolidate, Engagement Range and exact model reach still need player confirmation on the tabletop."
-                                       wrapText="true" />
-                            </children>
-                        </VBox>
-
-                        <Label text="Target Keywords">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Label>
-                        <FlowPane hgap="14.0" vgap="8.0" prefWrapLength="620.0">
-                            <children>
-                                <CheckBox fx:id="targetInfantryCheckBox" styleClass="game-checkbox" text="Infantry" />
-                                <CheckBox fx:id="targetVehicleCheckBox" styleClass="game-checkbox" text="Vehicle" />
-                                <CheckBox fx:id="targetMonsterCheckBox" styleClass="game-checkbox" text="Monster" />
-                                <CheckBox fx:id="targetCharacterCheckBox" styleClass="game-checkbox" text="Character" />
-                                <CheckBox fx:id="targetPsykerCheckBox" styleClass="game-checkbox" text="Psyker" />
-                            </children>
-                        </FlowPane>
-
-                        <HBox spacing="12.0">
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
                             <children>
                                 <Button fx:id="blueAttackButton"
                                         mnemonicParsing="false"
                                         onAction="#blueAttackRed"
-                                        prefHeight="42.0"
-                                        prefWidth="160.0"
+                                        prefHeight="40.0"
+                                        prefWidth="188.0"
+                                        textAlignment="CENTER"
+                                        wrapText="true"
                                         styleClass="wh-btn, wh-btn-primary"
-                                        text="Blue Attacks Red" />
+                                        text="Attacker Attacks Defender" />
                                 <Button fx:id="redAttackButton"
                                         mnemonicParsing="false"
                                         onAction="#redAttackBlue"
-                                        prefHeight="42.0"
-                                        prefWidth="160.0"
+                                        prefHeight="40.0"
+                                        prefWidth="188.0"
+                                        textAlignment="CENTER"
+                                        wrapText="true"
                                         styleClass="wh-btn, wh-btn-primary"
-                                        text="Red Attacks Blue" />
+                                        text="Defender Attacks Attacker" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="closeButton"
+                                        mnemonicParsing="false"
+                                        onAction="#closeWindow"
+                                        prefHeight="40.0"
+                                        prefWidth="140.0"
+                                        styleClass="wh-btn"
+                                        text="Close" />
                             </children>
                         </HBox>
 
-                        <Label text="Pending Damage Allocation">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Label>
-                        <Label fx:id="pendingDamageStatusLabel"
-                               text="No pending damage. Resolve a new attack to generate wounds."
-                               wrapText="true" />
-                        <Label text="Defender chooses which model receives the current unsaved damage." wrapText="true" />
-                        <ListView fx:id="allocationModelList"
-                                  prefHeight="220.0"
-                                  styleClass="game-list"
-                                  VBox.vgrow="NEVER" />
-                        <Button fx:id="applyPendingDamageButton"
-                                mnemonicParsing="false"
-                                onAction="#applyPendingDamage"
-                                prefHeight="40.0"
-                                prefWidth="220.0"
-                                styleClass="wh-btn, wh-btn-primary"
-                                text="Apply Pending Damage" />
+                        <HBox spacing="14.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="8.0" minWidth="240.0" prefWidth="280.0" maxWidth="340.0">
+                                    <children>
+                                        <Label text="Pending Damage Allocation">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="pendingDamageStatusLabel"
+                                               text="No pending damage. Resolve a new attack to generate wounds."
+                                               wrapText="true" />
+                                        <Label text="Defender chooses which model receives the current unsaved damage." wrapText="true" />
+                                        <ListView fx:id="allocationModelList"
+                                                  prefHeight="260.0"
+                                                  styleClass="game-list"
+                                                  VBox.vgrow="ALWAYS" />
+                                        <Button fx:id="applyPendingDamageButton"
+                                                mnemonicParsing="false"
+                                                onAction="#applyPendingDamage"
+                                                prefHeight="40.0"
+                                                prefWidth="210.0"
+                                                styleClass="wh-btn, wh-btn-primary"
+                                                text="Apply Pending Damage" />
+                                    </children>
+                                </VBox>
 
-                        <Label text="Battle Result">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Label>
-                        <TextArea fx:id="battleResultBox" prefHeight="300.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
+                                <VBox spacing="8.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Battle Result">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <TextArea fx:id="battleResultBox" prefHeight="260.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
 
-                        <Label text="Dice Roll Log">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Label>
-                        <TextArea fx:id="rollLogBox" prefHeight="300.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
-                        <Button fx:id="closeButton"
-                                mnemonicParsing="false"
-                                onAction="#closeWindow"
-                                prefHeight="40.0"
-                                prefWidth="140.0"
-                                styleClass="wh-btn"
-                                text="Close" />
+                                        <Label text="Dice Roll Log">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <TextArea fx:id="rollLogBox" prefHeight="260.0" styleClass="game-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
                     </children>
                 </VBox>
 
-                <VBox spacing="12.0" styleClass="game-side-panel" GridPane.columnIndex="2">
+                <VBox minWidth="290.0" prefWidth="320.0" maxWidth="360.0" spacing="12.0" styleClass="game-side-panel">
                     <padding>
-                        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
                     </padding>
                     <children>
-                        <Label text="Red Army Units">
+                        <Label text="Defender Units">
                             <font>
-                                <Font size="20.0" />
+                                <Font size="18.0" />
                             </font>
                         </Label>
-                        <ListView fx:id="redUnitList" prefHeight="460.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
+                        <ListView fx:id="redUnitList" prefHeight="420.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
                         <Label text="Selected Weapon" />
                         <ComboBox fx:id="redWeaponCombo" maxWidth="1.7976931348623157E308" styleClass="game-combo" />
                         <Label text="Attacking Weapon Bearers" />
                         <Spinner fx:id="redBearerCountSpinner" editable="true" maxWidth="1.7976931348623157E308" styleClass="game-spinner" />
-                        <Label fx:id="redWeaponHintLabel" text="Select a Red unit first." wrapText="true" />
+                        <Label fx:id="redWeaponHintLabel" text="Select a Defender unit first." wrapText="true" />
 
-                        <VBox fx:id="redFightBox" spacing="8.0">
+                        <Label text="Optional VM Rules">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="redOptionalRulesHintLabel"
+                               text="Select a unit, weapon and target to see optional VM rules for this attack."
+                               wrapText="true" />
+                        <FlowPane fx:id="redOptionalRulesPane"
+                                  hgap="8.0"
+                                  vgap="6.0"
+                                  maxWidth="1.7976931348623157E308"
+                                  prefWrapLength="280.0" />
+
+                        <VBox fx:id="redFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="redEligibleFightCheckBox" text="Red selected unit is eligible to fight" />
-                                <CheckBox fx:id="redChargedCheckBox" text="Red selected unit charged this turn" />
+                                <CheckBox fx:id="redEligibleFightCheckBox" text="Selected Defender unit is eligible to fight" />
+                                <CheckBox fx:id="redChargedCheckBox" text="Selected Defender unit charged this turn" />
                                 <Label fx:id="redExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>
                     </children>
                 </VBox>
             </children>
-        </GridPane>
+        </HBox>
     </center>
 </BorderPane>

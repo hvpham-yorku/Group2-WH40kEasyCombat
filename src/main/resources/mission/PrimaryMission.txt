@@ -1,0 +1,188 @@
+Primary Mission
+LINCHPIN
+True victory is built upon a firm foundation. If you cannot hold the centre, then all else will crumble swiftly.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+If the player whose turn it is does not control the objective marker in their deployment zone, they score 3VP for each objective marker they control.
+
+OR
+If the player whose turn it is controls the objective marker in their deployment zone, they score 3VP for controlling that objective marker, and 5VP for each other objective marker they control (up to 15VP per turn).
+
+
+
+Primary Mission
+SCORCHED EARTH
+What cannot be secured must be burned to ash.
+
+BURN OBJECTIVE (ACTION)
+STARTS: Your Shooting phase, from the second battle round onwards.
+
+UNITS: One unit from your army within range of an objective marker that is not within your deployment zone.
+
+COMPLETES: End of your opponent’s next turn or the end of the battle (whichever comes first), if your unit is still within range of the same objective marker and you control that objective marker.
+
+IF COMPLETED: That objective marker is burned and removed from the battlefield.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: Any time.
+
+Each time a player burns an objective marker, that player scores 5VP if that objective marker was in No Man’s Land, or 10VP instead if that objective marker was in their opponent’s deployment zone.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 5VP for each objective marker they control (up to 10VP per turn).
+
+
+
+Primary Mission
+BURDEN OF TRUST
+The strategic prizes in this region must be guarded at all costs - a duty that falls upon a chosen few.
+
+At the end of the Command phase, for each objective marker the player whose turn it is controls, they can select one unit from their army (excluding AIRCRAFT) within range of that objective marker to guard it until the start of their next turn.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 4VP for each objective marker they control that is not within their deployment zone.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of each player’s turn.
+
+The opponent of the player whose turn it is scores 2VP for each of their units (excluding Battle-shocked units) that are within range of and guarding an objective marker they control.
+
+Designer’s Note: Note that the player going second has the first chance to score VP in this way, as they can guard objectives in their first turn and score VP in their opponent’s next turn.
+
+
+
+Primary Mission
+UNEXPLODED ORDNANCE
+Volatile undetonated material lies in your path. Shifting such hazards towards enemy territory could be the key to victory.
+
+Start of the Battle: Each objective marker within No Man’s Land becomes a Hazard objective marker.
+
+MOVE HAZARD (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One or more units from your army, each within range of a different Hazard objective marker you control.
+
+COMPLETES: End of your turn, if the unit performing this Action is still within range of the same Hazard objective marker and you control that objective marker.
+
+IF COMPLETED: You can move each of those Hazard objective markers up to 6". When doing so, that objective marker cannot end that move on top of any other objective marker or model, or inside impassable parts of terrain features.
+
+
+
+Primary Mission
+TAKE AND HOLD
+Several strategic locations have been identified in your vicinity. Your orders are to assault these positions, secure them and hold them at any cost.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 5VP for each objective marker they control (up to 15VP per turn).
+
+
+
+Primary Mission
+TERRAFORM
+Victory here lies in shaping the landscape of the battlefield.
+
+TERRAFORM (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One or more units from your army, each within range of a different objective marker that is not within your deployment zone.
+
+COMPLETES: End of the turn, if the unit performing this Action is still within range of the same objective marker and you control that objective marker.
+
+IF COMPLETED: Each of those objective markers is terraformed by you. If that objective marker was terraformed by your opponent, it no longer is.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 4VP for each objective marker they control (up to 12VP per turn).
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the turn.
+
+Each player scores 1VP for each objective marker that is terraformed by them.
+
+
+
+Primary Mission
+HIDDEN SUPPLIES
+Reconnaissance units have uncovered a hidden cache of materiel in this war zone.
+
+In the Place Objective Markers step, players must set up one additional objective marker in No Man’s Land.
+
+Before setting up this new objective marker, players must first move the objective marker in the centre of the battlefield 6" directly towards one of the corners of the battlefield (if No Man’s Land touches any of the corners of the battlefield, you must move the objective marker towards one of those corners). Otherwise, the players roll off, and the winner selects which corner the objective marker is moved towards. Players then set up the new objective marker 6 from the centre of the battlefield towards the diagonally opposite corner of the battlefield to the previously moved objective marker.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores VP as follows (these are cumulative):
+5VP If they control one objective marker not within their deployment zone.
+5VP If they control two objective markers not within their deployment zone.
+5VP if they control more objective markers than their opponent controls.
+
+
+
+Primary Mission
+PURGE THE FOE
+Exterminate the enemy. Show them no mercy.
+
+ANY BATTLE ROUND
+WHEN: End of the battle round.
+
+Each player scores 4VP if one or more enemy units were destroyed this battle round.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the battle round.
+
+Each player scores 4VP if more enemy units than friendly units were destroyed this battle round.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 4VP if they control one or more objective markers, and an additional 4VP if they control more objective markers than their opponent controls.
+
+
+
+Primary Mission
+THE RITUAL
+Bitter foes clash in a race to finish a ritual to either sanctify or corrupt the battlefield.
+
+THE RITUAL (ACTION)
+STARTS: Your Shooting phase.
+
+UNITS: One unit from your army.
+
+COMPLETES: End of your turn.
+
+IF COMPLETED: Set up one objective marker anywhere on the battlefield wholly within No Man’s Land and within 1" of your unit, provided it can be setup exactly 12" from one other objective marker within No Man’s Land and not within 6" of any other objective marker.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores 5VP for each objective marker in No Man’s Land that they control (up to 15VP per turn).
+
+
+
+Primary Mission
+SUPPLY DROP
+Supplies are inbound. Secure the drop site.
+
+Start of the Battle: Players randomly select two different objective markers within No Man’s Land that are not in the centre of the battlefield; the first selected is the Alpha objective, the second selected is the Omega objective.
+
+Start of the Fourth Battle Round: The Alpha objective is removed from the battlefield.
+
+Start of the Fifth Battle Round: The Omega objective is removed from the battlefield.
+
+SECOND BATTLE ROUND ONWARDS
+WHEN: End of the Command phase (or the end of your turn if it is the fifth battle round and you are going second).
+
+The player whose turn it is scores the following VP for each objective marker in No Man’s Land that they control, depending on the current battle round:
+5VP in the second and third battle rounds.
+8VP in the fourth battle round.
+15VP in the fifth battle round.

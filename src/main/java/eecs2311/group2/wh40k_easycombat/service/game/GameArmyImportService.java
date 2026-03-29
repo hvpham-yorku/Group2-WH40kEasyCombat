@@ -15,7 +15,15 @@ import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_abilities;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_keywords;
+import eecs2311.group2.wh40k_easycombat.model.Abilities;
+import eecs2311.group2.wh40k_easycombat.model.Detachment_abilities;
+import eecs2311.group2.wh40k_easycombat.model.Detachments;
+import eecs2311.group2.wh40k_easycombat.model.Enhancements;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitAbilityProfile;
+import eecs2311.group2.wh40k_easycombat.repository.AbilitiesRepository;
+import eecs2311.group2.wh40k_easycombat.repository.Detachment_abilitiesRepository;
+import eecs2311.group2.wh40k_easycombat.repository.DetachmentsRepository;
+import eecs2311.group2.wh40k_easycombat.repository.EnhancementsRepository;
 import eecs2311.group2.wh40k_easycombat.repository.FactionLookupRepository;
 import eecs2311.group2.wh40k_easycombat.repository.StratagemsRepository;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
@@ -42,6 +50,11 @@ public final class GameArmyImportService {
 
         String factionId = safe(bundle.army.faction_id());
         String factionName = resolveFactionName(factionId);
+        String detachmentId = loadPrimaryDetachmentId(armyId);
+        String detachmentName = resolveDetachmentName(detachmentId);
+        Map<String, String> enhancementNamesById = loadEnhancementNamesById();
+        List<String> factionAbilityNames = loadFactionAbilityNames(factionId);
+        List<String> detachmentAbilityNames = loadDetachmentAbilityNames(detachmentId);
 
         return new GameArmyImportVM(
                 bundle.army.auto_id(),
@@ -49,12 +62,30 @@ public final class GameArmyImportService {
                 factionId,
                 factionName,
                 bundle.army.total_points(),
-                buildImportedUnits(bundle),
+                buildImportedUnits(
+                        bundle,
+                        factionId,
+                        factionName,
+                        detachmentId,
+                        detachmentName,
+                        enhancementNamesById,
+                        factionAbilityNames,
+                        detachmentAbilityNames
+                ),
                 loadStrategiesForArmy(armyId)
         );
     }
 
-    private static List<GameArmyUnitVM> buildImportedUnits(ArmyAggregate bundle) throws Exception {
+    private static List<GameArmyUnitVM> buildImportedUnits(
+            ArmyAggregate bundle,
+            String factionId,
+            String factionName,
+            String detachmentId,
+            String detachmentName,
+            Map<String, String> enhancementNamesById,
+            List<String> factionAbilityNames,
+            List<String> detachmentAbilityNames
+    ) throws Exception {
         List<GameArmyUnitVM> importedUnits = new ArrayList<>();
 
         for (Army_units savedUnit : bundle.units) {
@@ -67,6 +98,12 @@ public final class GameArmyImportService {
 
             String unitName = safe(datasheetBundle.datasheet.name(), savedUnit.datasheet_id());
             UnitInstance unit = new UnitInstance(savedUnit.datasheet_id(), unitName);
+            unit.setFactionId(factionId);
+            unit.setFactionName(factionName);
+            unit.setDetachmentId(detachmentId);
+            unit.setDetachmentName(detachmentName);
+            applyArmyLevelRuleMetadata(unit, factionAbilityNames, detachmentAbilityNames);
+            applyEnhancement(unit, safe(savedUnit.enhancements_id()), enhancementNamesById);
             importUnitRules(unit, datasheetBundle);
             List<Army_wargear> equippedWeapons = StaticDataService.getArmyWargearByUnitId(savedUnit.auto_id());
 
@@ -277,6 +314,129 @@ public final class GameArmyImportService {
             return null;
         }
         return detachments.get(0).detachment_id();
+    }
+
+    private static String resolveDetachmentName(String detachmentId) throws Exception {
+        if (detachmentId == null || detachmentId.isBlank()) {
+            return "";
+        }
+
+        for (Detachments detachment : DetachmentsRepository.getAllDetachments()) {
+            if (detachment != null && detachmentId.equalsIgnoreCase(safe(detachment.id()))) {
+                return safe(detachment.name(), detachmentId);
+            }
+        }
+
+        return detachmentId;
+    }
+
+    private static Map<String, String> loadEnhancementNamesById() throws Exception {
+        Map<String, String> result = new LinkedHashMap<>();
+
+        for (Enhancements enhancement : EnhancementsRepository.getAllEnhancements()) {
+            if (enhancement == null) {
+                continue;
+            }
+
+            String id = safe(enhancement.id());
+            if (id.isBlank()) {
+                continue;
+            }
+
+            result.put(id, safe(enhancement.name(), id));
+        }
+
+        return result;
+    }
+
+    private static List<String> loadFactionAbilityNames(String factionId) throws Exception {
+        List<String> result = new ArrayList<>();
+        if (factionId == null || factionId.isBlank()) {
+            return result;
+        }
+
+        for (Abilities ability : AbilitiesRepository.getAllAbilities()) {
+            if (ability == null) {
+                continue;
+            }
+            if (!factionId.equalsIgnoreCase(safe(ability.faction_id()))) {
+                continue;
+            }
+
+            String name = safe(ability.name(), ability.id());
+            if (!name.isBlank()) {
+                result.add(name);
+            }
+        }
+
+        return result;
+    }
+
+    private static List<String> loadDetachmentAbilityNames(String detachmentId) throws Exception {
+        List<String> result = new ArrayList<>();
+        if (detachmentId == null || detachmentId.isBlank()) {
+            return result;
+        }
+
+        for (Detachment_abilities ability : Detachment_abilitiesRepository.getAllDetachment_abilities()) {
+            if (ability == null) {
+                continue;
+            }
+            if (!detachmentId.equalsIgnoreCase(safe(ability.detachment_id()))) {
+                continue;
+            }
+
+            String name = safe(ability.name(), ability.id());
+            if (!name.isBlank()) {
+                result.add(name);
+            }
+        }
+
+        return result;
+    }
+
+    private static void applyArmyLevelRuleMetadata(
+            UnitInstance unit,
+            List<String> factionAbilityNames,
+            List<String> detachmentAbilityNames
+    ) {
+        if (unit == null) {
+            return;
+        }
+
+        if (factionAbilityNames != null) {
+            for (String abilityName : factionAbilityNames) {
+                unit.addFactionAbilityName(abilityName);
+            }
+        }
+
+        if (detachmentAbilityNames != null) {
+            for (String abilityName : detachmentAbilityNames) {
+                unit.addDetachmentAbilityName(abilityName);
+            }
+        }
+    }
+
+    private static void applyEnhancement(
+            UnitInstance unit,
+            String enhancementId,
+            Map<String, String> enhancementNamesById
+    ) {
+        if (unit == null) {
+            return;
+        }
+
+        unit.setEnhancementId(enhancementId);
+        if (enhancementId == null || enhancementId.isBlank()) {
+            unit.setEnhancementName("");
+            return;
+        }
+
+        unit.setEnhancementName(
+                enhancementNamesById == null
+                        ? enhancementId
+                        : safe(enhancementNamesById.getOrDefault(enhancementId, enhancementId))
+        );
     }
 
     private static String resolveFactionName(String factionId) {

@@ -15,16 +15,25 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.util.function.Consumer;
+
 public class ArmyImportController {
+
+    // ======================= Import Table =======================
 
     @FXML private TableView<ArmySavedRowVM> armyTable;
     @FXML private TableColumn<ArmySavedRowVM, String> armyName;
     @FXML private TableColumn<ArmySavedRowVM, Number> armyPoints;
+
+    // ======================= Buttons =======================
     @FXML private Button importButton;
 
     private GameUIController parentController;
     private GameUIController.ArmySide targetSide;
+    private Consumer<GameArmyImportVM> importConsumer;
+    private int maxAllowedPoints;
 
+    // When this page loads, initialize the saved army table.
     @FXML
     private void initialize() {
         setupTable();
@@ -34,6 +43,15 @@ public class ArmyImportController {
     public void setImportContext(GameUIController parentController, GameUIController.ArmySide targetSide) {
         this.parentController = parentController;
         this.targetSide = targetSide;
+        this.importConsumer = null;
+        this.maxAllowedPoints = 0;
+    }
+
+    public void setImportContext(Consumer<GameArmyImportVM> importConsumer, int maxAllowedPoints) {
+        this.parentController = null;
+        this.targetSide = null;
+        this.importConsumer = importConsumer;
+        this.maxAllowedPoints = Math.max(0, maxAllowedPoints);
     }
 
     private void setupTable() {
@@ -56,6 +74,7 @@ public class ArmyImportController {
         }
     }
 
+    // When click "Import" button, import the selected saved army into the current game flow.
     @FXML
     void importArmy(MouseEvent event) {
         ArmySavedRowVM selected = armyTable.getSelectionModel().getSelectedItem();
@@ -65,7 +84,18 @@ public class ArmyImportController {
         }
 
         if (parentController == null || targetSide == null) {
-            DialogHelper.showWarning("Import Error", "Import target is not set.");
+            if (importConsumer == null) {
+                DialogHelper.showWarning("Import Error", "Import target is not set.");
+                return;
+            }
+        }
+
+        if (maxAllowedPoints > 0 && selected.points() > maxAllowedPoints) {
+            DialogHelper.showWarning(
+                    "Army Too Large",
+                    "This army has " + selected.points() + " points, which is above the selected battle size limit of "
+                            + maxAllowedPoints + "."
+            );
             return;
         }
 
@@ -76,7 +106,11 @@ public class ArmyImportController {
                 return;
             }
 
-            parentController.acceptImportedArmy(targetSide, data);
+            if (importConsumer != null) {
+                importConsumer.accept(data);
+            } else {
+                parentController.acceptImportedArmy(targetSide, data);
+            }
 
             Stage stage = (Stage) importButton.getScene().getWindow();
             stage.close();

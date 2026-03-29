@@ -2,7 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -71,6 +75,86 @@
                                 prefHeight="58.0"
                                 styleClass="wh-btn, wh-btn-danger"
                                 text="Exit" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <VBox alignment="TOP_RIGHT"
+              prefWidth="360.0"
+              maxWidth="360.0"
+              spacing="10.0"
+              styleClass="main-update-panel"
+              StackPane.alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="24.0" right="20.0" bottom="24.0" left="20.0" />
+            </padding>
+
+            <children>
+                <VBox spacing="8.0" styleClass="main-side-card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="main-update-title" text="News" />
+                        <ScrollPane fitToWidth="true"
+                                    hbarPolicy="NEVER"
+                                    styleClass="main-news-scroll"
+                                    VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="newsLinksBox" spacing="8.0">
+                                    <children>
+                                        <Label fx:id="newsStatusLabel"
+                                               styleClass="main-update-caption"
+                                               text="Loading latest news..." />
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                        <Hyperlink fx:id="moreNewsLink"
+                                   onAction="#openWarhammerNewsPage"
+                                   styleClass="main-news-link"
+                                   text="More news..." />
+                    </children>
+                </VBox>
+
+                <Region prefHeight="6.0" />
+
+                <VBox spacing="10.0" styleClass="main-side-card">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+                    <children>
+                        <VBox spacing="4.0">
+                            <children>
+                                <Label styleClass="main-update-title" text="Last Update" />
+                                <Label fx:id="lastUpdateLabel"
+                                       styleClass="main-update-value"
+                                       text="Unknown" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="6.0">
+                            <children>
+                                <HBox alignment="CENTER_RIGHT" spacing="4.0">
+                                    <children>
+                                        <Label styleClass="main-update-caption" text="Update Datas From" />
+                                        <Hyperlink fx:id="wahapediaLink"
+                                                   onAction="#openWahapediaExport"
+                                                   text="Wahapedia" />
+                                        <Label styleClass="main-update-caption" text="CSV file" />
+                                    </children>
+                                </HBox>
+
+                                <Button fx:id="updateButton"
+                                        maxWidth="1.7976931348623157E308"
+                                        mnemonicParsing="false"
+                                        onMouseClicked="#updateDataBtn"
+                                        prefHeight="44.0"
+                                        styleClass="wh-btn"
+                                        text="Update" />
+                            </children>
+                        </VBox>
                     </children>
                 </VBox>
             </children>

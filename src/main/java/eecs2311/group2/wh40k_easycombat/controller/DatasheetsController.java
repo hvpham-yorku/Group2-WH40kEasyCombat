@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsPageControll
 import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsRenderHelper;
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.ruleservice.ruleSearcher;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
@@ -19,6 +20,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
@@ -28,19 +30,32 @@ import javafx.scene.text.TextFlow;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class DatasheetsController implements Initializable {
+    private static final String CORE_RULE_DEFAULT_TEXT =
+            "Search for a core rule keyword to view matching rule text.\n";
+    private static final String CORE_RULE_READY_STATUS =
+            "Core rules loaded. Enter a keyword such as Charge, Battle-shock, Command phase or Stratagem.";
+    private static final String CORE_RULE_UNAVAILABLE_STATUS =
+            "Core rule data could not be loaded.";
+    private static final String CORE_RULE_UNAVAILABLE_TEXT =
+            "Core rule data is unavailable right now.";
 
     // ======================= Buttons ==========================
     @FXML private Button addButton;
     @FXML private Button editButton;
     @FXML private Button searchButton;
+    @FXML private Button clearSearchButton;
     @FXML private Button backToMainButton;
+    @FXML private Button coreRuleSearchButton;
+    @FXML private Button coreRuleClearButton;
 
     // ======================= Inputs ===========================
     @FXML private TextField searchTextField;
     @FXML private ComboBox<String> factionComboBox;
+    @FXML private TextField coreRuleSearchField;
 
     // ======================= Lists ============================
     @FXML private ListView<DatasheetListItemVM> datasheetsList;
@@ -49,6 +64,7 @@ public class DatasheetsController implements Initializable {
     @FXML private Label datasheetName;
     @FXML private Label unitName1;
     @FXML private Label unitName2;
+    @FXML private Label coreRuleStatusLabel;
 
     // ======================= Unit 1 - Properties ==============
     @FXML private javafx.scene.layout.HBox unit1PropertyHBox;
@@ -77,6 +93,7 @@ public class DatasheetsController implements Initializable {
     @FXML private TextFlow abilityTextFlow;
     @FXML private TextFlow factionAbilityTextFlow;
     @FXML private TextFlow otherTextFlow;
+    @FXML private TextArea coreRuleResultsArea;
 
     // ======================= Tables - Melee Weapons ===========
     @FXML private TableView<WeaponProfile> meleeWeaponTable;
@@ -100,11 +117,14 @@ public class DatasheetsController implements Initializable {
 
     // ======================= In-memory ========================
     private final DatasheetsPageState state = new DatasheetsPageState();
+    private ruleSearcher coreRuleSearcher;
 
+    // When this page loads, initialize tables, load datasheets and wire the page events.
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTables();
         ensurePropertyLabelsWhiteBackground();
+        setupCoreRuleSearch();
         loadPageData();
         wireEvents();
     }
@@ -219,6 +239,21 @@ public class DatasheetsController implements Initializable {
         label.setStyle(style);
     }
 
+    private void setupCoreRuleSearch() {
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setEditable(false);
+            coreRuleResultsArea.setWrapText(true);
+        }
+
+        try {
+            coreRuleSearcher = new ruleSearcher("WarHammer40kRules.json");
+            resetCoreRuleSearchView();
+        } catch (Exception e) {
+            coreRuleSearcher = null;
+            resetCoreRuleSearchView();
+        }
+    }
+
     // -------------------- Data loading --------------------
 
     private void loadPageData() {
@@ -254,31 +289,57 @@ public class DatasheetsController implements Initializable {
         }
     }
 
+    // When change "Faction" combo box, apply the current datasheet filters.
     @FXML
     private void selectFaction(ActionEvent event) {
         applyFilters();
     }
 
+    // When type in the faction input method field, apply the current datasheet filters.
     @FXML
     void changeFaction(InputMethodEvent event) {
         applyFilters();
     }
 
+    // When click "Search" button, apply the current datasheet filters.
     @FXML
     void clickSearchButton(MouseEvent event) {
         applyFilters();
     }
 
+    // When click "Clear" button, clear the datasheet search and return to the faction-filtered default view.
+    @FXML
+    private void clearDatasheetSearch(ActionEvent event) {
+        if (searchTextField != null) {
+            searchTextField.clear();
+        }
+        applyFilters();
+    }
+
+    // When click "Add" button, open the custom rule editor page.
     @FXML
     void clickAddButton(MouseEvent event) {
-        // TODO
+        try {
+            FixedAspectView.switchResponsiveTo(
+                    (Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                    1100.0,
+                    760.0,
+                    1480.0,
+                    900.0
+            );
+        } catch (IOException e) {
+            DialogHelper.showError("Open Rule Editor Failed", e);
+        }
     }
 
+    // When click "Edit" button, open the custom rule editor page.
     @FXML
     void clickEditButton(MouseEvent event) {
-        // TODO
+        clickAddButton(event);
     }
 
+    // When click "Back" button, return to the main menu page.
     @FXML
     void clickBackButton(MouseEvent event) throws IOException {
     	FixedAspectView.switchResponsiveTo(
@@ -289,6 +350,50 @@ public class DatasheetsController implements Initializable {
     	        1200.0,
     	        800.0
     	);
+    }
+
+    // When click "Search" button in the Core rule tab, search the core rule data and show matching text.
+    @FXML
+    private void searchCoreRules(ActionEvent event) {
+        String query = searchKeyword(coreRuleSearchField);
+        if (query.isBlank()) {
+            resetCoreRuleSearchView();
+            return;
+        }
+
+        if (coreRuleSearcher == null) {
+            resetCoreRuleSearchView();
+            return;
+        }
+
+        List<String> matches = coreRuleSearcher.searchAll(query, 20);
+        if (matches.isEmpty()) {
+            if (coreRuleStatusLabel != null) {
+                coreRuleStatusLabel.setText("No core rule text matched \"" + query + "\".");
+            }
+            if (coreRuleResultsArea != null) {
+                coreRuleResultsArea.setText("No matching core rule text found for \"" + query + "\".");
+            }
+            return;
+        }
+
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText("Found " + matches.size() + " matching core rule section"
+                    + (matches.size() == 1 ? "" : "s") + " for \"" + query + "\".");
+        }
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(formatCoreRuleMatches(matches));
+            coreRuleResultsArea.positionCaret(0);
+        }
+    }
+
+    // When click "Clear" button, reset the core rule search area to its initial state.
+    @FXML
+    private void clearCoreRuleSearch(ActionEvent event) {
+        if (coreRuleSearchField != null) {
+            coreRuleSearchField.clear();
+        }
+        resetCoreRuleSearchView();
     }
 
     // -------------------- Filtering --------------------
@@ -389,5 +494,39 @@ public class DatasheetsController implements Initializable {
                 unit2PropertyHBox,
                 insvTxtLabel
         );
+    }
+
+    private String formatCoreRuleMatches(List<String> matches) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < matches.size(); i++) {
+            if (i > 0) {
+                builder.append("\n\n==================================================\n\n");
+            }
+            builder.append("Match ").append(i + 1).append("\n\n");
+            builder.append(matches.get(i));
+        }
+        return builder.toString();
+    }
+
+    private String searchKeyword(TextField field) {
+        if (field == null || field.getText() == null) {
+            return "";
+        }
+        return field.getText().trim();
+    }
+
+    private void resetCoreRuleSearchView() {
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText(coreRuleSearcher == null
+                    ? CORE_RULE_UNAVAILABLE_STATUS
+                    : CORE_RULE_READY_STATUS);
+        }
+
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(coreRuleSearcher == null
+                    ? CORE_RULE_UNAVAILABLE_TEXT
+                    : CORE_RULE_DEFAULT_TEXT);
+            coreRuleResultsArea.positionCaret(0);
+        }
     }
 }

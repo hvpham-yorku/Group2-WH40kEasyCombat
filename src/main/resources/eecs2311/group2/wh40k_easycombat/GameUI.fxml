@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -36,6 +37,11 @@
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
                     <children>
+                        <Label text="Attacker">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
                         <Label fx:id="blueFactionLabel" text="FactionName" wrapText="true">
                             <font>
                                 <Font name="System Bold" size="22.0" />
@@ -62,7 +68,7 @@
                                         <Font size="15.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="blueVPLabel" text="1">
+                                <Label fx:id="blueVPLabel" text="0">
                                     <font>
                                         <Font name="System Bold" size="30.0" />
                                     </font>
@@ -95,6 +101,11 @@
                         <Insets top="16.0" right="20.0" bottom="16.0" left="20.0" />
                     </padding>
                     <children>
+                        <Label text="Defender">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
                         <Label fx:id="redFactionLabel" text="FactionName" wrapText="true">
                             <font>
                                 <Font name="System Bold" size="22.0" />
@@ -121,7 +132,7 @@
                                         <Font size="15.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="redVPLabel" text="1">
+                                <Label fx:id="redVPLabel" text="0">
                                     <font>
                                         <Font name="System Bold" size="30.0" />
                                     </font>
@@ -181,18 +192,11 @@
                                     </children>
                                 </HBox>
 
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="Army">
-                                            <font>
-                                                <Font size="18.0" />
-                                            </font>
-                                        </Label>
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="blueImportButton" mnemonicParsing="false" onMouseClicked="#blueImport"
-                                                prefHeight="36.0" prefWidth="120.0" styleClass="wh-btn" text="Import Army" />
-                                    </children>
-                                </HBox>
+                                <Label text="Army">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
 
                                 <ListView fx:id="blueArmyList" minHeight="0.0" prefHeight="260.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
 
@@ -219,13 +223,16 @@
 
                                 <TableView fx:id="blueMissionTable" minHeight="0.0" prefHeight="190.0" styleClass="game-table" VBox.vgrow="SOMETIMES">
                                     <columns>
-                                        <TableColumn fx:id="blueMissionName" prefWidth="220.0" text="Mission" />
+                                        <TableColumn fx:id="blueMissionName" prefWidth="170.0" text="Mission" />
                                         <TableColumn fx:id="blueMissionState" prefWidth="90.0" text="State" />
+                                        <TableColumn fx:id="blueMissionMode" prefWidth="80.0" text="Mode" />
                                     </columns>
                                 </TableView>
 
                                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
                                     <children>
+                                        <Button fx:id="blueDrawMissionButton" mnemonicParsing="false" onMouseClicked="#blueDrawClicked"
+                                                prefHeight="38.0" prefWidth="120.0" styleClass="wh-btn" text="Draw Mission" wrapText="true" />
                                         <Button fx:id="blueCheckMissionButton" mnemonicParsing="false" onMouseClicked="#blueCheckClicked"
                                                 prefHeight="38.0" prefWidth="130.0" styleClass="wh-btn" text="Check Mission" wrapText="true" />
                                         <Button fx:id="blueAbandonMissionButton" mnemonicParsing="false" onMouseClicked="#blueAbandonClicked"
@@ -264,6 +271,27 @@
                                     </font>
                                 </Label>
 
+                                <Label fx:id="primaryMissionStateLabel"
+                                       alignment="CENTER"
+                                       maxWidth="1.7976931348623157E308"
+                                       text="State: Available"
+                                       textAlignment="CENTER"
+                                       wrapText="true" />
+
+                                <Label fx:id="winnerLabel"
+                                       alignment="CENTER"
+                                       maxWidth="1.7976931348623157E308"
+                                       text="Current Score: Tied at 0 VP"
+                                       textAlignment="CENTER"
+                                       wrapText="true" />
+
+                                <Button mnemonicParsing="false"
+                                        onAction="#openPrimaryMission"
+                                        prefHeight="38.0"
+                                        prefWidth="180.0"
+                                        styleClass="wh-btn"
+                                        text="Open Mission Card" />
+
                                 <Label text="Manual Dice">
                                     <font>
                                         <Font size="20.0" />
@@ -273,8 +301,11 @@
                                 <HBox alignment="CENTER" spacing="12.0">
                                     <children>
                                         <Spinner fx:id="virtuaDiceSpinner" editable="true" prefHeight="40.0" prefWidth="120.0" styleClass="game-spinner" />
+                                        <ComboBox fx:id="virtualDiceSuccessComboBox" prefHeight="40.0" prefWidth="110.0" styleClass="game-combo" />
                                         <Button fx:id="rollButton" mnemonicParsing="false" onMouseClicked="#rollDice"
                                                 prefHeight="40.0" prefWidth="90.0" styleClass="wh-btn, wh-btn-primary" text="Roll" />
+                                        <Button mnemonicParsing="false" onMouseClicked="#clearDiceLog"
+                                                prefHeight="40.0" prefWidth="90.0" styleClass="wh-btn" text="Clear" />
                                     </children>
                                 </HBox>
 
@@ -341,18 +372,11 @@
                                     </children>
                                 </HBox>
 
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="Army">
-                                            <font>
-                                                <Font size="18.0" />
-                                            </font>
-                                        </Label>
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="redImportButton" mnemonicParsing="false" onMouseClicked="#redImport"
-                                                prefHeight="36.0" prefWidth="120.0" styleClass="wh-btn" text="Import Army" />
-                                    </children>
-                                </HBox>
+                                <Label text="Army">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
 
                                 <ListView fx:id="redArmyList" minHeight="0.0" prefHeight="260.0" styleClass="game-list" VBox.vgrow="ALWAYS" />
 
@@ -379,13 +403,16 @@
 
                                 <TableView fx:id="redMissionTable" minHeight="0.0" prefHeight="190.0" styleClass="game-table" VBox.vgrow="SOMETIMES">
                                     <columns>
-                                        <TableColumn fx:id="redMissionName" prefWidth="220.0" text="Mission" />
+                                        <TableColumn fx:id="redMissionName" prefWidth="170.0" text="Mission" />
                                         <TableColumn fx:id="redState" prefWidth="90.0" text="State" />
+                                        <TableColumn fx:id="redMissionMode" prefWidth="80.0" text="Mode" />
                                     </columns>
                                 </TableView>
 
                                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
                                     <children>
+                                        <Button fx:id="redDrawMissionButton" mnemonicParsing="false" onMouseClicked="#redDrawClicked"
+                                                prefHeight="38.0" prefWidth="120.0" styleClass="wh-btn" text="Draw Mission" wrapText="true" />
                                         <Button fx:id="redCheckMissionButton" mnemonicParsing="false" onMouseClicked="#redCheckClicked"
                                                 prefHeight="38.0" prefWidth="130.0" styleClass="wh-btn" text="Check Mission" wrapText="true" />
                                         <Button fx:id="redAbandonMissionButton" mnemonicParsing="false" onMouseClicked="#redAbandonClicked"

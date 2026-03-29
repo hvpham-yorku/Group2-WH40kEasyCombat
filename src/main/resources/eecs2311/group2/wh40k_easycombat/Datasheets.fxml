@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -82,7 +83,7 @@
                                                     <children>
                                                         <TextField fx:id="searchTextField"
                                                                    prefHeight="38.0"
-                                                                   prefWidth="204.0"
+                                                                   prefWidth="172.0"
                                                                    styleClass="ds-search"
                                                                    HBox.hgrow="ALWAYS">
                                                             <font>
@@ -96,6 +97,17 @@
                                                                 prefWidth="82.0"
                                                                 styleClass="wh-btn"
                                                                 text="Search">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Button>
+                                                        <Button fx:id="clearSearchButton"
+                                                                mnemonicParsing="false"
+                                                                onAction="#clearDatasheetSearch"
+                                                                prefHeight="38.0"
+                                                                prefWidth="76.0"
+                                                                styleClass="wh-btn"
+                                                                text="Clear">
                                                             <font>
                                                                 <Font size="14.0" />
                                                             </font>
@@ -133,10 +145,10 @@
                                                 mnemonicParsing="false"
                                                 onMouseClicked="#clickAddButton"
                                                 prefHeight="34.0"
-                                                prefWidth="76.0"
+                                                prefWidth="120.0"
                                                 styleClass="wh-btn"
-                                                text="Add"
-                                                visible="false" />
+                                                text="Custom Rules"
+                                                visible="true" />
                                     </children>
                                 </HBox>
                             </children>
@@ -448,7 +460,93 @@
 
         <Tab text="Core rule">
             <content>
-                <BorderPane prefHeight="800.0" prefWidth="1400.0" styleClass="ds-outer" />
+                <BorderPane prefHeight="800.0" prefWidth="1400.0" styleClass="ds-outer">
+                    <padding>
+                        <Insets top="14.0" right="14.0" bottom="14.0" left="14.0" />
+                    </padding>
+
+                    <top>
+                        <VBox spacing="14.0" BorderPane.alignment="CENTER">
+                            <children>
+                                <VBox spacing="12.0" styleClass="ds-card, ds-toolbar-card">
+                                    <padding>
+                                        <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                                    </padding>
+
+                                    <children>
+                                        <Label styleClass="ds-card-title" text="Core Rules Search">
+                                            <font>
+                                                <Font name="System Bold" size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Search the Warhammer 40,000 core rules by keyword and review the matching rule text below." wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <TextField fx:id="coreRuleSearchField"
+                                                           onAction="#searchCoreRules"
+                                                           prefHeight="40.0"
+                                                           promptText="Enter a keyword like Charge, Battle-shock or Stratagem"
+                                                           styleClass="ds-search"
+                                                           HBox.hgrow="ALWAYS">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </TextField>
+                                                <Button fx:id="coreRuleSearchButton"
+                                                        mnemonicParsing="false"
+                                                        onAction="#searchCoreRules"
+                                                        prefHeight="40.0"
+                                                        prefWidth="100.0"
+                                                        styleClass="wh-btn"
+                                                        text="Search">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </Button>
+                                                <Button fx:id="coreRuleClearButton"
+                                                        mnemonicParsing="false"
+                                                        onAction="#clearCoreRuleSearch"
+                                                        prefHeight="40.0"
+                                                        prefWidth="92.0"
+                                                        styleClass="wh-btn"
+                                                        text="Clear">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </top>
+
+                    <center>
+                        <VBox spacing="12.0" styleClass="ds-card, ds-info-card" BorderPane.alignment="CENTER">
+                            <padding>
+                                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                            </padding>
+
+                            <children>
+                                <Label text="Search Results" styleClass="ds-card-title">
+                                    <font>
+                                        <Font name="System Bold" size="20.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="coreRuleStatusLabel"
+                                       text="Search for a core rule keyword to view matching rule text."
+                                       wrapText="true" />
+                                <TextArea fx:id="coreRuleResultsArea"
+                                          editable="false"
+                                          prefHeight="620.0"
+                                          styleClass="game-textarea"
+                                          wrapText="true"
+                                          VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+                    </center>
+                </BorderPane>
             </content>
         </Tab>
     </tabs>

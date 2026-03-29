@@ -2,7 +2,9 @@ package eecs2311.group2.wh40k_easycombat.controller;
 
 import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
 import eecs2311.group2.wh40k_easycombat.model.combat.BattleShockTestResult;
+import eecs2311.group2.wh40k_easycombat.model.instance.Phase;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
+import eecs2311.group2.wh40k_easycombat.service.BattleLogService;
 import eecs2311.group2.wh40k_easycombat.service.game.BattleShockService;
 import eecs2311.group2.wh40k_easycombat.viewmodel.BattleShockUnitVM;
 import javafx.collections.FXCollections;
@@ -20,22 +22,31 @@ import javafx.stage.Stage;
 import java.util.List;
 
 public class BattleShockController {
+    // ======================= Labels =======================
     @FXML private Label headerLabel;
     @FXML private Label summaryLabel;
+
+    // ======================= Battle-shock Table =======================
     @FXML private TableView<BattleShockUnitVM> battleShockTable;
     @FXML private TableColumn<BattleShockUnitVM, String> unitColumn;
     @FXML private TableColumn<BattleShockUnitVM, String> strengthColumn;
     @FXML private TableColumn<BattleShockUnitVM, Number> leadershipColumn;
     @FXML private TableColumn<BattleShockUnitVM, String> rollColumn;
     @FXML private TableColumn<BattleShockUnitVM, Boolean> battleShockedColumn;
+
+    // ======================= Buttons =======================
     @FXML private Button rollSelectedButton;
     @FXML private Button rollAllButton;
     @FXML private Button closeButton;
 
     private final ObservableList<BattleShockUnitVM> rows = FXCollections.observableArrayList();
     private final BattleShockService battleShockService = new BattleShockService();
+    private final BattleLogService battleLogService = BattleLogService.getInstance();
     private Runnable onStateChanged;
+    private int currentRound = 1;
+    private String currentFactionName = "Current Player";
 
+    // When this page loads, initialize the Battle-shock table and button state.
     @FXML
     private void initialize() {
         battleShockTable.setItems(rows);
@@ -60,6 +71,8 @@ public class BattleShockController {
             Runnable onStateChanged
     ) {
         this.onStateChanged = onStateChanged;
+        this.currentRound = round;
+        this.currentFactionName = factionName == null || factionName.isBlank() ? "Current Player" : factionName;
         rows.clear();
 
         if (units != null) {
@@ -78,6 +91,7 @@ public class BattleShockController {
         updateButtons();
     }
 
+    // When click "Roll Selected" button, roll one Battle-shock test for the selected unit.
     @FXML
     private void rollSelected(ActionEvent event) {
         BattleShockUnitVM selected = battleShockTable.getSelectionModel().getSelectedItem();
@@ -93,6 +107,7 @@ public class BattleShockController {
         applyTest(selected);
     }
 
+    // When click "Roll All" button, roll Battle-shock tests for all pending units.
     @FXML
     private void rollAll(ActionEvent event) {
         for (BattleShockUnitVM row : rows) {
@@ -102,6 +117,7 @@ public class BattleShockController {
         }
     }
 
+    // When click "Close" button, confirm whether to leave with pending Battle-shock tests.
     @FXML
     private void closeWindow(ActionEvent event) {
         if (hasPendingRows() && !DialogHelper.confirmYesNo(
@@ -118,6 +134,23 @@ public class BattleShockController {
         BattleShockTestResult result = battleShockService.rollBattleShockTest(row.getUnit());
         row.applyTestResult(result);
         battleShockTable.refresh();
+        battleLogService.logTurnEvent(
+                currentRound,
+                Phase.COMMAND,
+                null,
+                currentFactionName
+                        + " Battle-shock test: "
+                        + result.unitName()
+                        + " rolled "
+                        + result.rolls()
+                        + " = "
+                        + result.total()
+                        + " vs Ld "
+                        + result.leadership()
+                        + " -> "
+                        + (result.passed() ? "PASS" : "FAIL")
+                        + "."
+        );
         notifyStateChanged();
         updateButtons();
     }

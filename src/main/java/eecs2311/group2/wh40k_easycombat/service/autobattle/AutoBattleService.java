@@ -7,19 +7,26 @@ import eecs2311.group2.wh40k_easycombat.model.combat.FightPhaseState;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamage;
 import eecs2311.group2.wh40k_easycombat.model.combat.PendingDamageStepResult;
 import eecs2311.group2.wh40k_easycombat.model.combat.ResolvedAttack;
+import eecs2311.group2.wh40k_easycombat.model.editor.EditorRuleModifiers;
 import eecs2311.group2.wh40k_easycombat.model.instance.Player;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitModelInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.editor.EditorRuleApplicationService;
 import eecs2311.group2.wh40k_easycombat.service.game.ArmyListStateService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoBattleService {
+    private static final Pattern DICE_PATTERN = Pattern.compile("^(\\d*)D(3|6)([+-]\\d+)?$");
+
     private final AutoBattler autoBattler = new AutoBattler();
+    private final EditorRuleApplicationService editorRuleApplicationService = new EditorRuleApplicationService();
 
     public List<WeaponProfile> availableWeapons(AutoBattleMode mode, UnitInstance unit) {
         if (mode == null || unit == null || unit.isDestroyed()) {
@@ -92,7 +99,17 @@ public class AutoBattleService {
             }
 
             for (WeaponProfile fightWeapon : fightWeapons) {
-                AttackResult fightResult = autoBattler.simulateAttack(attacker, defender, fightWeapon, context);
+                EditorRuleModifiers modifiers = editorRuleApplicationService.resolveForAttack(
+                        mode,
+                        attacker,
+                        defender,
+                        fightWeapon,
+                        context
+                );
+                WeaponProfile resolvedWeapon = applyEditorModifiersToWeapon(fightWeapon, modifiers);
+                AttackKeywordContext resolvedContext = context.withEditorModifiers(modifiers);
+                AttackResult fightResult = autoBattler.simulateAttack(attacker, defender, resolvedWeapon, resolvedContext);
+                fightResult = annotateCustomRules(fightResult, modifiers);
                 if (!fightResult.resolved()) {
                     return AutoBattleResolution.failure(
                             fightResult.notes().isEmpty()
@@ -112,7 +129,17 @@ public class AutoBattleService {
 
             attacker.setFoughtThisPhase(true);
         } else {
-            AttackResult primary = autoBattler.simulateAttack(attacker, defender, selectedWeapon, context);
+            EditorRuleModifiers modifiers = editorRuleApplicationService.resolveForAttack(
+                    mode,
+                    attacker,
+                    defender,
+                    selectedWeapon,
+                    context
+            );
+            WeaponProfile resolvedWeapon = applyEditorModifiersToWeapon(selectedWeapon, modifiers);
+            AttackKeywordContext resolvedContext = context.withEditorModifiers(modifiers);
+            AttackResult primary = autoBattler.simulateAttack(attacker, defender, resolvedWeapon, resolvedContext);
+            primary = annotateCustomRules(primary, modifiers);
             if (!primary.resolved()) {
                 return AutoBattleResolution.failure(primary.notes().isEmpty() ? "The selected attack could not be resolved." : primary.notes().get(0));
             }
@@ -124,11 +151,11 @@ public class AutoBattleService {
             hazardousTriggered = selectedKeywords.hazardous();
 
             if (mode == AutoBattleMode.SHOOTING) {
-                attacker.markRangedWeaponUsedThisPhase(selectedWeapon);
+                attacker.markRangedWeaponUsedThisPhase(selectedWeapon, resolveUsedWeaponCount(selectedWeapon, context));
             }
 
             if ((mode == AutoBattleMode.SHOOTING || mode == AutoBattleMode.REACTION_SHOOTING) && selectedKeywords.oneShot()) {
-                attacker.markOneShotWeaponUsed(selectedWeapon);
+                attacker.markOneShotWeaponUsed(selectedWeapon, resolveUsedWeaponCount(selectedWeapon, context));
             }
         }
 
@@ -237,24 +264,203 @@ public class AutoBattleService {
         return result;
     }
 
+    private AttackResult annotateCustomRules(AttackResult result, EditorRuleModifiers modifiers) {
+        if (result == null || modifiers == null) {
+            return result;
+        }
+
+        List<String> notes = new ArrayList<>(result.notes());
+        if (!modifiers.errorMessages().isEmpty()) {
+            for (int i = modifiers.errorMessages().size() - 1; i >= 0; i--) {
+                notes.add(0, "Custom rule VM error: " + modifiers.errorMessages().get(i));
+            }
+        }
+        if (!modifiers.appliedRuleNames().isEmpty()) {
+            notes.add(0, "Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        }
+
+        List<String> rollLog = new ArrayList<>();
+        if (!modifiers.appliedRuleNames().isEmpty()) {
+            rollLog.add("Custom rules applied: " + String.join(", ", modifiers.appliedRuleNames()) + ".");
+        }
+        if (!modifiers.errorMessages().isEmpty()) {
+            for (String error : modifiers.errorMessages()) {
+                rollLog.add("Custom rule VM error: " + error);
+            }
+        }
+        String summary = modifierSummary(modifiers);
+        if (!summary.isBlank()) {
+            rollLog.add(summary);
+        }
+        rollLog.addAll(result.rollLog());
+
+        return new AttackResult(
+                result.resolved(),
+                result.weaponName(),
+                result.attacks(),
+                result.hits(),
+                result.wounds(),
+                result.unsaved(),
+                result.totalDamage(),
+                result.modelsDestroyed(),
+                notes,
+                result.pendingDamages(),
+                rollLog
+        );
+    }
+
+    private WeaponProfile applyEditorModifiersToWeapon(WeaponProfile weapon, EditorRuleModifiers modifiers) {
+        if (weapon == null || modifiers == null || !modifiers.hasAnyEffect()) {
+            return weapon;
+        }
+
+        return new WeaponProfile(
+                weapon.weaponID(),
+                weapon.name(),
+                mergeKeywords(weapon.description(), modifiers.extraWeaponKeywords()),
+                weapon.count(),
+                weapon.range(),
+                applyDiceOrFlatModifier(weapon.a(), modifiers.attacksModifier()),
+                weapon.skill(),
+                weapon.s(),
+                applyIntegerModifier(weapon.ap(), modifiers.apModifier()),
+                applyDiceOrFlatModifier(weapon.d(), modifiers.damageModifier()),
+                weapon.melee()
+        );
+    }
+
+    private String modifierSummary(EditorRuleModifiers modifiers) {
+        List<String> parts = new ArrayList<>();
+
+        if (modifiers.hitModifier() != 0) {
+            parts.add("Hit " + signed(modifiers.hitModifier()));
+        }
+        if (modifiers.woundModifier() != 0) {
+            parts.add("Wound " + signed(modifiers.woundModifier()));
+        }
+        if (modifiers.attacksModifier() != 0) {
+            parts.add("Attacks " + signed(modifiers.attacksModifier()));
+        }
+        if (modifiers.damageModifier() != 0) {
+            parts.add("Damage " + signed(modifiers.damageModifier()));
+        }
+        if (modifiers.apModifier() != 0) {
+            parts.add("AP " + signed(modifiers.apModifier()));
+        }
+        if (!modifiers.extraWeaponKeywords().isBlank()) {
+            parts.add("Added keywords: " + modifiers.extraWeaponKeywords());
+        }
+        if (modifiers.hitReroll() != null && modifiers.hitReroll().name() != null && modifiers.hitReroll() != eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType.NONE) {
+            parts.add("Hit reroll: " + modifiers.hitReroll());
+        }
+        if (modifiers.woundReroll() != null && modifiers.woundReroll().name() != null && modifiers.woundReroll() != eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType.NONE) {
+            parts.add("Wound reroll: " + modifiers.woundReroll());
+        }
+
+        return parts.isEmpty() ? "" : "Rule effect summary: " + String.join(", ", parts) + ".";
+    }
+
+    private String mergeKeywords(String currentDescription, String addedKeywords) {
+        String left = currentDescription == null ? "" : currentDescription.trim();
+        String right = addedKeywords == null ? "" : addedKeywords.trim();
+
+        if (left.isBlank()) {
+            return right;
+        }
+        if (right.isBlank()) {
+            return left;
+        }
+        return left + ", " + right;
+    }
+
+    private String applyIntegerModifier(String rawValue, int modifier) {
+        if (modifier == 0) {
+            return rawValue;
+        }
+
+        String raw = rawValue == null ? "" : rawValue.trim();
+        if (raw.isBlank()) {
+            return String.valueOf(modifier);
+        }
+
+        try {
+            return String.valueOf(Integer.parseInt(raw) + modifier);
+        } catch (NumberFormatException ignored) {
+            return rawValue;
+        }
+    }
+
+    private String applyDiceOrFlatModifier(String rawValue, int modifier) {
+        if (modifier == 0) {
+            return rawValue;
+        }
+
+        String raw = rawValue == null ? "" : rawValue.trim().toUpperCase().replace(" ", "");
+        if (raw.isBlank()) {
+            return String.valueOf(modifier);
+        }
+
+        try {
+            return String.valueOf(Integer.parseInt(raw) + modifier);
+        } catch (NumberFormatException ignored) {
+        }
+
+        Matcher matcher = DICE_PATTERN.matcher(raw);
+        if (!matcher.matches()) {
+            return rawValue;
+        }
+
+        String count = matcher.group(1).isBlank() ? "1" : matcher.group(1);
+        String sides = matcher.group(2);
+        int existingModifier = matcher.group(3) == null ? 0 : Integer.parseInt(matcher.group(3));
+        int nextModifier = existingModifier + modifier;
+
+        String prefix = "1".equals(count) ? "D" + sides : count + "D" + sides;
+        if (nextModifier == 0) {
+            return prefix;
+        }
+        return prefix + (nextModifier > 0 ? "+" + nextModifier : String.valueOf(nextModifier));
+    }
+
+    private String signed(int value) {
+        return value > 0 ? "+" + value : String.valueOf(value);
+    }
+
     private List<WeaponProfile> availableRangedWeapons(UnitInstance unit, boolean enforcePhaseUsage) {
         List<WeaponProfile> result = new ArrayList<>();
 
         for (WeaponProfile weapon : unit.getRangedWeapons()) {
             WeaponKeywordsService keywords = WeaponKeywordsService.parse(weapon.description());
 
-            if (enforcePhaseUsage && unit.hasUsedRangedWeaponThisPhase(weapon)) {
+            int remainingCount = enforcePhaseUsage
+                    ? unit.getRemainingRangedWeaponCountThisPhase(weapon)
+                    : weapon.count();
+
+            if (keywords.oneShot()) {
+                remainingCount = Math.min(remainingCount, unit.getRemainingOneShotWeaponCountThisBattle(weapon));
+            }
+
+            if (remainingCount <= 0) {
                 continue;
             }
 
-            if (keywords.oneShot() && unit.hasUsedOneShotWeaponThisBattle(weapon)) {
-                continue;
-            }
-
-            result.add(weapon);
+            result.add(remainingCount == weapon.count() ? weapon : weapon.withCount(remainingCount));
         }
 
         return result;
+    }
+
+    private int resolveUsedWeaponCount(WeaponProfile weapon, AttackKeywordContext context) {
+        if (weapon == null) {
+            return 0;
+        }
+
+        int requested = context == null ? 0 : context.attackingWeaponBearerCount();
+        if (requested <= 0) {
+            return Math.max(1, weapon.count());
+        }
+
+        return Math.max(1, Math.min(requested, weapon.count()));
     }
 
     private List<WeaponProfile> availableFightWeapons(UnitInstance unit) {
