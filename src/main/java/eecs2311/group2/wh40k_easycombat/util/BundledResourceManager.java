@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 public final class BundledResourceManager {
     private static final ClassLoader CLASS_LOADER = BundledResourceManager.class.getClassLoader();
+    private static final Module MODULE = BundledResourceManager.class.getModule();
 
     private BundledResourceManager() {
     }
@@ -50,7 +51,7 @@ public final class BundledResourceManager {
                 Files.createDirectories(parent);
             }
 
-            try (InputStream stream = CLASS_LOADER.getResourceAsStream(resourceRoot + "/" + relativeFile)) {
+            try (InputStream stream = MODULE.getResourceAsStream(resourceRoot + "/" + relativeFile)) {
                 if (stream == null) {
                     throw new IOException("Bundled resource not found: " + resourceRoot + "/" + relativeFile);
                 }
