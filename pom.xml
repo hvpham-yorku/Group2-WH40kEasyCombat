@@ -16,6 +16,8 @@
         <application.version>0.0.1</application.version>
         <application.module>wh40k_easycomba</application.module>
         <application.mainClass>eecs2311.group2.wh40k_easycombat.Main</application.mainClass>
+        <windows.appImageDir>${project.basedir}/dist/app-image</windows.appImageDir>
+        <windows.installerDir>${project.basedir}/dist/installer</windows.installerDir>
     </properties>
     <dependencies>
         <dependency>
@@ -57,6 +59,26 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.build.directory}</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <excludes>
+                                <exclude>jpackage*/**</exclude>
+                                <exclude>installer/**</exclude>
+                            </excludes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -122,7 +144,7 @@
                                         <argument>--name</argument>
                                         <argument>${application.name}</argument>
                                         <argument>--dest</argument>
-                                        <argument>${project.build.directory}/jpackage</argument>
+                                        <argument>${windows.appImageDir}</argument>
                                         <argument>--module-path</argument>
                                         <argument>${project.build.directory}/${project.build.finalName}.jar;${project.build.directory}/libs</argument>
                                         <argument>--module</argument>
@@ -178,7 +200,7 @@
                                         <argument>--name</argument>
                                         <argument>${application.name}</argument>
                                         <argument>--dest</argument>
-                                        <argument>${project.build.directory}/installer</argument>
+                                        <argument>${windows.installerDir}</argument>
                                         <argument>--module-path</argument>
                                         <argument>${project.build.directory}/${project.build.finalName}.jar;${project.build.directory}/libs</argument>
                                         <argument>--module</argument>

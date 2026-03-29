@@ -99,11 +99,11 @@ Or use the helper script:
 
 Output:
 
-    target\jpackage\WH40KEasyCombat
+    dist\app-image\WH40KEasyCombat
 
 Run:
 
-    target\jpackage\WH40KEasyCombat\WH40KEasyCombat.exe
+    dist\app-image\WH40KEasyCombat\WH40KEasyCombat.exe
 
 ### Build a Windows installer exe
 
@@ -117,10 +117,11 @@ Or use the helper script:
 
 Output:
 
-    target\installer
+    dist\installer
 
 ### Notes
 
 - The packaged app stores its writable database, CSV overrides, and custom VM rules in `%LOCALAPPDATA%\WH40KEasyCombat`.
 - Built-in CSV and DSL files are extracted from the packaged jar into the app's local runtime directory automatically on startup.
+- Packaging output is now written to `dist/`, so `mvn clean` used during normal IDE runs does not try to delete the packaged `.exe`.
 

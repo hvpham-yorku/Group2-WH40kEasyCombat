@@ -13,7 +13,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 if ($Type -eq "exe") {
-    Write-Host "Installer output: target\\installer"
+    Write-Host "Installer output: dist\\installer"
 } else {
-    Write-Host "App image output: target\\jpackage"
+    Write-Host "App image output: dist\\app-image"
 }
