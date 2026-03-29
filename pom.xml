@@ -207,6 +207,7 @@
                                         <argument>${application.module}/${application.mainClass}</argument>
                                         <argument>--app-version</argument>
                                         <argument>${application.version}</argument>
+                                        <argument>--win-dir-chooser</argument>
                                         <argument>--win-shortcut</argument>
                                         <argument>--win-menu</argument>
                                     </arguments>

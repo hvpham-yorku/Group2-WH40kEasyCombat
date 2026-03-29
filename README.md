@@ -86,6 +86,7 @@ From project root:
 - JDK 21+ with `jpackage`
 - Maven 3.8+
 - For installer `.exe` output: WiX Toolset installed and added to `PATH`
+- When building the installer with WiX 6, install the matching `WixToolset.Util.wixext` and `WixToolset.UI.wixext` extensions as well.
 
 ### Build a portable Windows app folder
 
@@ -119,9 +120,12 @@ Output:
 
     dist\installer
 
+This installer now lets the user choose the install directory during setup.
+
 ### Notes
 
 - The packaged app stores its writable database, CSV overrides, and custom VM rules in `%LOCALAPPDATA%\WH40KEasyCombat`.
 - Built-in CSV and DSL files are extracted from the packaged jar into the app's local runtime directory automatically on startup.
 - Packaging output is now written to `dist/`, so `mvn clean` used during normal IDE runs does not try to delete the packaged `.exe`.
+- The current `jpackage`-based installer supports install-directory selection via `--win-dir-chooser`, but it does not provide a simple built-in option for a custom finish prompt or a "launch app now" checkbox.
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,6 +20,21 @@ class BundledResourceManagerTest {
 
             assertTrue(Files.exists(AppPaths.getBundledCsvDirectory().resolve("Factions.csv")));
             assertTrue(Files.exists(AppPaths.getBundledDslDirectory().resolve("dsl_basic_roll.rule")));
+        });
+    }
+
+    @Test
+    void ensureBundledResourcesAvailableDoesNotRewriteUnchangedFiles(@TempDir Path tempDir) throws Exception {
+        withOverriddenAppHome(tempDir.resolve("app-home"), () -> {
+            BundledResourceManager.ensureBundledResourcesAvailable();
+
+            Path bundledCsv = AppPaths.getBundledCsvDirectory().resolve("Abilities.csv");
+            FileTime sentinelTime = FileTime.fromMillis(123_456_789L);
+            Files.setLastModifiedTime(bundledCsv, sentinelTime);
+
+            BundledResourceManager.ensureBundledResourcesAvailable();
+
+            assertEquals(sentinelTime, Files.getLastModifiedTime(bundledCsv));
         });
     }
 
