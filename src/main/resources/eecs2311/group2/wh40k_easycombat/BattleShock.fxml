@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="720.0" prefWidth="1100.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.BattleShockController">
+
+    <top>
+        <VBox spacing="8.0" styleClass="game-round-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <Label fx:id="headerLabel" text="Battle-shock Step">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="summaryLabel" text="Command phase Battle-shock step." wrapText="true" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="14.0" styleClass="game-center-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+            </padding>
+            <children>
+                <TableView fx:id="battleShockTable" editable="true" prefHeight="520.0" styleClass="game-table">
+                    <columns>
+                        <TableColumn fx:id="unitColumn" prefWidth="280.0" text="Unit" />
+                        <TableColumn fx:id="strengthColumn" prefWidth="130.0" text="Models" />
+                        <TableColumn fx:id="leadershipColumn" prefWidth="130.0" text="Leadership" />
+                        <TableColumn fx:id="rollColumn" prefWidth="360.0" text="Battle-shock Roll" />
+                        <TableColumn fx:id="battleShockedColumn" prefWidth="150.0" text="Battle-shocked" />
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER" spacing="12.0">
+                    <children>
+                        <Button fx:id="rollSelectedButton"
+                                mnemonicParsing="false"
+                                onAction="#rollSelected"
+                                prefHeight="40.0"
+                                prefWidth="160.0"
+                                styleClass="wh-btn, wh-btn-primary"
+                                text="Roll Selected" />
+                        <Button fx:id="rollAllButton"
+                                mnemonicParsing="false"
+                                onAction="#rollAll"
+                                prefHeight="40.0"
+                                prefWidth="140.0"
+                                styleClass="wh-btn, wh-btn-primary"
+                                text="Roll All" />
+                        <Button fx:id="closeButton"
+                                mnemonicParsing="false"
+                                onAction="#closeWindow"
+                                prefHeight="40.0"
+                                prefWidth="120.0"
+                                styleClass="wh-btn"
+                                text="Close" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

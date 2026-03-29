@@ -1,0 +1,27 @@
+{
+  "success_count": 2,
+  "total_count": 2,
+  "version": "1.0",
+  "pages": [
+    {
+      "page_id": 1,
+      "content": [
+        { "id": 1, "text": "MOVEMENT PHASE", "type": "paragraph" },
+        { "id": 2, "text": "During the Movement phase each unit can move up to its Move characteristic.", "type": "paragraph" },
+        { "id": 3, "text": "Units that Advanced cannot shoot.", "type": "paragraph" },
+        { "id": 4, "text": "SHOOTING PHASE", "type": "paragraph" },
+        { "id": 5, "text": "Select targets and resolve attacks using ranged weapons.", "type": "paragraph" }
+      ]
+    },
+    {
+      "page_id": 2,
+      "content": [
+        { "id": 6, "text": "CHARGE PHASE", "type": "paragraph" },
+        { "id": 7, "text": "Units can attempt to charge enemy units within 12 inches.", "type": "paragraph" },
+        { "id": 8, "text": "This is an image caption", "type": "image" },
+        { "id": 9, "text": "FIGHT PHASE", "type": "paragraph" },
+        { "id": 10, "text": "Resolve melee attacks in the Fight phase.", "type": "paragraph" }
+      ]
+    }
+  ]
+}

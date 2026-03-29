@@ -1,27 +1,33 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
+import eecs2311.group2.wh40k_easycombat.model.aggregate.ArmyWriteAggregate;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.cell.ArmyUnitCell;
-import eecs2311.group2.wh40k_easycombat.service.ArmyBuilderManager;
-import eecs2311.group2.wh40k_easycombat.service.ArmyCrudService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyEditorStateService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyFavoriteService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyPointService;
-import eecs2311.group2.wh40k_easycombat.service.ArmyValidationService;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyControllerDataHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyEditorControllerHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportApplyHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportDialogHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.ArmyImportSummaryFormatter;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
+import eecs2311.group2.wh40k_easycombat.manager.ArmyBuilderManager;
+import eecs2311.group2.wh40k_easycombat.service.ArmyBundleService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyEditorService;
+import eecs2311.group2.wh40k_easycombat.service.ArmyWh40kAppImportService;
 import eecs2311.group2.wh40k_easycombat.service.StaticDataService;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerDataLoader;
-import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyControllerPersistence;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyEditorLoadVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmySavedRowVM;
+import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitTreeRowVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
-import eecs2311.group2.wh40k_easycombat.viewmodel.UnitFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,9 +35,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -72,17 +76,17 @@ public class ArmyController {
     @FXML private ListView<ArmyUnitVM> armyList;
 
     // ======================= Saved Armies ==================
-    @FXML private TableView<SavedArmyRow> savedArmyTable;
-    @FXML private TableColumn<SavedArmyRow, String> savedName;
-    @FXML private TableColumn<SavedArmyRow, Number> savedPoint;
+    @FXML private TableView<ArmySavedRowVM> savedArmyTable;
+    @FXML private TableColumn<ArmySavedRowVM, String> savedName;
+    @FXML private TableColumn<ArmySavedRowVM, Number> savedPoint;
 
     // ======================= Unit Selection ================
-    @FXML private TreeTableView<UnitTreeRow> unitSectionTreeTable;
-    @FXML private TreeTableColumn<UnitTreeRow, String> selectUnit;
-    @FXML private TreeTableColumn<UnitTreeRow, Number> selectPoint;
+    @FXML private TreeTableView<ArmyUnitTreeRowVM> unitSectionTreeTable;
+    @FXML private TreeTableColumn<ArmyUnitTreeRowVM, String> selectUnit;
+    @FXML private TreeTableColumn<ArmyUnitTreeRowVM, Number> selectPoint;
 
     private final ObservableList<ArmyUnitVM> currentArmy = FXCollections.observableArrayList();
-    private final ObservableList<SavedArmyRow> savedArmyRows = FXCollections.observableArrayList();
+    private final ObservableList<ArmySavedRowVM> savedArmyRows = FXCollections.observableArrayList();
 
     private Map<String, ArmyUnitVM.EnhancementEntry> enhancementInfoById = new LinkedHashMap<>();
 
@@ -102,7 +106,7 @@ public class ArmyController {
         try {
             StaticDataService.loadAllFromSqlite();
         } catch (Exception e) {
-            showError("Initialization Error", e.getMessage());
+            DialogHelper.showError("Initialization Error", e);
         }
 
         setupSizeComboBox();
@@ -143,7 +147,7 @@ public class ArmyController {
     }
 
     private void loadInitialData() {
-        enhancementInfoById = ArmyControllerDataLoader.loadEnhancementInfoById();
+        enhancementInfoById = ArmyControllerDataHelper.loadEnhancementInfoById();
 
         loadFactionOptions();
         loadSavedArmies();
@@ -168,28 +172,35 @@ public class ArmyController {
 
     // ======================= Navigation =======================
 
+    // When click "Cancel" button, confirm whether to leave the army editor page.
     @FXML
     void cancelTheChange(MouseEvent event) throws IOException {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Exit");
-        alert.setHeaderText("Are you sure you want to exit this page?");
-        alert.setContentText("Unsaved changes will be lost.");
+        boolean shouldExit = DialogHelper.confirmOkCancel(
+                "Exit",
+                "Are you sure you want to exit this page?",
+                "Unsaved changes will be lost."
+        );
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            FixedAspectView.switchTo((Node) event.getSource(),
-                    "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-                    1200.0, 800.0);
+        if (shouldExit) {
+        	FixedAspectView.switchResponsiveTo(
+        	        (Node) event.getSource(),
+        	        "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+        	        800.0,
+        	        600.0,
+        	        1200.0,
+        	        800.0
+        	);
         }
     }
 
     // ======================= Main Actions =======================
 
+    // When click "Confirm" button, load the selected faction and detachment into the editor.
     @FXML
     void confirm(MouseEvent event) {
         String factionId = getSelectedFactionId();
         if (factionId == null || factionId.isBlank() || "all".equalsIgnoreCase(factionId)) {
-            showWarning("Faction Required", "Please choose one specific faction. \"All\" is not allowed.");
+            DialogHelper.showWarning("Faction Required", "Please choose one specific faction. \"All\" is not allowed.");
             return;
         }
 
@@ -203,63 +214,67 @@ public class ArmyController {
         refreshPoints();
     }
 
+    // When click "Add" button, add the selected unit from the datasheet tree into the army list.
     @FXML
     void add(MouseEvent event) {
-        TreeItem<UnitTreeRow> selected = unitSectionTreeTable.getSelectionModel().getSelectedItem();
-        if (selected == null || selected.getValue() == null || selected.getValue().group()) {
-            showWarning("No Unit Selected", "Please select one unit from the tree.");
+        TreeItem<ArmyUnitTreeRowVM> selected = unitSectionTreeTable.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getValue() == null || selected.getValue().isGroup()) {
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit from the tree.");
             return;
         }
 
         try {
-            StaticDataService.DatasheetBundle bundle =
+            DatasheetAggregate bundle =
                     StaticDataService.getDatasheetBundle(selected.getValue().datasheetId());
 
             if (bundle == null) {
-                showWarning("Missing Datasheet", "Selected unit could not be loaded.");
+                DialogHelper.showWarning("Missing Datasheet", "Selected unit could not be loaded.");
                 return;
             }
 
-            ArmyUnitVM vm = UnitFactory.create(bundle, enhancementInfoById);
+            ArmyUnitVM vm = ArmyEditorService.createArmyUnitVM(bundle, enhancementInfoById);
             ArmyBuilderManager.addUnit(currentArmy, vm);
             refreshPoints();
         } catch (Exception e) {
-            showError("Add Unit Error", e.getMessage());
+            DialogHelper.showError("Add Unit Error", e);
         }
     }
 
+    // When click "Remove" button, remove the selected unit from the current army.
     @FXML
     void removeUnit(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("No Unit Selected", "Please select one unit in the army list.");
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit in the army list.");
             return;
         }
 
         removeArmyUnit(selected);
     }
 
+    // When click "Set Warlord" button, mark the selected unit as the army warlord.
     @FXML
     void setWarlord(MouseEvent event) {
         ArmyUnitVM selected = armyList.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("No Unit Selected", "Please select one unit in the army list.");
+            DialogHelper.showWarning("No Unit Selected", "Please select one unit in the army list.");
             return;
         }
 
         setWarlordFromCell(selected);
     }
 
+    // When click "Save" button, save the current army into the database.
     @FXML
     void save(MouseEvent event) {
         try {
             String validation = validateBeforeSave();
             if (validation != null) {
-                showWarning("Cannot Save", validation);
+                DialogHelper.showWarning("Cannot Save", validation);
                 return;
             }
 
-            ArmyCrudService.ArmyWriteBundle bundle = ArmyControllerPersistence.buildWriteBundle(
+            ArmyWriteAggregate bundle = ArmyEditorService.buildWriteBundle(
                     editingArmyId,
                     editingArmyMarked,
                     armyNametxt.getText().trim(),
@@ -269,38 +284,39 @@ public class ArmyController {
             );
 
             if (editingArmyId == null) {
-                ArmyCrudService.createArmyBundle(bundle);
+                ArmyBundleService.createArmyBundle(bundle);
             } else {
-                ArmyCrudService.updateArmyBundle(bundle);
+                ArmyBundleService.updateArmyBundle(bundle);
             }
 
             loadSavedArmies();
             resetEditor();
-            showInfo("Saved", "Army saved successfully.");
+            DialogHelper.showInfo("Saved", "Army saved successfully.");
         } catch (Exception e) {
-            showError("Save Error", e.getMessage());
+            DialogHelper.showError("Save Error", e);
         }
     }
 
+    // When click "Load" button, load the selected saved army into the editor.
     @FXML
     void loadArmy(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
         try {
-            ArmyControllerPersistence.LoadedArmyData loaded =
-                    ArmyControllerPersistence.loadArmyForEdit(row.armyId(), enhancementInfoById);
+            ArmyEditorLoadVM loaded =
+                    ArmyEditorService.loadArmyForEdit(row.armyId(), enhancementInfoById);
 
             if (loaded == null || loaded.army() == null) {
-                showWarning("Load Failed", "The selected army could not be loaded.");
+                DialogHelper.showWarning("Load Failed", "The selected army could not be loaded.");
                 return;
             }
 
-            ArmyEditorStateService.LoadedEditorState state =
-                    ArmyEditorStateService.applyLoadedArmy(
+            ArmyEditorControllerHelper.LoadedEditorState state =
+                    ArmyEditorControllerHelper.applyLoadedArmy(
                             loaded,
                             currentArmy,
                             this::setSelectedFactionById,
@@ -316,50 +332,45 @@ public class ArmyController {
 
             refreshPoints();
         } catch (Exception e) {
-            showError("Load Error", e.getMessage());
+            DialogHelper.showError("Load Error", e);
         }
     }
 
+    // When click "Delete" button, delete the selected saved army from the database.
     @FXML
     void delete(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
-        Alert alert = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Delete army \"" + row.armyName() + "\" ?",
-                ButtonType.YES, ButtonType.NO
-        );
-        alert.setHeaderText("Confirm Delete");
-
-        if (alert.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
+        if (!DialogHelper.confirmYesNo("Confirm Delete", "Delete army \"" + row.armyName() + "\" ?")) {
             return;
         }
 
         try {
-            ArmyCrudService.deleteArmyBundle(row.armyId());
+            ArmyBundleService.deleteArmyBundle(row.armyId());
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
                 resetEditor();
             }
             loadSavedArmies();
         } catch (Exception e) {
-            showError("Delete Error", e.getMessage());
+            DialogHelper.showError("Delete Error", e);
         }
     }
 
+    // When click "Favorite" button, toggle the favorite state of the selected saved army.
     @FXML
     void favorite(MouseEvent event) {
-        SavedArmyRow row = savedArmyTable.getSelectionModel().getSelectedItem();
+        ArmySavedRowVM row = savedArmyTable.getSelectionModel().getSelectedItem();
         if (row == null) {
-            showWarning("No Army Selected", "Please select one saved army.");
+            DialogHelper.showWarning("No Army Selected", "Please select one saved army.");
             return;
         }
 
         try {
-            boolean newMarked = ArmyFavoriteService.toggleFavorite(row.armyId());
+        	boolean newMarked = ArmyBundleService.toggleFavorite(row.armyId());
 
             if (editingArmyId != null && editingArmyId.equals(row.armyId())) {
                 editingArmyMarked = newMarked;
@@ -367,19 +378,92 @@ public class ArmyController {
 
             loadSavedArmies();
         } catch (Exception e) {
-            showError("Favorite Error", e.getMessage());
+            DialogHelper.showError("Favorite Error", e);
         }
     }
 
+    // When click "Import From WH40K App" button, import one pasted official export into the editor.
     @FXML
     void importData(MouseEvent event) {
-        showInfo("Reserved", "Import will be implemented later.");
+        try {
+            if (hasEditorContent() && !DialogHelper.confirmYesNo(
+                    "Replace Current Army",
+                    "Importing from WH40K App will replace the current army editor contents."
+            )) {
+                return;
+            }
+
+            String importedText = ArmyImportDialogHelper.openWh40kAppImportDialog();
+            if (importedText == null) {
+                return;
+            }
+
+            if (importedText.isBlank()) {
+                DialogHelper.showWarning("No Text Pasted", "Please paste one WH40K App export first.");
+                return;
+            }
+
+            ArmyWh40kAppImportService.ImportResult result =
+                    ArmyWh40kAppImportService.importArmyText(importedText, enhancementInfoById);
+
+            if (result.units().isEmpty()) {
+                DialogHelper.showWarning(
+                        "Import Failed",
+                        "No valid units from the pasted export were found in the database."
+                );
+                return;
+            }
+
+            int sizeLimit = sizeCBbox.getValue() == null ? 2000 : sizeCBbox.getValue();
+            int totalPoints = ArmyBuilderManager.calculateArmyPoints(result.units());
+            if (totalPoints > sizeLimit) {
+                DialogHelper.showWarning(
+                        "Battle Size Exceeded",
+                        "Imported army is " + totalPoints + " pts, but the selected battle size is " + sizeLimit + " pts."
+                );
+                return;
+            }
+
+            List<String> importWarnings = new ArrayList<>(result.warnings());
+
+            editingArmyId = null;
+            editingArmyMarked = false;
+            ArmyBuilderManager.clearArmy(currentArmy);
+
+            if (!result.factionName().isBlank() && !ArmyImportApplyHelper.applyImportedFaction(
+                    factionCBbox,
+                    this::refreshDetachmentOptions,
+                    this::rebuildUnitTree,
+                    result.factionName()
+            )) {
+                importWarnings.add("Faction not auto-selected: " + result.factionName());
+            }
+
+            if (!result.detachmentName().isBlank() && !ArmyImportApplyHelper.applyImportedDetachment(
+                    datachmentCBbox,
+                    result.detachmentName()
+            )) {
+                importWarnings.add("Detachment not auto-selected: " + result.detachmentName());
+            }
+
+            armyNametxt.setText(result.armyName());
+            currentArmy.setAll(result.units());
+            ArmyImportApplyHelper.keepOnlyFirstImportedWarlord(currentArmy);
+            refreshPoints();
+
+            DialogHelper.showInfo(
+                    "Import Complete",
+                    ArmyImportSummaryFormatter.buildImportSummary(result, totalPoints, importWarnings)
+            );
+        } catch (Exception e) {
+            DialogHelper.showError("WH40K App Import Error", e);
+        }
     }
 
     // ======================= Cell Callbacks =======================
     private void refreshPoints() {
         ArmyBuilderManager.sortArmy(currentArmy);
-        pointNumber.setText(String.valueOf(ArmyPointService.calculateArmyPoints(currentArmy)));
+        pointNumber.setText(String.valueOf(ArmyBuilderManager.calculateArmyPoints(currentArmy)));
         armyList.refresh();
     }
 
@@ -390,7 +474,7 @@ public class ArmyController {
 
     private void setWarlordFromCell(ArmyUnitVM vm) {
         if (vm == null || !vm.isCharacter()) {
-            showWarning("Invalid Warlord", "Only CHARACTER units can be set as warlord.");
+            DialogHelper.showWarning("Invalid Warlord", "Only CHARACTER units can be set as warlord.");
             return;
         }
 
@@ -409,8 +493,8 @@ public class ArmyController {
 
     // ======================= Editor State =======================
     private void resetEditor() {
-        ArmyEditorStateService.EditorResetResult state =
-                ArmyEditorStateService.resetEditor(
+        ArmyEditorControllerHelper.EditorResetResult state =
+                ArmyEditorControllerHelper.resetEditor(
                         currentArmy,
                         armyNametxt,
                         factionCBbox,
@@ -426,11 +510,11 @@ public class ArmyController {
     }
 
     private void loadSavedArmies() {
-        savedArmyRows.setAll(ArmyControllerDataLoader.loadSavedArmyRows());
+        savedArmyRows.setAll(ArmyControllerDataHelper.loadSavedArmyRows());
     }
 
     private void loadFactionOptions() {
-        ArmyControllerDataLoader.FactionDisplayData data = ArmyControllerDataLoader.loadFactionDisplayData();
+        ArmyControllerDataHelper.FactionDisplayData data = ArmyControllerDataHelper.loadFactionDisplayData();
 
         factionDisplayToId = data.displayToId();
         factionIdToDisplay = data.idToDisplay();
@@ -444,8 +528,8 @@ public class ArmyController {
     }
 
     private void refreshDetachmentOptions() {
-        ArmyControllerDataLoader.DetachmentDisplayData data =
-                ArmyControllerDataLoader.loadDetachmentDisplayData(getSelectedFactionId());
+        ArmyControllerDataHelper.DetachmentDisplayData data =
+                ArmyControllerDataHelper.loadDetachmentDisplayData(getSelectedFactionId());
 
         detachmentDisplayToId = data.displayToId();
         detachmentIdToDisplay = data.idToDisplay();
@@ -456,17 +540,13 @@ public class ArmyController {
     }
 
     private void rebuildUnitTree() {
-        TreeItem<UnitTreeRow> root = ArmyControllerDataLoader.buildUnitTree(
-                getSelectedFactionId(),
-                unit -> new UnitTreeRow(unit.name(), unit.datasheetId(), unit.role(), unit.points(), false),
-                UnitTreeRow::group
-        );
+        TreeItem<ArmyUnitTreeRowVM> root = ArmyControllerDataHelper.buildUnitTree(getSelectedFactionId());
         unitSectionTreeTable.setRoot(root);
     }
 
     // ======================= Validation =======================
     private String validateBeforeSave() {
-        return ArmyValidationService.validateBeforeSave(
+        return ArmyBuilderManager.validateBeforeSave(
                 getSelectedFactionId(),
                 getSelectedDetachmentId(),
                 armyNametxt.getText(),
@@ -498,47 +578,20 @@ public class ArmyController {
         datachmentCBbox.setValue(detachmentIdToDisplay.getOrDefault(detachmentId, detachmentId));
     }
 
+    private boolean hasEditorContent() {
+        return !currentArmy.isEmpty() || !armyNametxt.getText().isBlank();
+    }
+
     private static String defaultFactionDisplay(List<String> factions) {
-        for (String f : factions) {
-            if ("Space Marines".equalsIgnoreCase(f)) return f;
+        for (String faction : factions) {
+            if ("Space Marines".equalsIgnoreCase(faction)) return faction;
         }
-        for (String f : factions) {
-            if ("Adeptus Astartes".equalsIgnoreCase(f)) return f;
+        for (String faction : factions) {
+            if ("Adeptus Astartes".equalsIgnoreCase(faction)) return faction;
         }
-        for (String f : factions) {
-            if (f != null && f.toLowerCase(Locale.ROOT).contains("marine")) return f;
+        for (String faction : factions) {
+            if (faction != null && faction.toLowerCase(Locale.ROOT).contains("marine")) return faction;
         }
         return factions.isEmpty() ? null : factions.get(0);
-    }
-
-    private void showWarning(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    private void showError(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.ERROR, text == null ? "Unknown error." : text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    private void showInfo(String title, String text) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
-        a.setHeaderText(title);
-        a.showAndWait();
-    }
-
-    // ======================= Rows =======================
-    public record UnitTreeRow(String displayName, String datasheetId, String role, int points, boolean group) {
-        static UnitTreeRow group(String name) {
-            return new UnitTreeRow(name, null, null, 0, true);
-        }
-    }
-
-    public record SavedArmyRow(int armyId, String armyName, int points, boolean marked) {
-        String displayName() {
-            return marked ? "★ " + armyName : armyName;
-        }
     }
 }

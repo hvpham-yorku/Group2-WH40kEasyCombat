@@ -1,52 +1,76 @@
 package eecs2311.group2.wh40k_easycombat.controller;
 
-import eecs2311.group2.wh40k_easycombat.model.instance.WeaponRow;
-import eecs2311.group2.wh40k_easycombat.service.*;
-import eecs2311.group2.wh40k_easycombat.service.StaticDataService.DatasheetBundle;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsPageControllerHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DatasheetsRenderHelper;
+import eecs2311.group2.wh40k_easycombat.controller.helper.DialogHelper;
+import eecs2311.group2.wh40k_easycombat.model.instance.WeaponProfile;
+import eecs2311.group2.wh40k_easycombat.service.ruleservice.ruleSearcher;
+import eecs2311.group2.wh40k_easycombat.service.ruleservice.ruleSorter;
 import eecs2311.group2.wh40k_easycombat.util.FixedAspectView;
-import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageLoader;
+import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetListItemVM;
 import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsPageState;
-import eecs2311.group2.wh40k_easycombat.viewmodel.DatasheetsRenderer;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.getAny;
-import static eecs2311.group2.wh40k_easycombat.util.FxReflectionHelper.s;
-
 public class DatasheetsController implements Initializable {
+    private static final String CORE_RULE_DEFAULT_TEXT =
+            "Search for a core rule keyword to view matching rule text.\n";
+    private static final String CORE_RULE_READY_STATUS =
+            "Core rules loaded. Enter a keyword such as Charge, Battle-shock, Command phase or Stratagem.";
+    private static final String CORE_RULE_UNAVAILABLE_STATUS =
+            "Core rule data could not be loaded.";
+    private static final String CORE_RULE_UNAVAILABLE_TEXT =
+            "Core rule data is unavailable right now.";
 
     // ======================= Buttons ==========================
     @FXML private Button addButton;
     @FXML private Button editButton;
     @FXML private Button searchButton;
+    @FXML private Button clearSearchButton;
     @FXML private Button backToMainButton;
+    @FXML private Button coreRuleSearchButton;
+    @FXML private Button coreRuleClearButton;
+    @FXML private Button coreRuleSortButton;
 
     // ======================= Inputs ===========================
     @FXML private TextField searchTextField;
     @FXML private ComboBox<String> factionComboBox;
+    @FXML private TextField coreRuleSearchField;
 
     // ======================= Lists ============================
-    @FXML private ListView<Object> datasheetsList;
+    @FXML private ListView<DatasheetListItemVM> datasheetsList;
 
     // ======================= Labels - Datasheet / Unit Names ===
     @FXML private Label datasheetName;
     @FXML private Label unitName1;
     @FXML private Label unitName2;
+    @FXML private Label coreRuleStatusLabel;
 
     // ======================= Unit 1 - Properties ==============
-    @FXML private HBox unit1PropertyHBox;
+    @FXML private javafx.scene.layout.HBox unit1PropertyHBox;
     @FXML private Label unit1MLabel;
     @FXML private Label unit1TLabel;
     @FXML private Label unit1SvLabel;
@@ -57,7 +81,7 @@ public class DatasheetsController implements Initializable {
     @FXML private Label insvTxtLabel;
 
     // ======================= Unit 2 - Properties ==============
-    @FXML private HBox unit2PropertyHBox;
+    @FXML private javafx.scene.layout.HBox unit2PropertyHBox;
     @FXML private Label unit2MLabel;
     @FXML private Label unit2TLabel;
     @FXML private Label unit2SvLabel;
@@ -72,32 +96,39 @@ public class DatasheetsController implements Initializable {
     @FXML private TextFlow abilityTextFlow;
     @FXML private TextFlow factionAbilityTextFlow;
     @FXML private TextFlow otherTextFlow;
+    @FXML private TextArea coreRuleResultsArea;
 
     // ======================= Tables - Melee Weapons ===========
-    @FXML private TableView<WeaponRow> meleeWeaponTable;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponName;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponRange;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponA;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponWS;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponAP;
-    @FXML private TableColumn<WeaponRow, String> meleeWeaponD;
+    @FXML private TableView<WeaponProfile> meleeWeaponTable;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponName;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponRange;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponA;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponWS;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponS;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponAP;
+    @FXML private TableColumn<WeaponProfile, String> meleeWeaponD;
 
     // ======================= Tables - Ranged Weapons ==========
-    @FXML private TableView<WeaponRow> rangedWeaponTable;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponName;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponRange;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponA;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponBS;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponAP;
-    @FXML private TableColumn<WeaponRow, String> rangedWeaponD;
+    @FXML private TableView<WeaponProfile> rangedWeaponTable;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponName;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponRange;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponA;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponBS;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponS;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponAP;
+    @FXML private TableColumn<WeaponProfile, String> rangedWeaponD;
 
     // ======================= In-memory ========================
     private final DatasheetsPageState state = new DatasheetsPageState();
+    private final List<String> currentCoreRuleMatches = new ArrayList<>();
+    private ruleSearcher coreRuleSearcher;
 
+    // When this page loads, initialize tables, load datasheets and wire the page events.
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTables();
         ensurePropertyLabelsWhiteBackground();
+        setupCoreRuleSearch();
         loadPageData();
         wireEvents();
     }
@@ -106,37 +137,36 @@ public class DatasheetsController implements Initializable {
 
     private void setupTables() {
         if (rangedWeaponName != null) {
-            rangedWeaponName.setCellValueFactory(c -> c.getValue().nameProperty());
-            rangedWeaponRange.setCellValueFactory(c -> c.getValue().rangeProperty());
-            rangedWeaponA.setCellValueFactory(c -> c.getValue().aProperty());
-            rangedWeaponBS.setCellValueFactory(c -> c.getValue().skillProperty());
-            rangedWeaponAP.setCellValueFactory(c -> c.getValue().apProperty());
-            rangedWeaponD.setCellValueFactory(c -> c.getValue().dProperty());
+            rangedWeaponName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
+            rangedWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
+            rangedWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
+            rangedWeaponBS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            rangedWeaponS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().s()));
+            rangedWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
+            rangedWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(rangedWeaponName);
         }
 
         if (meleeWeaponName != null) {
-            meleeWeaponName.setCellValueFactory(c -> c.getValue().nameProperty());
-            meleeWeaponRange.setCellValueFactory(c -> c.getValue().rangeProperty());
-            meleeWeaponA.setCellValueFactory(c -> c.getValue().aProperty());
-            meleeWeaponWS.setCellValueFactory(c -> c.getValue().skillProperty());
-            meleeWeaponAP.setCellValueFactory(c -> c.getValue().apProperty());
-            meleeWeaponD.setCellValueFactory(c -> c.getValue().dProperty());
+            meleeWeaponName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
+            meleeWeaponRange.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().range()));
+            meleeWeaponA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().a()));
+            meleeWeaponWS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().skill()));
+            meleeWeaponS.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().s()));
+            meleeWeaponAP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ap()));
+            meleeWeaponD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().d()));
             applyWeaponNameCellFactory(meleeWeaponName);
         }
 
         if (rangedWeaponTable != null) {
-            rangedWeaponTable.setFixedCellSize(-1);
+            rangedWeaponTable.setFixedCellSize(40);
         }
         if (meleeWeaponTable != null) {
-            meleeWeaponTable.setFixedCellSize(-1);
+            meleeWeaponTable.setFixedCellSize(40);
         }
-        
-        rangedWeaponTable.setFixedCellSize(40);
-        meleeWeaponTable.setFixedCellSize(40);
     }
 
-    private void applyWeaponNameCellFactory(TableColumn<WeaponRow, String> col) {
+    private void applyWeaponNameCellFactory(TableColumn<WeaponProfile, String> col) {
         col.setCellFactory(tc -> new TableCell<>() {
 
             private final Label nameLabel = new Label();
@@ -162,11 +192,11 @@ public class DatasheetsController implements Initializable {
                     return;
                 }
 
-                WeaponRow row = (WeaponRow) getTableRow().getItem();
+                WeaponProfile row = (WeaponProfile) getTableRow().getItem();
 
-                nameLabel.setText(row.nameProperty().get());
+                nameLabel.setText(row.name());
 
-                String desc = row.descriptionProperty().get();
+                String desc = row.description();
                 boolean hasDesc = desc != null && !desc.isBlank();
 
                 descLabel.setText(desc);
@@ -177,7 +207,7 @@ public class DatasheetsController implements Initializable {
             }
         });
     }
-    
+
     private void ensurePropertyLabelsWhiteBackground() {
         applyWhiteBackground(unit1MLabel);
         applyWhiteBackground(unit1TLabel);
@@ -208,18 +238,31 @@ public class DatasheetsController implements Initializable {
         if (!style.isBlank() && !style.endsWith(";")) {
             style += ";";
         }
-        style += "-fx-background-color: white;";
+        style += "-fx-background-color: #1e1e1e; -fx-text-fill: #e6e6e6; -fx-border-color: #c9a227; -fx-border-width: 1px; -fx-border-radius: 4px; -fx-background-radius: 4px;";
 
         label.setStyle(style);
+    }
+
+    private void setupCoreRuleSearch() {
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setEditable(false);
+            coreRuleResultsArea.setWrapText(true);
+        }
+
+        try {
+            coreRuleSearcher = new ruleSearcher("WarHammer40kRules.json");
+            resetCoreRuleSearchView();
+        } catch (Exception e) {
+            coreRuleSearcher = null;
+            resetCoreRuleSearchView();
+        }
     }
 
     // -------------------- Data loading --------------------
 
     private void loadPageData() {
         try {
-            DatasheetsPageLoader.loadAbilitiesMaster(state);
-            DatasheetsPageLoader.loadDatasheets(state, datasheetsList);
-            DatasheetsPageLoader.loadFactionsIntoComboBox(state, factionComboBox);
+            DatasheetsPageControllerHelper.loadPageData(state, datasheetsList, factionComboBox);
 
             if (!state.getFilteredDatasheets().isEmpty()) {
                 datasheetsList.getSelectionModel().select(0);
@@ -228,7 +271,7 @@ public class DatasheetsController implements Initializable {
                 clearRightPanel();
             }
         } catch (Exception e) {
-            showError("Load data failed", e);
+            DialogHelper.showError("Load data failed", e);
         }
     }
 
@@ -250,49 +293,150 @@ public class DatasheetsController implements Initializable {
         }
     }
 
+    // When change "Faction" combo box, apply the current datasheet filters.
     @FXML
     private void selectFaction(ActionEvent event) {
         applyFilters();
     }
 
+    // When type in the faction input method field, apply the current datasheet filters.
     @FXML
     void changeFaction(InputMethodEvent event) {
         applyFilters();
     }
 
+    // When click "Search" button, apply the current datasheet filters.
     @FXML
     void clickSearchButton(MouseEvent event) {
         applyFilters();
     }
 
+    // When click "Clear" button, clear the datasheet search and return to the faction-filtered default view.
+    @FXML
+    private void clearDatasheetSearch(ActionEvent event) {
+        if (searchTextField != null) {
+            searchTextField.clear();
+        }
+        applyFilters();
+    }
+
+    // When click "Add" button, open the custom rule editor page.
     @FXML
     void clickAddButton(MouseEvent event) {
-        // TODO
+        try {
+            FixedAspectView.switchResponsiveTo(
+                    (Node) event.getSource(),
+                    "/eecs2311/group2/wh40k_easycombat/RuleEditor.fxml",
+                    1100.0,
+                    760.0,
+                    1480.0,
+                    900.0
+            );
+        } catch (IOException e) {
+            DialogHelper.showError("Open Rule Editor Failed", e);
+        }
     }
 
+    // When click "Edit" button, open the custom rule editor page.
     @FXML
     void clickEditButton(MouseEvent event) {
-        // TODO
+        clickAddButton(event);
     }
 
+    // When click "Back" button, return to the main menu page.
     @FXML
     void clickBackButton(MouseEvent event) throws IOException {
-        FixedAspectView.switchTo((Node) event.getSource(),
-                "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-                1200.0, 800.0);
+    	FixedAspectView.switchResponsiveTo(
+    	        (Node) event.getSource(),
+    	        "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
+    	        800.0,
+    	        600.0,
+    	        1200.0,
+    	        800.0
+    	);
+    }
+
+    // When click "Search" button in the Core rule tab, search the core rule data and show matching text.
+    @FXML
+    private void searchCoreRules(ActionEvent event) {
+        String query = searchKeyword(coreRuleSearchField);
+        if (query.isBlank()) {
+            resetCoreRuleSearchView();
+            return;
+        }
+
+        if (coreRuleSearcher == null) {
+            resetCoreRuleSearchView();
+            return;
+        }
+
+        List<String> matches = coreRuleSearcher.searchAll(query, 20);
+        currentCoreRuleMatches.clear();
+        currentCoreRuleMatches.addAll(matches);
+
+        if (matches.isEmpty()) {
+            if (coreRuleStatusLabel != null) {
+                coreRuleStatusLabel.setText("No core rule text matched \"" + query + "\".");
+            }
+            if (coreRuleResultsArea != null) {
+                coreRuleResultsArea.setText("No matching core rule text found for \"" + query + "\".");
+            }
+            return;
+        }
+
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText("Found " + matches.size() + " matching core rule section"
+                    + (matches.size() == 1 ? "" : "s") + " for \"" + query + "\".");
+        }
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(formatCoreRuleMatches(matches));
+            coreRuleResultsArea.positionCaret(0);
+        }
+    }
+
+    // When click "Sort A-Z" button, sort the current core rule search results alphabetically.
+    @FXML
+    private void sortCoreRuleResults(ActionEvent event) {
+        if (currentCoreRuleMatches.isEmpty()) {
+            if (coreRuleStatusLabel != null) {
+                coreRuleStatusLabel.setText("There are no core rule results to sort yet.");
+            }
+            return;
+        }
+
+        ruleSorter.sort(currentCoreRuleMatches);
+
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText("Sorted " + currentCoreRuleMatches.size()
+                    + " core rule result" + (currentCoreRuleMatches.size() == 1 ? "" : "s")
+                    + " alphabetically.");
+        }
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(formatCoreRuleMatches(currentCoreRuleMatches));
+            coreRuleResultsArea.positionCaret(0);
+        }
+    }
+
+    // When click "Clear" button, reset the core rule search area to its initial state.
+    @FXML
+    private void clearCoreRuleSearch(ActionEvent event) {
+        if (coreRuleSearchField != null) {
+            coreRuleSearchField.clear();
+        }
+        resetCoreRuleSearchView();
     }
 
     // -------------------- Filtering --------------------
 
     private void applyFilters() {
-        DatasheetsFilterService.applyFilters(
+        boolean hasResult = DatasheetsPageControllerHelper.applyFilters(
                 state,
+                datasheetsList,
                 searchTextField == null ? "" : searchTextField.getText(),
                 factionComboBox == null ? "ALL" : factionComboBox.getValue()
         );
 
-        if (!state.getFilteredDatasheets().isEmpty()) {
-            datasheetsList.getSelectionModel().select(0);
+        if (hasResult) {
             showSelectedDatasheet();
         } else {
             clearRightPanel();
@@ -302,27 +446,18 @@ public class DatasheetsController implements Initializable {
     // -------------------- Selection rendering --------------------
 
     private void showSelectedDatasheet() {
-        Object selected = datasheetsList == null ? null : datasheetsList.getSelectionModel().getSelectedItem();
+        DatasheetListItemVM selected = datasheetsList == null
+                ? null
+                : datasheetsList.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
             clearRightPanel();
             return;
         }
 
-        String datasheetId = s(getAny(selected, "id", "datasheet_id"));
-        if (datasheetId.isBlank()) {
-            clearRightPanel();
-            return;
-        }
-
         try {
-            DatasheetBundle bundle = StaticDataService.getDatasheetBundle(datasheetId);
-            if (bundle == null) {
-                clearRightPanel();
-                return;
-            }
-
-            DatasheetsRenderer.renderBundle(
-                    bundle,
+            boolean rendered = DatasheetsRenderHelper.renderSelectedDatasheet(
+                    selected,
                     state,
                     datasheetName,
                     unitName1,
@@ -351,13 +486,17 @@ public class DatasheetsController implements Initializable {
                     rangedWeaponTable,
                     meleeWeaponTable
             );
+
+            if (!rendered) {
+                clearRightPanel();
+            }
         } catch (SQLException e) {
-            showError("Read datasheet failed: " + datasheetId, e);
+            DialogHelper.showError("Read datasheet failed", e);
         }
     }
 
     private void clearRightPanel() {
-        DatasheetsRenderer.clearRightPanel(
+        DatasheetsRenderHelper.clearRightPanel(
                 datasheetName,
                 unitName1,
                 unitName2,
@@ -387,12 +526,39 @@ public class DatasheetsController implements Initializable {
         );
     }
 
-    private void showError(String title, Exception e) {
-        e.printStackTrace();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(title);
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
+    private String formatCoreRuleMatches(List<String> matches) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < matches.size(); i++) {
+            if (i > 0) {
+                builder.append("\n\n==================================================\n\n");
+            }
+            builder.append("Match ").append(i + 1).append("\n\n");
+            builder.append(matches.get(i));
+        }
+        return builder.toString();
+    }
+
+    private String searchKeyword(TextField field) {
+        if (field == null || field.getText() == null) {
+            return "";
+        }
+        return field.getText().trim();
+    }
+
+    private void resetCoreRuleSearchView() {
+        currentCoreRuleMatches.clear();
+
+        if (coreRuleStatusLabel != null) {
+            coreRuleStatusLabel.setText(coreRuleSearcher == null
+                    ? CORE_RULE_UNAVAILABLE_STATUS
+                    : CORE_RULE_READY_STATUS);
+        }
+
+        if (coreRuleResultsArea != null) {
+            coreRuleResultsArea.setText(coreRuleSearcher == null
+                    ? CORE_RULE_UNAVAILABLE_TEXT
+                    : CORE_RULE_DEFAULT_TEXT);
+            coreRuleResultsArea.positionCaret(0);
+        }
     }
 }

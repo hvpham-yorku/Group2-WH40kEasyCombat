@@ -1,1 +1,1623 @@
-/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+/* ============================================================
+   WH40K Easy Combat — Grimdark Command Console Theme
+   ============================================================ */
+
+/* --- Global: Override default JavaFX blue focus/accent --- */
+* {
+    -fx-focus-color: #f0d060;
+    -fx-faint-focus-color: rgba(240, 208, 96, 0.3);
+    -fx-accent: #d4af37;
+}
+
+/* --- Main Menu Root --- */
+.main-root {
+    -fx-background-color: linear-gradient(to bottom, #0f0f0f, #1a1a1a);
+}
+
+/* --- Central Panel (border thinned) --- */
+.main-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.4);
+    -fx-border-width: 0.5px;
+    -fx-border-insets: 8px;
+    -fx-background-insets: 8px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.6), 10, 0.3, 0, 2);
+}
+
+/* --- Title --- */
+.main-title {
+    -fx-text-fill: #c9a227;
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.5), 14, 0.3, 0, 2);
+}
+
+.main-subtitle {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-style: italic;
+}
+
+/* --- Subtle panel behind the buttons --- */
+.button-panel {
+    -fx-background-color: rgba(30, 30, 30, 0.6);
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+    -fx-border-width: 0.5px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.main-update-panel {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.main-side-card {
+    -fx-background-color: rgba(20, 20, 20, 0.88);
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 10, 0.2, 0, 2);
+}
+
+.main-side-card .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.main-update-title {
+    -fx-text-fill: #c9a227;
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.main-update-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.main-update-caption {
+    -fx-text-fill: #d7d7d7;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.main-side-card .hyperlink {
+    -fx-text-fill: #8ecae6;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.main-side-card .hyperlink:hover {
+    -fx-text-fill: #b9e6ff;
+}
+
+.main-news-link {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+    -fx-alignment: center-left;
+    -fx-padding: 2 0 2 0;
+}
+
+.main-news-link:hover {
+    -fx-text-fill: #c9a227;
+}
+
+.main-news-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.main-news-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-news-scroll > .corner {
+    -fx-background-color: transparent;
+}
+
+/* --- Base Button Style --- */
+.wh-btn {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-family: "Segoe UI Semibold", "Arial Black", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 3px;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.15), 6, 0, 0, 2);
+}
+
+.wh-btn:hover {
+    -fx-background-color: #404040;
+    -fx-border-color: #dbb732;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.55), 14, 0.3, 0, 2);
+}
+
+.wh-btn:pressed {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #a88620;
+    -fx-text-fill: #cccccc;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.1), 3, 0, 0, 1);
+}
+
+.wh-btn:focused {
+    -fx-border-color: #dbb732;
+    -fx-border-width: 2px;
+}
+
+/* --- Primary Button (Start Game) --- */
+.wh-btn-primary {
+    -fx-background-color: linear-gradient(to bottom, #c9a227, #a88620);
+    -fx-text-fill: #0f0f0f;
+    -fx-font-size: 16px;
+    -fx-border-color: #dbb732;
+}
+
+.wh-btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #dbb732, #c9a227);
+    -fx-text-fill: #0f0f0f;
+    -fx-border-color: #e8c843;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.65), 18, 0.3, 0, 2);
+}
+
+.wh-btn-primary:pressed {
+    -fx-background-color: linear-gradient(to bottom, #a88620, #8a6e1a);
+    -fx-text-fill: #1e1e1e;
+    -fx-border-color: #a88620;
+}
+
+/* --- Danger Button (Exit) --- */
+.wh-btn-danger {
+    -fx-border-color: #7a1f1f;
+}
+
+.wh-btn-danger:hover {
+    -fx-background-color: #3a1a1a;
+    -fx-border-color: #a82e2e;
+    -fx-text-fill: #ff9999;
+    -fx-effect: dropshadow(gaussian, rgba(122, 31, 31, 0.4), 10, 0, 0, 2);
+}
+
+.wh-btn-danger:pressed {
+    -fx-background-color: #2a1010;
+    -fx-border-color: #601818;
+}
+
+/* ============================================================
+   GameUI — Battle Screen
+   ============================================================ */
+
+/* --- Game Root --- */
+.game-root {
+    -fx-background-color: #0f0f0f;
+}
+
+.game-root .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Top Bar: Player Panels --- */
+.game-player-blue {
+    -fx-background-color: #0d1b2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 0 1px 1px 0;
+}
+
+.game-player-blue .label {
+    -fx-text-fill: #8ecae6;
+}
+
+.game-player-red {
+    -fx-background-color: #2a0d0d;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 0 0 1px 1px;
+}
+
+.game-player-red .label {
+    -fx-text-fill: #ffb3b3;
+}
+
+/* --- Top Bar: Round Panel --- */
+.game-round-panel {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.4);
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.2, 0, 2);
+}
+
+.game-round-panel .label {
+    -fx-text-fill: #c9a227;
+}
+
+.game-round-number {
+    -fx-text-fill: #c9a227;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.4), 10, 0.2, 0, 0);
+}
+
+/* --- Side Panels (Left / Right) --- */
+.game-side-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 6, 0.2, 0, 1);
+}
+
+.game-side-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Center Command Panel --- */
+.game-center-panel {
+    -fx-background-color: #141414;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.3, 0, 2);
+}
+
+.game-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- ListView (Army / Strategy lists) --- */
+.game-list {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.game-list .virtual-flow,
+.game-list .clipped-container,
+.game-list .sheet,
+.game-list > .viewport,
+.game-list .placeholder .label {
+    -fx-background-color: #1a1a1a;
+}
+
+.game-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e6e6e6;
+    -fx-padding: 6px 0 6px 0;
+}
+
+/* Strategy cell labels (name, CP, turn, phase) */
+.game-list .list-cell .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* Strategy cell title (bold name label) */
+.game-list .list-cell .label:focused,
+.game-list .list-cell:filled:selected .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Text nodes inside TextFlow (description content) */
+.game-list .list-cell Text {
+    -fx-fill: #e6e6e6;
+}
+
+.game-list .list-cell:filled:selected Text {
+    -fx-fill: #ffffff;
+}
+
+/* Expand/collapse button inside strategy cells */
+.game-list .list-cell .button {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #c9a227;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-padding: 1 4 1 4;
+    -fx-cursor: hand;
+}
+
+.game-list .list-cell .button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.game-list .list-cell:filled:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.1);
+}
+
+.game-list .list-cell:filled:selected {
+    -fx-background-color: #6b5410;
+    -fx-text-fill: #ffffff;
+}
+
+.game-list .text-field,
+.game-root .text-field {
+    -fx-background-color: #181818;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-prompt-text-fill: #7a7a7a;
+}
+
+.game-root .combo-box,
+.game-combo {
+    -fx-background-color: #202020;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.game-root .combo-box .list-cell,
+.game-combo .list-cell {
+    -fx-background-color: #202020;
+    -fx-text-fill: #ececec;
+}
+
+.game-root .combo-box .arrow-button,
+.game-combo .arrow-button {
+    -fx-background-color: #202020;
+}
+
+.game-root .combo-box .arrow,
+.game-combo .arrow {
+    -fx-background-color: #d4af37;
+}
+
+.game-root .combo-box-popup .list-view,
+.game-combo .combo-box-popup .list-view {
+    -fx-background-color: #161616;
+}
+
+.game-root .combo-box-popup .list-view .list-cell,
+.game-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #161616;
+    -fx-text-fill: #ececec;
+}
+
+.game-root .combo-box-popup .list-view .list-cell:hover,
+.game-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.14);
+}
+
+/* --- TableView (Mission tables) --- */
+.game-table {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+/* Remove white from all internal table backgrounds */
+.game-table .virtual-flow,
+.game-table .clipped-container,
+.game-table .virtual-flow .corner,
+.game-table .placeholder .label {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Header bar background */
+.game-table .column-header-background {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent transparent rgba(201, 162, 39, 0.2) transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Individual column headers */
+.game-table .column-header {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent rgba(201, 162, 39, 0.12) transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* Header filler (empty space right of last column) */
+.game-table .filler {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Header text */
+.game-table .column-header .label {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+/* Row cells */
+.game-table .table-row-cell {
+    -fx-background-color: #0f0f0f;
+    -fx-border-color: transparent transparent rgba(201, 162, 39, 0.05) transparent;
+}
+
+/* Alternating rows for readability */
+.game-table .table-row-cell:odd {
+    -fx-background-color: #161616;
+}
+
+/* Empty rows (no data) */
+.game-table .table-row-cell:empty {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent;
+}
+
+.game-table .table-row-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.1);
+}
+
+.game-table .table-row-cell:selected {
+    -fx-background-color: #6b5410;
+}
+
+.game-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: #ffffff;
+}
+
+/* Cell text */
+.game-table .table-cell {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent rgba(201, 162, 39, 0.04) transparent transparent;
+}
+
+/* --- TextArea (Dice output) --- */
+.game-textarea {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+}
+
+.game-textarea .content {
+    -fx-background-color: #1a1a1a;
+}
+
+/* --- Spinner (Dice count) --- */
+.game-spinner {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.game-spinner .text-field {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-spinner .increment-arrow-button,
+.game-spinner .decrement-arrow-button {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+}
+
+.game-spinner .increment-arrow-button:hover,
+.game-spinner .decrement-arrow-button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.game-army-unit-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.16);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.game-list .list-cell:filled:hover .game-army-unit-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.game-list .list-cell:filled:selected .game-army-unit-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.game-army-unit-card-destroyed {
+    -fx-background-color: rgba(120, 120, 120, 0.10);
+    -fx-border-color: rgba(145, 145, 145, 0.22);
+}
+
+.game-unit-row-destroyed .game-army-unit-card {
+    -fx-opacity: 0.78;
+}
+
+.game-army-unit-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.game-army-unit-name-destroyed {
+    -fx-text-fill: #a6a6a6;
+    -fx-strikethrough: true;
+}
+
+.game-army-unit-summary {
+    -fx-text-fill: #cfd4d8;
+    -fx-font-size: 12px;
+}
+
+.game-army-unit-summary-destroyed {
+    -fx-text-fill: #989898;
+}
+
+.game-army-unit-summary-battleshocked {
+    -fx-text-fill: #f0d060;
+    -fx-font-weight: bold;
+}
+
+.game-army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.game-army-model-card,
+.game-army-weapon-card {
+    -fx-background-color: rgba(255, 255, 255, 0.025);
+    -fx-border-color: rgba(201, 162, 39, 0.12);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.game-army-model-card-destroyed {
+    -fx-background-color: rgba(120, 120, 120, 0.06);
+    -fx-border-color: rgba(140, 140, 140, 0.16);
+}
+
+.game-army-model-name,
+.game-army-weapon-name {
+    -fx-text-fill: #ececec;
+    -fx-font-weight: bold;
+}
+
+.game-army-model-name-destroyed {
+    -fx-text-fill: #9e9e9e;
+    -fx-strikethrough: true;
+}
+
+.game-army-model-stats,
+.game-army-weapon-stats {
+    -fx-text-fill: #c5cace;
+    -fx-font-size: 12px;
+}
+
+.game-army-model-stats-destroyed {
+    -fx-text-fill: #929292;
+}
+
+.game-army-weapon-count,
+.game-army-inline-label {
+    -fx-text-fill: #d9b44a;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.game-army-inline-button {
+    -fx-background-color: #242424;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 4px 8px 4px 8px;
+}
+
+.game-army-inline-button:hover {
+    -fx-background-color: #353535;
+    -fx-border-color: #d4af37;
+}
+
+.game-army-inline-button:pressed {
+    -fx-background-color: #181818;
+}
+
+.game-army-hp-field {
+    -fx-pref-width: 64px;
+}
+
+/* --- CheckBox --- */
+.game-checkbox {
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-checkbox .box {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.game-checkbox:selected .mark {
+    -fx-background-color: #c9a227;
+}
+
+.game-panel-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.game-panel-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.game-panel-scroll > .corner {
+    -fx-background-color: transparent;
+}
+
+.setup-header-bar,
+.editor-header-bar {
+    -fx-background-color: #161616;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 0 0 1px 0;
+}
+
+.setup-preview-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.setup-preview-intro {
+    -fx-text-fill: #efe4c8;
+    -fx-font-style: italic;
+}
+
+/* --- ScrollBar theming (shared across lists/tables/textarea) --- */
+.scroll-bar {
+    -fx-background-color: #1a1a1a;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #3a3a3a;
+    -fx-background-radius: 3px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #555555;
+}
+
+/* ============================================================
+   Datasheets Screen
+   ============================================================ */
+
+/* --- Root TabPane --- */
+.ds-root {
+    -fx-background-color: #0f0f0f;
+}
+
+.ds-root > .tab-header-area {
+    -fx-background-color: #1a1a1a;
+}
+
+.ds-root > .tab-header-area > .tab-header-background {
+    -fx-background-color: #1a1a1a;
+}
+
+.ds-root .tab {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px 1px 0 1px;
+}
+
+.ds-root .tab .tab-label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+}
+
+.ds-root .tab:selected {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #c9a227;
+}
+
+.ds-root .tab:selected .tab-label {
+    -fx-text-fill: #c9a227;
+}
+
+.ds-root .tab-content-area {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Outer BorderPane --- */
+.ds-outer {
+    -fx-background-color: #0f0f0f;
+}
+
+.ds-outer .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Left Panel (sidebar) --- */
+.ds-left-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 0;
+}
+
+/* --- Right Panel --- */
+.ds-right-panel {
+    -fx-background-color: #141414;
+    -fx-border-color: rgba(201, 162, 39, 0.2);
+    -fx-border-width: 0 0 0 1px;
+}
+
+/* --- Center Panel --- */
+.ds-center-panel {
+    -fx-background-color: #141414;
+}
+
+.ds-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Left Panel labels --- */
+.ds-left-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Right Panel labels --- */
+.ds-right-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- General label --- */
+.ds-label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Datasheet Name (big title) --- */
+.ds-datasheet-name {
+    -fx-text-fill: #c9a227;
+    -fx-padding: 0 0 0 12;
+}
+
+/* --- Stat header labels (M, T, Sv, W, LD, OC, INVSV) --- */
+.ds-stat-header {
+    -fx-text-fill: #c9a227;
+}
+
+/* --- Stat value boxes (dark metallic panels) --- */
+.ds-stat-value {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.15), 4, 0, 0, 1);
+}
+
+/* --- Info panels (Abilities, Unit Composition, Cost, Other) --- */
+.ds-info-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+.ds-panel-title,
+.ds-right-panel .ds-panel-title,
+.ds-info-panel .ds-panel-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.ds-divider {
+    -fx-text-fill: rgba(201, 162, 39, 0.3);
+}
+
+/* --- ScrollPanes inside info panels --- */
+.ds-scroll {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent;
+}
+
+.ds-scroll > .viewport {
+    -fx-background-color: #1e1e1e;
+}
+
+/* --- TextFlow areas --- */
+.ds-text-flow {
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-text-flow Text {
+    -fx-fill: #e6e6e6;
+}
+
+/* --- Keywords panel --- */
+.ds-keywords {
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-keywords Text {
+    -fx-fill: #e6e6e6;
+}
+
+/* --- Search TextField --- */
+.ds-search {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-prompt-text-fill: #666666;
+}
+
+/* --- ComboBox --- */
+.ds-combo {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.ds-combo .list-cell {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-combo .combo-box-popup .list-view {
+    -fx-background-color: #1e1e1e;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.15);
+}
+
+.ds-combo .arrow-button {
+    -fx-background-color: #2a2a2a;
+}
+
+.ds-combo .arrow {
+    -fx-background-color: #c9a227;
+}
+
+/* ============================================================
+   Army Builder Screen
+   ============================================================ */
+
+/* --- Root --- */
+.army-root {
+    -fx-background-color: #0f0f0f;
+}
+
+/* --- Left Panel --- */
+.army-left-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: rgba(201, 162, 39, 0.25);
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 0;
+}
+
+.army-left-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Center Panel --- */
+.army-center-panel {
+    -fx-background-color: #141414;
+}
+
+.army-center-panel .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- Section Titles (gold) --- */
+.army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+/* --- Points value --- */
+.army-points-value {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* --- TreeTableView (reuse game-table internals) --- */
+.army-left-panel .game-table .tree-table-row-cell {
+    -fx-background-color: #0f0f0f;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:odd {
+    -fx-background-color: #161616;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:empty {
+    -fx-background-color: #1e1e1e;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.1);
+}
+
+.army-left-panel .game-table .tree-table-row-cell:selected {
+    -fx-background-color: #6b5410;
+}
+
+.army-left-panel .game-table .tree-table-row-cell:selected .tree-table-cell {
+    -fx-text-fill: #ffffff;
+}
+
+.army-left-panel .game-table .tree-table-cell {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-size: 13px;
+}
+
+/* --- Enhancement ComboBox (created in Java inside army list cells) --- */
+.game-list .combo-box {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.game-list .combo-box .list-cell {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-list .combo-box .arrow-button {
+    -fx-background-color: #1a1a1a;
+}
+
+.game-list .combo-box .arrow {
+    -fx-background-color: #d4af37;
+}
+
+.game-list .combo-box .combo-box-popup .list-view {
+    -fx-background-color: #1a1a1a;
+}
+
+.game-list .combo-box .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e6e6e6;
+}
+
+.game-list .combo-box .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(212, 175, 55, 0.15);
+}
+
+/* ============================================================
+   Alert / Dialog Styling
+   ============================================================ */
+
+.custom-alert {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .header-panel {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .header-panel .label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+}
+
+.custom-alert .content.label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.custom-alert .label {
+    -fx-text-fill: #e6e6e6;
+}
+
+/* Alert button bar */
+.custom-alert .button-bar {
+    -fx-background-color: #1a1a1a;
+}
+
+.custom-alert .button-bar .button {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+    -fx-border-color: #d4af37;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+}
+
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: #404040;
+    -fx-border-color: #e8c843;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.55), 14, 0.3, 0, 2);
+}
+
+.custom-alert .button-bar .button:pressed {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #a88620;
+}
+
+.custom-alert .button-bar .button:default {
+    -fx-background-color: linear-gradient(to bottom, #c9a227, #a88620);
+    -fx-text-fill: #0f0f0f;
+    -fx-border-color: #dbb732;
+}
+
+.custom-alert .button-bar .button:default:hover {
+    -fx-background-color: linear-gradient(to bottom, #dbb732, #c9a227);
+    -fx-text-fill: #0f0f0f;
+    -fx-border-color: #e8c843;
+}
+
+/* Alert graphic (icon) region */
+.custom-alert .graphic-container {
+    -fx-background-color: #1a1a1a;
+}
+
+/* ============================================================
+   Datasheets Refresh - Card Layout
+   ============================================================ */
+.ds-outer {
+    -fx-background-color:
+        linear-gradient(to bottom right, #0d0f10, #131719 38%, #101214 100%);
+}
+
+.ds-left-panel,
+.ds-center-panel,
+.ds-right-panel {
+    -fx-background-color: transparent;
+}
+
+.ds-card {
+    -fx-background-color:
+        linear-gradient(to bottom, rgba(31, 31, 31, 0.96), rgba(22, 22, 22, 0.96));
+    -fx-border-color: rgba(201, 162, 39, 0.22);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.38), 14, 0.18, 0, 3);
+}
+
+.ds-toolbar-card {
+    -fx-border-color: rgba(201, 162, 39, 0.18);
+}
+
+.ds-hero-card {
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.ds-weapon-card,
+.ds-info-card,
+.ds-keywords-card {
+    -fx-border-color: rgba(201, 162, 39, 0.20);
+}
+
+.ds-card-title {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.ds-panel-title {
+    -fx-text-fill: #cfa93b;
+    -fx-font-weight: bold;
+}
+
+.ds-datasheet-name {
+    -fx-text-fill: #e0bf55;
+    -fx-font-weight: bold;
+    -fx-font-size: 36px;
+    -fx-padding: 0;
+}
+
+.ds-label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.ds-model-name {
+    -fx-text-fill: #f1f1f1;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.18);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 12px 10px 12px;
+}
+
+.ds-stat-header-row {
+    -fx-padding: 2px 0 0 0;
+}
+
+.ds-stat-header {
+    -fx-text-fill: #c9a227;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.ds-stat-value {
+    -fx-background-color: #1b1d1f;
+    -fx-text-fill: #f3f3f3;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.10), 6, 0, 0, 1);
+}
+
+.ds-divider-line {
+    -fx-background-color: rgba(201, 162, 39, 0.18);
+    -fx-min-height: 1px;
+    -fx-pref-height: 1px;
+    -fx-max-height: 1px;
+}
+
+.ds-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.ds-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.ds-text-flow {
+    -fx-background-color: transparent;
+    -fx-padding: 2px 0 2px 0;
+}
+
+.ds-text-flow Text {
+    -fx-fill: #e6e6e6;
+}
+
+.ds-keywords {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.ds-keywords Text {
+    -fx-fill: #d8d8d8;
+    -fx-font-size: 12px;
+}
+
+.ds-search {
+    -fx-background-color: #17191b;
+    -fx-text-fill: #ececec;
+    -fx-prompt-text-fill: #707070;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-search .text {
+    -fx-fill: #ececec;
+}
+
+.ds-combo {
+    -fx-background-color: #232628;
+    -fx-border-color: rgba(201, 162, 39, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-combo .list-cell {
+    -fx-background-color: #232628;
+    -fx-text-fill: #ececec;
+}
+
+.ds-combo .combo-box-popup .list-view {
+    -fx-background-color: #161819;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell {
+    -fx-background-color: #161819;
+    -fx-text-fill: #ececec;
+}
+
+.ds-combo .combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(201, 162, 39, 0.14);
+}
+
+.ds-combo .arrow-button {
+    -fx-background-color: #232628;
+}
+
+.ds-combo .arrow {
+    -fx-background-color: #c9a227;
+}
+
+.ds-datasheet-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.ds-datasheet-list .virtual-flow,
+.ds-datasheet-list .clipped-container,
+.ds-datasheet-list .sheet,
+.ds-datasheet-list > .viewport {
+    -fx-background-color: transparent;
+}
+
+.ds-datasheet-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 0 5px 0;
+}
+
+.ds-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.14);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.ds-datasheet-list .list-cell:filled:hover .ds-list-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.ds-datasheet-list .list-cell:filled:selected .ds-list-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.ds-list-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.ds-list-faction {
+    -fx-text-fill: #aeb4b9;
+    -fx-font-size: 12px;
+}
+
+/* ============================================================
+   Army Refresh - Card Layout
+   ============================================================ */
+.army-root {
+    -fx-background-color:
+        linear-gradient(to bottom right, #0d0f10, #131719 40%, #101214 100%);
+}
+
+.army-left-panel,
+.army-center-panel {
+    -fx-background-color: transparent;
+}
+
+.army-card {
+    -fx-background-color:
+        linear-gradient(to bottom, rgba(31, 31, 31, 0.96), rgba(22, 22, 22, 0.96));
+    -fx-border-color: rgba(201, 162, 39, 0.22);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.36), 14, 0.18, 0, 3);
+}
+
+.army-card-title {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.army-section-title {
+    -fx-text-fill: #d4af37;
+    -fx-font-weight: bold;
+}
+
+.army-points-row {
+    -fx-padding: 4px 0 4px 0;
+}
+
+.army-points-value {
+    -fx-text-fill: #f3f3f3;
+    -fx-font-weight: bold;
+}
+
+.army-points-chip {
+    -fx-background-color: #1b1d1f;
+    -fx-border-color: #c9a227;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 6px 12px 6px 12px;
+}
+
+.army-army-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.army-army-list .virtual-flow,
+.army-army-list .clipped-container,
+.army-army-list .sheet,
+.army-army-list > .viewport {
+    -fx-background-color: transparent;
+}
+
+.army-army-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 0 5px 0;
+}
+
+.army-list-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(201, 162, 39, 0.16);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.army-army-list .list-cell:filled:hover .army-list-card {
+    -fx-background-color: rgba(201, 162, 39, 0.08);
+    -fx-border-color: rgba(212, 175, 55, 0.28);
+}
+
+.army-army-list .list-cell:filled:selected .army-list-card {
+    -fx-background-color: rgba(107, 84, 16, 0.92);
+    -fx-border-color: #d4af37;
+}
+
+.army-list-role {
+    -fx-text-fill: #d9b44a;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.army-list-name {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.army-list-stat {
+    -fx-text-fill: #cfd4d8;
+    -fx-font-size: 12px;
+}
+
+.army-inline-label {
+    -fx-text-fill: #e6e6e6;
+    -fx-font-size: 12px;
+}
+
+.army-inline-button {
+    -fx-background-color: #242424;
+    -fx-text-fill: #ececec;
+    -fx-border-color: rgba(201, 162, 39, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 4px 8px 4px 8px;
+}
+
+.army-inline-button:hover {
+    -fx-background-color: #353535;
+    -fx-border-color: #d4af37;
+}
+
+.army-inline-button:pressed {
+    -fx-background-color: #181818;
+}
+
+.army-unit-select-card .game-table,
+.army-saved-card .game-table {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}
+
+/* ============================================================
+   Mission Card Popup
+   ============================================================ */
+
+.mission-header-box {
+    -fx-background-radius: 18px 18px 0 0;
+}
+
+.mission-primary-header {
+    -fx-background-color: #241007;
+}
+
+.mission-secondary-header {
+    -fx-background-color: #5a0f06;
+}
+
+.mission-header-box .label {
+    -fx-text-fill: #f4f1e7;
+    -fx-alignment: center;
+}
+
+.mission-type-label {
+    -fx-text-fill: #d9b44a;
+}
+
+.mission-card-body {
+    -fx-background-color: #ede2cb;
+}
+
+.mission-card-body .label {
+    -fx-text-fill: #121212;
+}
+
+.mission-intro-label {
+    -fx-font-size: 16px;
+    -fx-font-style: italic;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 0 12 8 12;
+    -fx-border-color: transparent transparent #3d2e18 transparent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.mission-primary-banner,
+.mission-secondary-header-left,
+.mission-secondary-header-right,
+.mission-or-banner {
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 8 14 8 14;
+}
+
+.mission-primary-banner {
+    -fx-background-color: #155b78;
+}
+
+.mission-card-body .mission-primary-banner,
+.mission-card-body .mission-secondary-header-left,
+.mission-card-body .mission-secondary-header-right,
+.mission-card-body .mission-or-banner,
+.game-root .mission-primary-banner,
+.game-root .mission-secondary-header-left,
+.game-root .mission-secondary-header-right,
+.game-root .mission-or-banner {
+    -fx-text-fill: #ffffff;
+}
+
+.mission-secondary-header-left,
+.mission-secondary-header-right,
+.mission-or-banner {
+    -fx-background-color: #65160c;
+}
+
+.mission-secondary-header-left,
+.mission-secondary-header-right {
+    -fx-alignment: center-left;
+}
+
+.mission-secondary-header-right {
+    -fx-alignment: center;
+    -fx-min-width: 185px;
+}
+
+.mission-or-banner {
+    -fx-alignment: center;
+}
+
+.mission-text-flow {
+    -fx-padding: 2 0 2 0;
+}
+
+.mission-tag-text {
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 15px;
+    -fx-fill: #111111;
+}
+
+.mission-when-tag-text {
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 15px;
+    -fx-fill: #c72020;
+}
+
+.mission-body-text-node {
+    -fx-font-size: 15px;
+    -fx-fill: #111111;
+}
+
+.mission-body-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: #111111;
+}
+
+.mission-secondary-section {
+    -fx-padding: 4 0 8 0;
+}
+
+.mission-secondary-row {
+    -fx-padding: 6 0 6 0;
+    -fx-border-color: rgba(0, 0, 0, 0.18) transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.mission-score-text {
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #111111;
+    -fx-text-alignment: right;
+    -fx-alignment: center-right;
+}
+
+.mission-score-box {
+    -fx-alignment: center-right;
+}
+
+.mission-score-mode {
+    -fx-font-size: 14px;
+    -fx-text-fill: #111111;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+}
+
+.mission-score-value {
+    -fx-font-family: "Segoe UI Black", "Arial Black", sans-serif;
+    -fx-font-size: 17px;
+    -fx-text-fill: #111111;
+}
+
+.mission-score-note {
+    -fx-font-size: 13px;
+    -fx-text-fill: #3a3126;
+    -fx-font-family: "Segoe UI Semibold", "Arial", sans-serif;
+}
+
+.mission-footer-bar {
+    -fx-background-color: #141414;
+    -fx-border-color: rgba(201, 162, 39, 0.30) transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.mission-footer-bar .label {
+    -fx-text-fill: #e6e6e6;
+}

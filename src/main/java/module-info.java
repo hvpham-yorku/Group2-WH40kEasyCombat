@@ -8,6 +8,7 @@ module wh40k_easycomba {
 
     opens eecs2311.group2.wh40k_easycombat.controller to javafx.fxml;
     opens eecs2311.group2.wh40k_easycombat.service to com.fasterxml.jackson.databind;
+    opens eecs2311.group2.wh40k_easycombat.model.editor to com.fasterxml.jackson.databind;
 
     exports eecs2311.group2.wh40k_easycombat;
     opens eecs2311.group2.wh40k_easycombat.service.ruleservice to com.fasterxml.jackson.databind;

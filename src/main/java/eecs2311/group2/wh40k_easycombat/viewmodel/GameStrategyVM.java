@@ -1,43 +1,42 @@
 package eecs2311.group2.wh40k_easycombat.viewmodel;
 
+import eecs2311.group2.wh40k_easycombat.model.instance.StratagemInstance;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class GameStrategyVM {
 
-    private final String name;
-    private final String cpCost;
-    private final String turn;
-    private final String phase;
-    private final String descriptionHtml;
+    private final StratagemInstance strategy;
     private final BooleanProperty expanded = new SimpleBooleanProperty(false);
 
-    public GameStrategyVM(String name, String cpCost, String turn, String phase, String descriptionHtml) {
-        this.name = name == null ? "" : name;
-        this.cpCost = cpCost == null ? "" : cpCost;
-        this.turn = turn == null ? "" : turn;
-        this.phase = phase == null ? "" : phase;
-        this.descriptionHtml = descriptionHtml == null ? "" : descriptionHtml;
+    public GameStrategyVM(StratagemInstance strategy) {
+        this.strategy = strategy == null
+                ? new StratagemInstance("", "", "", "", "")
+                : strategy;
+    }
+
+    public StratagemInstance getStrategy() {
+        return strategy;
     }
 
     public String getName() {
-        return name;
+        return strategy.name();
     }
 
     public String getCpCost() {
-        return cpCost;
+        return strategy.cpCost();
     }
 
     public String getTurn() {
-        return turn;
+        return strategy.turn();
     }
 
     public String getPhase() {
-        return phase;
+        return strategy.phase();
     }
 
     public String getDescriptionHtml() {
-        return descriptionHtml;
+        return strategy.descriptionHtml();
     }
 
     public BooleanProperty expandedProperty() {

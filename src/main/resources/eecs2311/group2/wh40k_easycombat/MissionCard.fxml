@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="760.0"
+            prefWidth="760.0"
+            styleClass="game-root"
+            stylesheets="@application.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eecs2311.group2.wh40k_easycombat.controller.MissionCardController">
+
+    <top>
+        <VBox fx:id="headerBox" spacing="8.0" styleClass="mission-header-box" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="14.0" right="18.0" bottom="14.0" left="18.0" />
+            </padding>
+            <children>
+                <Label fx:id="missionTypeLabel" styleClass="mission-type-label" text="PRIMARY MISSION">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+                <Label fx:id="missionTitleLabel" text="MISSION TITLE" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="28.0" />
+                    </font>
+                </Label>
+                <Label fx:id="missionContextLabel" text="" wrapText="true" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="18.0" styleClass="mission-card-body">
+                    <padding>
+                        <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="missionIntroLabel" styleClass="mission-intro-label" text="Mission intro" wrapText="true" />
+                        <VBox fx:id="missionBodyBox" spacing="14.0" />
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <VBox spacing="12.0" styleClass="mission-footer-bar" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10.0" right="18.0" bottom="14.0" left="18.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Award VP To" />
+                                <ComboBox fx:id="awardedPlayerComboBox" prefWidth="150.0" styleClass="game-combo" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="VP Preset" />
+                                <ComboBox fx:id="vpPresetComboBox" prefWidth="120.0" styleClass="game-combo" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Custom VP" />
+                                <TextField fx:id="customVpField" prefWidth="100.0" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                    <children>
+                        <Button fx:id="closeButton"
+                                mnemonicParsing="false"
+                                onAction="#closeOnly"
+                                prefWidth="100.0"
+                                styleClass="wh-btn"
+                                text="Close" />
+                        <Button fx:id="activeButton"
+                                mnemonicParsing="false"
+                                onAction="#markNotCompleted"
+                                prefWidth="120.0"
+                                styleClass="wh-btn"
+                                text="Keep Open"
+                                wrapText="true" />
+                        <Button fx:id="completeButton"
+                                mnemonicParsing="false"
+                                onAction="#markCompleted"
+                                prefWidth="160.0"
+                                styleClass="wh-btn, wh-btn-primary"
+                                text="Complete + Add VP"
+                                wrapText="true" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </bottom>
+</BorderPane>
