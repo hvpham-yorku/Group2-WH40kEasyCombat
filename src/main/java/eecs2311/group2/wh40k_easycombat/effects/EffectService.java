@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.util.effects;
+package eecs2311.group2.wh40k_easycombat.effects;
 
 import eecs2311.group2.wh40k_easycombat.model.instance.ArmyInstance;
 import eecs2311.group2.wh40k_easycombat.model.instance.UnitInstance;

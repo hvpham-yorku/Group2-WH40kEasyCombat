@@ -1,4 +1,4 @@
-package eecs2311.group2.wh40k_easycombat.util.effects;
+package eecs2311.group2.wh40k_easycombat.effects;
 
 public class Decoder {
 
