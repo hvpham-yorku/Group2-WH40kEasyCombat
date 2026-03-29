@@ -12,8 +12,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="900.0"
-            prefWidth="860.0"
+<BorderPane prefHeight="760.0"
+            prefWidth="760.0"
             styleClass="game-root"
             stylesheets="@application.css"
             xmlns="http://javafx.com/javafx/21"
@@ -23,17 +23,17 @@
     <top>
         <VBox fx:id="headerBox" spacing="8.0" styleClass="mission-header-box" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="18.0" right="24.0" bottom="18.0" left="24.0" />
+                <Insets top="14.0" right="18.0" bottom="14.0" left="18.0" />
             </padding>
             <children>
                 <Label fx:id="missionTypeLabel" styleClass="mission-type-label" text="PRIMARY MISSION">
                     <font>
-                        <Font name="System Bold" size="22.0" />
+                        <Font name="System Bold" size="20.0" />
                     </font>
                 </Label>
                 <Label fx:id="missionTitleLabel" text="MISSION TITLE" wrapText="true">
                     <font>
-                        <Font name="System Bold" size="34.0" />
+                        <Font name="System Bold" size="28.0" />
                     </font>
                 </Label>
                 <Label fx:id="missionContextLabel" text="" wrapText="true" />
@@ -42,11 +42,11 @@
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
             <content>
                 <VBox spacing="18.0" styleClass="mission-card-body">
                     <padding>
-                        <Insets top="18.0" right="24.0" bottom="18.0" left="24.0" />
+                        <Insets top="16.0" right="18.0" bottom="16.0" left="18.0" />
                     </padding>
                     <children>
                         <Label fx:id="missionIntroLabel" styleClass="mission-intro-label" text="Mission intro" wrapText="true" />
@@ -58,50 +58,59 @@
     </center>
 
     <bottom>
-        <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="mission-footer-bar" BorderPane.alignment="CENTER">
+        <VBox spacing="12.0" styleClass="mission-footer-bar" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="0.0" right="24.0" bottom="18.0" left="24.0" />
+                <Insets top="10.0" right="18.0" bottom="14.0" left="18.0" />
             </padding>
             <children>
-                <VBox spacing="8.0">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <children>
-                        <Label text="Award VP To" />
-                        <ComboBox fx:id="awardedPlayerComboBox" prefWidth="150.0" styleClass="game-combo" />
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Award VP To" />
+                                <ComboBox fx:id="awardedPlayerComboBox" prefWidth="150.0" styleClass="game-combo" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="VP Preset" />
+                                <ComboBox fx:id="vpPresetComboBox" prefWidth="120.0" styleClass="game-combo" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Custom VP" />
+                                <TextField fx:id="customVpField" prefWidth="100.0" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
                     </children>
-                </VBox>
-                <VBox spacing="8.0">
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" spacing="10.0">
                     <children>
-                        <Label text="VP Preset" />
-                        <ComboBox fx:id="vpPresetComboBox" prefWidth="120.0" styleClass="game-combo" />
+                        <Button fx:id="closeButton"
+                                mnemonicParsing="false"
+                                onAction="#closeOnly"
+                                prefWidth="100.0"
+                                styleClass="wh-btn"
+                                text="Close" />
+                        <Button fx:id="activeButton"
+                                mnemonicParsing="false"
+                                onAction="#markNotCompleted"
+                                prefWidth="120.0"
+                                styleClass="wh-btn"
+                                text="Keep Open"
+                                wrapText="true" />
+                        <Button fx:id="completeButton"
+                                mnemonicParsing="false"
+                                onAction="#markCompleted"
+                                prefWidth="160.0"
+                                styleClass="wh-btn, wh-btn-primary"
+                                text="Complete + Add VP"
+                                wrapText="true" />
                     </children>
-                </VBox>
-                <VBox spacing="8.0">
-                    <children>
-                        <Label text="Custom VP" />
-                        <TextField fx:id="customVpField" prefWidth="110.0" />
-                    </children>
-                </VBox>
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="closeButton"
-                        mnemonicParsing="false"
-                        onAction="#closeOnly"
-                        styleClass="wh-btn"
-                        text="Close" />
-                <Button fx:id="activeButton"
-                        mnemonicParsing="false"
-                        onAction="#markNotCompleted"
-                        prefWidth="120.0"
-                        styleClass="wh-btn"
-                        text="Keep Open"
-                        wrapText="true" />
-                <Button fx:id="completeButton"
-                        mnemonicParsing="false"
-                        onAction="#markCompleted"
-                        prefWidth="170.0"
-                        styleClass="wh-btn, wh-btn-primary"
-                        text="Complete + Add VP"
-                        wrapText="true" />
+                </HBox>
             </children>
-        </HBox>
+        </VBox>
     </bottom>
 </BorderPane>
