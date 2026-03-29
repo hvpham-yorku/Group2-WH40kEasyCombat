@@ -1,9 +1,12 @@
 package eecs2311.group2.wh40k_easycombat.service;
 
-import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.db.Dao;
+import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_wargear;
+import eecs2311.group2.wh40k_easycombat.support.TestDatabaseSupport;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +17,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StaticDataServiceTest {
 
+    @BeforeAll
+    static void initTestDatabase() throws Exception {
+        TestDatabaseSupport.useFreshStaticAndArmyTestDatabase();
+    }
+
+    @AfterEach
+    void clearTables() throws SQLException {
+        TestDatabaseSupport.clearAllTables();
+    }
+
     @Test
     @DisplayName("Should load all static data and return a complete non-null bundle for an existing datasheet")
     void testLoadAndGetBundle() throws SQLException {
+        seedDatasheetBundle();
 
         StaticDataService.reloadFromSqlite();
 
@@ -54,8 +68,93 @@ class StaticDataServiceTest {
     @Test
     @DisplayName("Should return null for non-existing datasheet id")
     void testInvalidId() throws SQLException {
+        seedDatasheetBundle();
         StaticDataService.reloadFromSqlite();
         assertNull(StaticDataService.getDatasheetBundle("NON_EXISTING_ID"));
+    }
+
+    private void seedDatasheetBundle() throws SQLException {
+        Dao.update(
+                "INSERT INTO Datasheets (id, name, faction_id, source_id, legend, role, loadout, transport, virtual, leader_head, leader_footer, damaged_w, damaged_description, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-static",
+                "Static Test Squad",
+                "space-marines",
+                "source-core",
+                "",
+                "Battleline",
+                "",
+                "",
+                0,
+                "",
+                "",
+                "",
+                "",
+                ""
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_models (datasheet_id, line, name, M, T, Sv, inv_sv, inv_sv_descr, W, Ld, OC, base_size, base_size_descr) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-static",
+                "2",
+                "Marine",
+                "6\"",
+                "4",
+                "3+",
+                "",
+                "",
+                "2",
+                "6+",
+                "1",
+                "",
+                ""
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_models (datasheet_id, line, name, M, T, Sv, inv_sv, inv_sv_descr, W, Ld, OC, base_size, base_size_descr) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-static",
+                "1",
+                "Sergeant",
+                "6\"",
+                "4",
+                "3+",
+                "",
+                "",
+                "2",
+                "6+",
+                "1",
+                "",
+                ""
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_wargear (datasheet_id, line, line_in_wargear, dice, name, description, range, type, A, BS_WS, S, AP, D) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-static",
+                "2",
+                "2",
+                "",
+                "Chainsword",
+                "",
+                "Melee",
+                "Melee",
+                "4",
+                "3+",
+                "4",
+                "0",
+                "1"
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_wargear (datasheet_id, line, line_in_wargear, dice, name, description, range, type, A, BS_WS, S, AP, D) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-static",
+                "2",
+                "1",
+                "",
+                "Bolt rifle",
+                "",
+                "24\"",
+                "Ranged",
+                "2",
+                "3+",
+                "4",
+                "-1",
+                "1"
+        );
     }
 
     // ---- helpers ----
