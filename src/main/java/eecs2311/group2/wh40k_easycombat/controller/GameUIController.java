@@ -1276,9 +1276,9 @@ public class GameUIController {
             stage.initOwner(nextPhaseButton.getScene().getWindow());
             stage.initModality(Modality.WINDOW_MODAL);
             stage.setTitle(missionCard == null ? "Mission Card" : missionCard.title());
-            stage.setScene(new Scene(root));
-            stage.setMinWidth(860.0);
-            stage.setMinHeight(760.0);
+            stage.setScene(new Scene(root, 760.0, 700.0));
+            stage.setMinWidth(700.0);
+            stage.setMinHeight(620.0);
             stage.showAndWait();
 
             return controller.getResolution();
