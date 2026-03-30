@@ -18,7 +18,7 @@
 
 2026.03.25 - With the upcoming release of Warhammer 40k edition 11, some interfaces have been left open to allow for potential rule changes in future updates.
 
-2026.03.29 - All dead code and features from the previous version have been completely removed, leaving only the interfaces reserved for future updates.
+2026.03.29 - All dead code and features from the previous version have been completely removed, leaving only the interfaces reserved for future updates. The save locations of some files were modified to prevent bugs from appearing after the software was packaged into an installable program.
 
 ## Concern
 Due to the upcoming update to Warhammer 40,000, which may involve significant rule changes, it is essential to be prepared for the upcoming update.
@@ -38,103 +38,70 @@ San Khoshaba - Game calculation and update UML
 
 ---
 
-### Big User Story #1  
-### As a user, I want to create and store many Warhammer entities in the system so that I can manage my collection in all one place.
+## Big User Story #1
+### As a user, I want to browse, import, and manage Warhammer datasheets and army presets so that I can organize my collection and prepare armies in one place.
 
 ### Detailed Stories
-- Search datasheets and core rules by keywords in the database  
-  - Dev = San  
-  - Tester = Henry  
+- Search datasheets by keyword and faction  
+- View full details of a selected datasheet (unit stats, composition, keywords, abilities, faction abilities, weapons, enhancements, rules)  
+- Search core rules by keyword, and sort or clear results  
+- Build an army by selecting faction, detachment, battle size, and units  
+- Configure army contents (warlord, enhancements, wargear counts)  
+- Validate an army before saving (faction requirement, detachment, non-empty, single warlord, unique enhancements, points limit)  
+- Save, load, delete, and favorite army presets  
+- Import an army list from WH40K App export text  
+- Import and validate datasheet data from Wahapedia CSV export files  
 
-- Build and validate an army composition  
-  - Dev = Ruein  
-  - Tester = Mark  
-
-- Import an existing army list from an official source  
-  - Dev = Ruien  
-  - Tester = Henry  
-
-- Import datasheet data from an official CSV source  
-  - Dev = Ruien  
-  - Tester = Henry  
-
-- View full details for a selected unit in the database  
-  - Dev =  
-  - Tester = Henry  
-
-- Filter out datasheets based on parameters like faction  
-  - Dev =  
-  - Tester = Henry  
 
 ---
 
-### Big User Story #2  
-### As a user, I want to be able to start a game that can simulate Warhammer battles and log round results so that I can track and simplify game sessions
+## Big User Story #2
+### As a user, I want to set up and run a playable battle session so that I can track rounds, missions, combat results, and army state during a game.
 
 ### Detailed Stories
-- Set up a game session and validate parameters such as game mode rules and point limits  
-  - Dev = Ruien  
-  - Tester = Mark  
+- Set up a game session (attacker, defender, battle size, round limit, primary mission)  
+- Load and validate saved army presets during setup  
+- Swap attacker and defender roles  
+- Select tactical or fixed secondary missions and choose fixed missions when required  
+- Run game phases (Command, Movement, Shooting, Charge, Fight)  
+- Track active player, round, command points (CP), and victory points (VP)  
+- Draw, view, abandon, and complete missions, updating VP/CP  
+- Use stratagems and update command points  
+- Apply stratagem-linked effects to target units  
+- Generate manual dice rolls and count successes  
+- Simulate combat (Auto Battle: weapon selection, attack resolution, damage allocation)  
+- Run Battle-shock tests during Command phase  
+- Apply active effects and custom rule effects during gameplay  
 
-- Select overall mission and secondary objectives for a session  
-  - Dev =  
-  - Tester =  
-
-- Activate stratagems and update command points  
-  - Dev = Ruien  
-  - Tester =  
-
-- Load an existing army preset during game setup  
-  - Dev = Ruien  
-  - Tester =  
-
-- Simulate combat between two selected units  
-  - Dev = Ruien  
-  - Tester = Mark  
-
-- Generate dice results from user selection  
-  - Dev = Ruien Huang  
-  - Tester =  
-
-- Run the game engine through official battle phases  
-  - Dev = Mark  
-  - Tester =  
-
-- Apply effects to units and armies  
-  - Dev = San  
-  - Tester =  
 
 ---
 
-### Big User Story #3  
-### As a user, I want a system that can keep track of and store its state during sessions so that I know what actions have been performed to get to this point
+## Big User Story #3
+### As a user, I want the system to track state-changing actions during a battle session so that I can understand what has happened so far.
 
 ### Detailed Stories
-- Create a battle log system tracking all actions that cause state changes  
-  - Dev = Henry  
-  - Tester =  
+- Record battle events (phase changes, missions, stratagems, dice rolls, Battle-shock, combat results)  
+- View battle log in a separate window during gameplay  
+- Display unit state updates (destroyed models, Battle-shock status, active effects)  
+
 
 ---
 
-### Big User Story #4  
-### As a user, I want to be able to make customizable rules so that I can modify and create new ways to play
+## Big User Story #4
+### As a user, I want to create and apply customizable rules so that I can modify gameplay and support alternative rule interactions.
 
 ### Detailed Stories
-- Create custom rules by using the GUI tool  
-  - Dev = Henry  
-  - Tester =  
+- Create custom rules using a GUI rule builder  
+- Edit, save, and delete custom rules  
+- Import custom rule files from local storage  
+- Export custom rule files  
+- Preview generated VM rule scripts before saving  
+- View built-in rules as read-only references  
+- Enable/disable auto-application of custom rules during setup  
+- Apply custom rules automatically or optionally during gameplay  
+- Apply rule modifiers (hit, wound, attacks, damage, AP, rerolls, extra keywords)  
 
-- Able to import custom rule files from somewhere  
-  - Dev = Henry  
-  - Tester =  
-
-- Able to modify the custom rule by using the GUI tool  
-  - Dev = Ruien  
-  - Tester =  
-
-- Able to apply the custom rule  
-  - Dev = Henry, Ruien  
-  - Tester =  
+---
 
 ## Time Spent (days)
 Big User Story #1 - Plan 10 - Actual - 6
