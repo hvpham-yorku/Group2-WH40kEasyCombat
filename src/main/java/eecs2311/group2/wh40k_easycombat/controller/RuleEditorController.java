@@ -37,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import eecs2311.group2.wh40k_easycombat.util.StringUtils;
+
 public class RuleEditorController {
     // ======================= Rule List =======================
     @FXML private ListView<RuleEditorListItem> rulesListView;
@@ -191,7 +193,7 @@ public class RuleEditorController {
     // When click "Save Rule" button, generate the VM script from the visual editor and save the custom rule.
     @FXML
     private void saveRule(ActionEvent event) {
-        String name = safe(nameField.getText());
+        String name = StringUtils.safe(nameField.getText());
         if (name.isBlank()) {
             DialogHelper.showWarning("Missing Name", "Please give this custom rule a name.");
             return;
@@ -436,7 +438,7 @@ public class RuleEditorController {
             return builtInRule;
         }
 
-        String name = safe(nameField.getText());
+        String name = StringUtils.safe(nameField.getText());
         if (name.isBlank()) {
             return null;
         }
@@ -476,7 +478,7 @@ public class RuleEditorController {
     }
 
     private String defaultExportFileName(EditorRuleDefinition rule) {
-        String baseName = safe(rule == null ? "" : rule.getName());
+        String baseName = StringUtils.safe(rule == null ? "" : rule.getName());
         if (baseName.isBlank()) {
             baseName = "custom-rule";
         }
@@ -574,7 +576,4 @@ public class RuleEditorController {
         );
     }
 
-    private String safe(String value) {
-        return value == null ? "" : value.trim();
-    }
 }
