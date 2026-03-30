@@ -1,3 +1,21 @@
+//Comments:
+// Utility class responsible for converting raw text input into Effect objects.
+//
+// This class acts as a bridge between external data (e.g., user input, files, UI)
+// and the internal effect system. It parses strings and maps them to:
+// - EffectType enum values
+// - Tag enum values
+// - specific Effect implementations (Buff or Debuff)
+//
+// It uses normalization (uppercase conversion, removing spaces/hyphens) to ensure flexible and error-tolerant input handling.
+//
+// The Decoder supports multiple types of effects:
+// - general effects
+// - weapon-specific effects
+// - keyword-based effects
+//
+// By centralizing object creation here, the system avoids hardcoding logic elsewhere and makes it easier to extend with new effect types in the future.
+
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
 public class Decoder {
