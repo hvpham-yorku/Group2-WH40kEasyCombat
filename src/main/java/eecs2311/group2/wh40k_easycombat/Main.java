@@ -90,7 +90,7 @@ public class Main extends Application {
 
     private void showMainMenu(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("MainUI.fxml"));
-        FixedAspectView.showResponsive(primaryStage, root, 800.0, 600.0, 1200.0, 800.0);
+        FixedAspectView.showMainMenu(primaryStage, root);
     }
 
     private void handleStartupFailure(LoadingController loadingController, String title, Throwable error) {

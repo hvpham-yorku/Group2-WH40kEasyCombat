@@ -19,6 +19,11 @@ import java.io.IOException;
 import java.util.Objects;
 
 public final class FixedAspectView {
+    private static final String MAIN_MENU_FXML = "/eecs2311/group2/wh40k_easycombat/MainUI.fxml";
+    private static final double MAIN_MENU_MIN_SCENE_W = 800.0;
+    private static final double MAIN_MENU_MIN_SCENE_H = 600.0;
+    private static final double MAIN_MENU_PREF_SCENE_W = 1200.0;
+    private static final double MAIN_MENU_PREF_SCENE_H = 800.0;
 
     private FixedAspectView() {}
 
@@ -134,6 +139,17 @@ public final class FixedAspectView {
         showResponsive(stage, fxmlPath, minSceneW, minSceneH, prefSceneW, prefSceneH);
     }
 
+    public static void switchToMainMenu(Node eventSourceNode) throws IOException {
+        switchResponsiveTo(
+                eventSourceNode,
+                MAIN_MENU_FXML,
+                MAIN_MENU_MIN_SCENE_W,
+                MAIN_MENU_MIN_SCENE_H,
+                MAIN_MENU_PREF_SCENE_W,
+                MAIN_MENU_PREF_SCENE_H
+        );
+    }
+
     public static void showResponsive(Stage stage,
                                       String fxmlPath,
                                       double minSceneW,
@@ -160,6 +176,11 @@ public final class FixedAspectView {
         Object sceneToken = new Object();
         stage.getProperties().put(KEY_SCENE_TOKEN, sceneToken);
 
+        if (root instanceof Region region) {
+            region.setMinSize(minSceneW, minSceneH);
+            region.setPrefSize(prefSceneW, prefSceneH);
+        }
+
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setResizable(true);
@@ -184,6 +205,28 @@ public final class FixedAspectView {
                 fitResponsiveStageToScreen(stage, scene, minSceneW, minSceneH, prefSceneW, prefSceneH);
             }
         });
+    }
+
+    public static void showMainMenu(Stage stage, Parent root) {
+        showResponsive(
+                stage,
+                root,
+                MAIN_MENU_MIN_SCENE_W,
+                MAIN_MENU_MIN_SCENE_H,
+                MAIN_MENU_PREF_SCENE_W,
+                MAIN_MENU_PREF_SCENE_H
+        );
+    }
+
+    public static void showMainMenu(Stage stage) throws IOException {
+        showResponsive(
+                stage,
+                MAIN_MENU_FXML,
+                MAIN_MENU_MIN_SCENE_W,
+                MAIN_MENU_MIN_SCENE_H,
+                MAIN_MENU_PREF_SCENE_W,
+                MAIN_MENU_PREF_SCENE_H
+        );
     }
 
     private static Parent loadRoot(String fxmlPath) throws IOException {
