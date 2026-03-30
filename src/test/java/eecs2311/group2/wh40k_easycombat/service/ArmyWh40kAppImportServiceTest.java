@@ -89,6 +89,42 @@ class ArmyWh40kAppImportServiceTest {
         assertTrue(exception.getMessage().contains("WH40K App export"));
     }
 
+    @Test
+    @DisplayName("importArmyText prefers datasheet cost tiers over weapon counts when inferring model count")
+    void importArmyTextUsesCostTierToInferModelCount() throws Exception {
+        seedPistolSquadDatasheet();
+        StaticDataService.reloadFromSqlite();
+
+        String rawText = """
+                Pistol Army
+                Space Marines
+                Strike Force (1000 points)
+                Incursion
+                Gladius Task Force
+
+                OTHER
+
+                Pistol Squad (100 points)
+                10x Twin pistol
+                """;
+
+        ArmyWh40kAppImportService.ImportResult result = ArmyWh40kAppImportService.importArmyText(rawText, Map.of());
+
+        assertEquals(1, result.units().size());
+
+        ArmyUnitVM imported = result.units().getFirst();
+        assertEquals("Pistol Squad", imported.getUnitName());
+        assertEquals(5, imported.modelCountProperty().get());
+        assertEquals(
+                10,
+                imported.getWargears().stream()
+                        .filter(wargear -> "Twin pistol".equals(wargear.getName()))
+                        .findFirst()
+                        .orElseThrow()
+                        .getCount()
+        );
+    }
+
     private void seedIntercessorDatasheet() throws SQLException {
         Dao.update(
                 "INSERT INTO Datasheets (id, name, faction_id, source_id, legend, role, loadout, transport, virtual, leader_head, leader_footer, damaged_w, damaged_description, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -150,6 +186,72 @@ class ArmyWh40kAppImportServiceTest {
                 "INSERT INTO Datasheets_enhancements (datasheet_id, enhancement_id) VALUES (?, ?)",
                 "ds-intercessor",
                 "enh-1"
+        );
+    }
+
+    private void seedPistolSquadDatasheet() throws SQLException {
+        Dao.update(
+                "INSERT INTO Datasheets (id, name, faction_id, source_id, legend, role, loadout, transport, virtual, leader_head, leader_footer, damaged_w, damaged_description, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-pistol",
+                "Pistol Squad",
+                "space-marines",
+                "source-core",
+                "",
+                "Other",
+                "",
+                "",
+                0,
+                "",
+                "",
+                "",
+                "",
+                ""
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_models (datasheet_id, line, name, M, T, Sv, inv_sv, inv_sv_descr, W, Ld, OC, base_size, base_size_descr) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-pistol",
+                "1",
+                "Pistol Marine",
+                "6\"",
+                "4",
+                "3+",
+                "",
+                "",
+                "2",
+                "6+",
+                "1",
+                "",
+                ""
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_wargear (datasheet_id, line, line_in_wargear, dice, name, description, range, type, A, BS_WS, S, AP, D) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "ds-pistol",
+                "1",
+                "1",
+                "",
+                "Twin pistol",
+                "",
+                "12\"",
+                "Ranged",
+                "2",
+                "3+",
+                "4",
+                "0",
+                "1"
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_models_cost (datasheet_id, line, description, cost) VALUES (?, ?, ?, ?)",
+                "ds-pistol",
+                "1",
+                "5 models",
+                "100"
+        );
+        Dao.update(
+                "INSERT INTO Datasheets_models_cost (datasheet_id, line, description, cost) VALUES (?, ?, ?, ?)",
+                "ds-pistol",
+                "2",
+                "10 models",
+                "200"
         );
     }
 }

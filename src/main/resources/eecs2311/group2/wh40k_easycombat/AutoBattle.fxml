@@ -115,8 +115,8 @@
 
                         <VBox fx:id="blueFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="blueEligibleFightCheckBox" text="Selected Attacker unit is eligible to fight" />
-                                <CheckBox fx:id="blueChargedCheckBox" text="Selected Attacker unit charged this turn" />
+                                <CheckBox fx:id="blueEligibleFightCheckBox" styleClass="game-checkbox" text="Selected Attacker unit is eligible to fight" />
+                                <CheckBox fx:id="blueChargedCheckBox" styleClass="game-checkbox" text="Selected Attacker unit charged this turn" />
                                 <Label fx:id="blueExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>
@@ -290,8 +290,8 @@
 
                         <VBox fx:id="redFightBox" spacing="6.0">
                             <children>
-                                <CheckBox fx:id="redEligibleFightCheckBox" text="Selected Defender unit is eligible to fight" />
-                                <CheckBox fx:id="redChargedCheckBox" text="Selected Defender unit charged this turn" />
+                                <CheckBox fx:id="redEligibleFightCheckBox" styleClass="game-checkbox" text="Selected Defender unit is eligible to fight" />
+                                <CheckBox fx:id="redChargedCheckBox" styleClass="game-checkbox" text="Selected Defender unit charged this turn" />
                                 <Label fx:id="redExtraAttackLabel" text="Extra Attacks: none" wrapText="true" />
                             </children>
                         </VBox>

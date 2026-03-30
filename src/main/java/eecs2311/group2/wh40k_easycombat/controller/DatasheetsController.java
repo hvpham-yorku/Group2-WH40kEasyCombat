@@ -346,14 +346,7 @@ public class DatasheetsController implements Initializable {
     // When click "Back" button, return to the main menu page.
     @FXML
     void clickBackButton(MouseEvent event) throws IOException {
-    	FixedAspectView.switchResponsiveTo(
-    	        (Node) event.getSource(),
-    	        "/eecs2311/group2/wh40k_easycombat/MainUI.fxml",
-    	        800.0,
-    	        600.0,
-    	        1200.0,
-    	        800.0
-    	);
+    	FixedAspectView.switchToMainMenu((Node) event.getSource());
     }
 
     // When click "Search" button in the Core rule tab, search the core rule data and show matching text.
