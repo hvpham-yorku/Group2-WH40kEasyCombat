@@ -1,3 +1,18 @@
+//Comments:
+// Concrete implementation of Effect representing negative modifications.
+//
+// A Debuff weakens a unit or army by applying harmful changes such as:
+// - dealing damage to units
+// - applying battle shock (morale penalties)
+// - disabling actions during a phase
+// - reducing command points or victory points
+//
+// Similar to Buff, the behavior is controlled by the Tag, but instead of improving values, it applies negative effects.
+//
+// Debuff also contributes to combat calculations by producing negative modifiers, such as reducing hit chance or damage output.
+//
+// This class mirrors the structure of Buff but applies DECREASE operations, ensuring consistent design while handling the opposite behavior.
+
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
