@@ -4,6 +4,7 @@ import eecs2311.group2.wh40k_easycombat.util.AppPaths;
 import eecs2311.group2.wh40k_easycombat.util.SqlGenerator;
 import eecs2311.group2.wh40k_easycombat.util.JavaGenerator;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,6 +17,8 @@ import java.sql.Statement;
 import java.util.List;
 
 public final class Database {
+    private static final String BUNDLED_SCHEMA_RESOURCE = "sql/001_schema.sql";
+
     private static Path databasePath = AppPaths.getDatabasePath();
     private static String URL = buildSqliteUrl(databasePath);
 
@@ -58,11 +61,11 @@ public final class Database {
     public static void ensureSchema() throws SQLException {
         try (Connection conn = Database.getConnection();
              Statement st = conn.createStatement()) {
-            executeSqlStatements(st, SqlGenerator.generateFullSchema());
+            executeSqlStatements(st, loadBundledSchemaSql());
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {
-            throw new SQLException("Failed to generate application schema.", e);
+            throw new SQLException("Failed to initialize application schema.", e);
         }
     }
 
@@ -155,8 +158,37 @@ public final class Database {
         URL = buildSqliteUrl(databasePath);
     }
 
+    static void useDatabasePath(Path path) {
+        useDatabase(path);
+    }
+
     private static String buildSqliteUrl(Path path) {
         return "jdbc:sqlite:" + path.toAbsolutePath().normalize();
+    }
+
+    private static String loadBundledSchemaSql() throws IOException {
+        try (InputStream schemaStream = openBundledSchemaStream()) {
+            if (schemaStream == null) {
+                throw new IOException("Bundled schema resource not found: " + BUNDLED_SCHEMA_RESOURCE);
+            }
+
+            String schemaSql = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
+            if (schemaSql.isBlank()) {
+                throw new IOException("Bundled schema resource is empty: " + BUNDLED_SCHEMA_RESOURCE);
+            }
+
+            return schemaSql;
+        }
+    }
+
+    private static InputStream openBundledSchemaStream() throws IOException {
+        Module module = Database.class.getModule();
+        InputStream moduleStream = module.getResourceAsStream(BUNDLED_SCHEMA_RESOURCE);
+        if (moduleStream != null) {
+            return moduleStream;
+        }
+
+        return Database.class.getClassLoader().getResourceAsStream(BUNDLED_SCHEMA_RESOURCE);
     }
 
     private static void executeSqlStatements(Statement statement, String sql) throws SQLException {
