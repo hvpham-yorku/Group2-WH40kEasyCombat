@@ -33,6 +33,7 @@ public class MissionSessionService {
     private int redDrawsThisTurn = 0;
     private boolean blueAbandonCpGrantedThisTurn = false;
     private boolean redAbandonCpGrantedThisTurn = false;
+    private static final int MAX_TACTICAL_DRAWS_PER_TURN = 2;
 
     public static MissionSessionService getInstance() {
         return INSTANCE;
@@ -105,11 +106,13 @@ public class MissionSessionService {
                 && drawCountFor(player) > 0;
     }
 
+    
+
     public synchronized int drawCountFor(Player player) {
         if (modeFor(player) != SecondaryMissionMode.TACTICAL) {
             return 0;
         }
-        return Math.max(0, 2 - drawsThisTurn(player));
+        return Math.max(0, MAX_TACTICAL_DRAWS_PER_TURN - drawsThisTurn(player));
     }
 
     public synchronized List<MissionEntryVM> drawFor(Player player) {

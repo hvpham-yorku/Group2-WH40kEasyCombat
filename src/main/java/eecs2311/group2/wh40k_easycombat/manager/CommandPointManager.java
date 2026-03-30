@@ -45,4 +45,12 @@ public final class CommandPointManager {
         }
         return String.valueOf(result);
     }
+
+    public static int spendCpInt(int current, int cost) {
+    return Math.max(0, current - cost);
+}
+
+    public static boolean hasEnoughCpInt(int current, int cost) {
+        return current >= cost;
+    }
 }

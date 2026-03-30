@@ -140,17 +140,13 @@ public class EditorEffectRuntimeService {
 
     public synchronized List<EditorActiveEffect> activeEffectsForUnit(String unitId) {
         String normalizedId = safe(unitId);
-        if (normalizedId.isBlank()) {
+        if (normalizedId.isBlank()){
             return List.of();
         }
 
-        List<EditorActiveEffect> result = new ArrayList<>();
-        for (EditorActiveEffect effect : activeEffects) {
-            if (effect != null && normalizedId.equals(effect.targetUnitId())) {
-                result.add(effect);
-            }
-        }
-        return List.copyOf(result);
+        return activeEffects.stream()
+                .filter(e -> e != null && unitId.equals(e.targetUnitId()))
+                .toList();
     }
 
     public synchronized boolean isRuleActiveForAttack(
