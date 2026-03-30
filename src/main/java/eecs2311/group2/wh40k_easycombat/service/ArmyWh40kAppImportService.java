@@ -4,6 +4,8 @@ import eecs2311.group2.wh40k_easycombat.model.Datasheets;
 import eecs2311.group2.wh40k_easycombat.model.Datasheets_models;
 import eecs2311.group2.wh40k_easycombat.model.aggregate.DatasheetAggregate;
 import eecs2311.group2.wh40k_easycombat.repository.DatasheetsRepository;
+import eecs2311.group2.wh40k_easycombat.util.CostParser;
+import eecs2311.group2.wh40k_easycombat.util.CostTier;
 import eecs2311.group2.wh40k_easycombat.viewmodel.ArmyUnitVM;
 
 import java.text.Normalizer;
@@ -179,7 +181,7 @@ public final class ArmyWh40kAppImportService {
             Set<String> skippedItems,
             Set<String> warnings
     ) {
-        ParsedUnitDetails details = parseUnitDetails(bundle, unitBlock.lines());
+        ParsedUnitDetails details = parseUnitDetails(bundle, unitBlock.points(), unitBlock.lines());
 
         if (details.modelCount() > 0) {
             vm.setModelCount(details.modelCount());
@@ -225,6 +227,7 @@ public final class ArmyWh40kAppImportService {
 
     private static ParsedUnitDetails parseUnitDetails(
             DatasheetAggregate bundle,
+            int unitPoints,
             List<ParsedLine> lines
     ) {
         Map<String, Integer> wargearCounts = new LinkedHashMap<>();
@@ -283,16 +286,55 @@ public final class ArmyWh40kAppImportService {
             wargearDisplayNames.putIfAbsent(normalizedItemName, itemName);
         }
 
-        int modelCount;
-        if (matchedModelCount > 0) {
-            modelCount = matchedModelCount;
-        } else if (topLevelCountSum > 0) {
-            modelCount = topLevelCountSum;
-        } else {
-            modelCount = 0;
+        int textDerivedModelCount = matchedModelCount > 0 ? matchedModelCount : topLevelCountSum;
+        int modelCount = inferModelCountFromCost(bundle, unitPoints, textDerivedModelCount);
+        if (modelCount <= 0) {
+            modelCount = textDerivedModelCount;
         }
 
         return new ParsedUnitDetails(modelCount, wargearCounts, wargearDisplayNames, enhancementName, warlord);
+    }
+
+    private static int inferModelCountFromCost(
+            DatasheetAggregate bundle,
+            int unitPoints,
+            int textDerivedModelCount
+    ) {
+        if (bundle == null || unitPoints <= 0) {
+            return 0;
+        }
+
+        List<CostTier> tiers = CostParser.parseTiers(bundle.costs);
+        if (tiers.isEmpty()) {
+            return 0;
+        }
+
+        List<CostTier> exactMatches = tiers.stream()
+                .filter(tier -> tier.points() == unitPoints)
+                .sorted((left, right) -> Integer.compare(left.models(), right.models()))
+                .toList();
+
+        if (exactMatches.isEmpty()) {
+            return 0;
+        }
+
+        if (exactMatches.size() == 1 || textDerivedModelCount <= 0) {
+            return exactMatches.getFirst().models();
+        }
+
+        CostTier closest = exactMatches.getFirst();
+        int closestDistance = Math.abs(closest.models() - textDerivedModelCount);
+
+        for (int i = 1; i < exactMatches.size(); i++) {
+            CostTier candidate = exactMatches.get(i);
+            int candidateDistance = Math.abs(candidate.models() - textDerivedModelCount);
+            if (candidateDistance < closestDistance) {
+                closest = candidate;
+                closestDistance = candidateDistance;
+            }
+        }
+
+        return closest.models();
     }
 
     private static int countLeadingSpaces(String rawLine) {
