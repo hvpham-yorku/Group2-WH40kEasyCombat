@@ -1,3 +1,23 @@
+//Comments:
+// Concrete implementation of Effect representing positive modifications.
+//
+// A Buff improves the state of a unit or army by applying beneficial changes such as:
+// - healing units
+// - restoring morale (removing battle shock)
+// - enabling units to act in a phase
+// - increasing command points or victory points
+//
+// The logic is driven by the Tag, which determines what aspect is modified.
+// For example:
+// - HEALTH → heals the unit
+// - MORALE → removes battle shock
+// - UTILITY → enables actions or adds resources
+//
+// Additionally, Buff can translate its effects into combat-related modifiers
+// (e.g hit roll bonuses, extra damage, rerolls), which are used during attack resolution.
+//
+// This class focuses only on positive changes and uses INCREASE operations defined in EffectFeatures.
+
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
