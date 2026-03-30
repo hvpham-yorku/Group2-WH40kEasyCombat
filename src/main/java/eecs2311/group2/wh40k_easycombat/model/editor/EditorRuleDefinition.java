@@ -110,12 +110,27 @@ public class EditorRuleDefinition {
     }
 
     public String displayName() {
-        String baseName = name == null || name.isBlank() ? "Untitled Rule" : name.trim();
-        String modeLabel = safe(triggeringStratagemNameContains).isBlank()
-                ? (optionalActivation ? "Optional" : "Passive")
-                : "Triggered";
-        String enabledLabel = enabled ? "" : " (Disabled)";
-        return "[" + modeLabel + "] " + baseName + enabledLabel;
+        StringBuilder sb = new StringBuilder(50);
+        sb.append("[");
+
+        if (!safe(triggeringStratagemNameContains).isBlank()) {
+            sb.append("Triggered");
+        } else {
+            sb.append(optionalActivation ? "Optional" : "Passive");
+        }
+        sb.append("] ");
+
+        if (name == null || name.isBlank()) {
+            sb.append("Untitled Rule");
+        } else {
+            sb.append(name.trim());
+        }
+
+        if (!enabled) {
+            sb.append(" (Disabled)");
+        }
+
+        return sb.toString();
     }
 
     public String vmRuleName() {
