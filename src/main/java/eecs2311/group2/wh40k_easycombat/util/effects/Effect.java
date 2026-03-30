@@ -1,22 +1,19 @@
 //Comments:
 // Abstract base class that defines the core structure of all effects in the system.
 //
-// This class acts as a template for any effect (buff or debuff) that can be applied
-// to either a UnitInstance or an ArmyInstance. It centralizes all shared data such as:
+// This class acts as a template for any effect (buff or debuff) that can be applied to either a UnitInstance or an ArmyInstance. It centralizes all shared data such as:
 // - the effect name (for identification)
 // - the effect type (category of effect)
 // - the EffectFeatures object (which describes what the effect modifies and how)
 //
-// The class enforces a consistent interface through abstract apply() methods,
-// which are implemented differently by subclasses (Buff and Debuff).
+// The class enforces a consistent interface through abstract apply() methods, which are implemented differently by subclasses (Buff and Debuff).
 //
 // It also provides reusable helper logic for common operations such as:
 // - distributing damage across models in a unit
 // - healing models within a unit
 // - checking whether an effect applies to a specific weapon
 //
-// This design allows new types of effects to be added easily by extending this class
-// without modifying existing logic (follows open/closed principle).
+// This design allows new types of effects to be added easily by extending this class without modifying existing logic (follows open/closed principle).
 
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
