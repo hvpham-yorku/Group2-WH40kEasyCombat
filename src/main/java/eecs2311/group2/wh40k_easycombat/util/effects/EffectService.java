@@ -1,3 +1,22 @@
+//Comments:
+// Service class that manages the application and aggregation of effects.
+//
+// This class acts as the main controller for effect-related operations, separating execution logic from the Effect classes themselves.
+//
+// Responsibilities include:
+// - applying a single effect to a unit or army
+// - applying multiple effects in sequence
+// - decoding and applying effects from raw input
+// - combining multiple effects into final combat modifiers
+//
+// The resolveAttackModifiers method is especially important, as it:
+// - aggregates all modifiers (hit, wound, damage, AP)
+// - determines the strongest reroll rules
+// - merges keyword effects
+// - tracks applied rules and errors
+//
+// This design ensures that effect logic is centralized, reusable, and easy to maintain without duplicating code across the system.
+
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
 import eecs2311.group2.wh40k_easycombat.model.editor.EditorRerollType;
