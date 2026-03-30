@@ -1,3 +1,17 @@
+//Comments:
+// Encapsulates all configurable properties of an effect in a single object.
+//
+// Instead of spreading effect-related data across multiple classes,
+// this class groups together the key attributes that define how an effect behaves:
+// - Tag: what aspect of the game is affected (e.g., HEALTH, HIT_ROLL)
+// - OperationType: how the value changes (INCREASE, DECREASE, SET)
+// - Value: magnitude of the effect
+// - Weapon name (optional): restricts the effect to a specific weapon
+// - Keyword text (optional): used for adding special rules or abilities
+//
+// This abstraction separates "what an effect is" from "how it is applied",
+// making the system more modular and easier to extend or modify.
+
 package eecs2311.group2.wh40k_easycombat.util.effects;
 
 public class EffectFeatures {
